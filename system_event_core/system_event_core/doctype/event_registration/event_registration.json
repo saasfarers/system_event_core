@@ -2,26 +2,370 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
+ "autoname": "naming_series:",
  "creation": "2026-05-05 22:47:41.358781",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "hi"
+  "naming_series",
+  "registration_id",
+  "section_break_basic",
+  "event",
+  "registration_date",
+  "registration_status",
+  "section_break_registrant",
+  "member",
+  "full_name",
+  "email",
+  "phone",
+  "column_break_registrant",
+  "age",
+  "date_of_birth",
+  "gender",
+  "address",
+  "section_break_registration",
+  "number_of_attendees",
+  "registration_type",
+  "special_requirements",
+  "column_break_registration",
+  "emergency_contact_name",
+  "emergency_contact_phone",
+  "section_break_payment",
+  "fee_amount",
+  "payment_status",
+  "payment_reference",
+  "section_break_admin",
+  "registered_by",
+  "approved_by",
+  "approval_date",
+  "column_break_admin",
+  "remarks"
  ],
  "fields": [
   {
-   "fieldname": "hi",
+   "default": "REG-.YYYY.-",
+   "description": "Auto naming series for Registration ID",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series",
+   "no_copy": 1,
+   "options": "REG-.YYYY.-",
+   "print_hide": 1,
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "description": "Auto-generated unique registration ID",
+   "fieldname": "registration_id",
    "fieldtype": "Data",
-   "label": "hi"
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Registration ID",
+   "length": 140,
+   "no_copy": 1,
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "section_break_basic",
+   "fieldtype": "Section Break",
+   "label": "Basic Information"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "description": "Select the event for registration",
+   "fieldname": "event",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Event",
+   "options": "Event",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "description": "Date when registration was created",
+   "fieldname": "registration_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Registration Date",
+   "no_copy": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "default": "Pending",
+   "description": "Current status of registration",
+   "fieldname": "registration_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Registration Status",
+   "options": "Pending\nConfirmed\nCancelled\nWait listed\nAttended",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_registrant",
+   "fieldtype": "Section Break",
+   "label": "Registrant Details"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Link to member if registered member",
+   "fieldname": "member",
+   "fieldtype": "Small Text",
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "is_virtual": 1,
+   "label": "Member",
+   "options": "Members",
+   "read_only": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "description": "Full name of the registrant",
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Full Name",
+   "length": 140,
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Email address",
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Email",
+   "length": 140,
+   "options": "Email",
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Contact phone number",
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Phone",
+   "length": 15,
+   "options": "Phone",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_registrant",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Age in years",
+   "fieldname": "age",
+   "fieldtype": "Int",
+   "in_preview": 1,
+   "label": "Age"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Date of birth",
+   "fieldname": "date_of_birth",
+   "fieldtype": "Date",
+   "in_preview": 1,
+   "label": "Date of Birth"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Gender of registrant",
+   "fieldname": "gender",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Gender",
+   "options": "Male\nFemale",
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Full residential address",
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "in_preview": 1,
+   "label": "Address"
+  },
+  {
+   "fieldname": "section_break_registration",
+   "fieldtype": "Section Break",
+   "label": "Registration Details"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "default": "1",
+   "description": "Total number of attendees",
+   "fieldname": "number_of_attendees",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Number of Attendees",
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "default": "Individual",
+   "description": "Type of registration ",
+   "fieldname": "registration_type",
+   "fieldtype": "Select",
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Registration Type",
+   "options": "Individual\nFamily\nGroup",
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Any dietary, accessibility or special needs",
+   "fieldname": "special_requirements",
+   "fieldtype": "Small Text",
+   "in_preview": 1,
+   "label": "Special Requirements"
+  },
+  {
+   "fieldname": "column_break_registration",
+   "fieldtype": "Column Break",
+   "label": "Column Break"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Emergency contact person name",
+   "fieldname": "emergency_contact_name",
+   "fieldtype": "Data",
+   "in_preview": 1,
+   "label": "Emergency Contact Name",
+   "length": 140
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Emergency contact phone",
+   "fieldname": "emergency_contact_phone",
+   "fieldtype": "Data",
+   "in_preview": 1,
+   "label": "Emergency Contact Phone",
+   "length": 15,
+   "options": "Phone"
+  },
+  {
+   "fieldname": "section_break_payment",
+   "fieldtype": "Section Break",
+   "label": "Payment Link"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Registration fee amount",
+   "fieldname": "fee_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Fee Amount"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "default": "Unpaid",
+   "description": "Payment status",
+   "fieldname": "payment_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Payment Status",
+   "options": "Unpaid\nPartially Paid\nPaid\nWaived",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.payment_status in ['Partially Paid', 'Paid']",
+   "description": "Link to fee payment record",
+   "fieldname": "payment_reference",
+   "fieldtype": "Small Text",
+   "in_preview": 1,
+   "label": "Payment Reference",
+   "options": "Fees"
+  },
+  {
+   "fieldname": "section_break_admin",
+   "fieldtype": "Section Break",
+   "label": "Admin"
+  },
+  {
+   "description": "User who created this registration",
+   "fieldname": "registered_by",
+   "fieldtype": "Small Text",
+   "in_preview": 1,
+   "label": "Registered By",
+   "no_copy": 1,
+   "options": "User",
+   "print_hide": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.registration_status == 'Confirmed'",
+   "description": "User who approved the registration",
+   "fieldname": "approved_by",
+   "fieldtype": "Small Text",
+   "in_preview": 1,
+   "label": "Approved By",
+   "no_copy": 1,
+   "options": "User",
+   "print_hide": 1
+  },
+  {
+   "depends_on": "eval:doc.registration_status == 'Confirmed'",
+   "description": "Date of approval",
+   "fieldname": "approval_date",
+   "fieldtype": "Date",
+   "in_preview": 1,
+   "label": "Approval Date",
+   "no_copy": 1,
+   "print_hide": 1
+  },
+  {
+   "fieldname": "column_break_admin",
+   "fieldtype": "Column Break",
+   "label": "Column Break"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Additional notes or comments",
+   "fieldname": "remarks",
+   "fieldtype": "Text",
+   "in_preview": 1,
+   "label": "Remarks"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-05 23:10:28.237743",
+ "modified": "2026-05-06 12:27:37.402689",
  "modified_by": "Administrator",
  "module": "System Event Core",
  "name": "Event Registration",
+ "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
