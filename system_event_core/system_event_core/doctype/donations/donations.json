@@ -2,25 +2,383 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
+ "autoname": "naming_series:",
  "creation": "2026-05-05 22:47:27.838043",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "section_break_ohwg"
+  "naming_series",
+  "donation_id",
+  "section_break_basic",
+  "donation_date",
+  "donation_type",
+  "event",
+  "section_break_donor",
+  "member",
+  "donor_name",
+  "donor_email",
+  "donor_phone",
+  "column_break_donor",
+  "anonymous_donation",
+  "section_break_donation",
+  "amount",
+  "currency",
+  "payment_mode",
+  "payment_reference",
+  "column_break_donation",
+  "payment_date",
+  "receipt_number",
+  "section_break_purpose",
+  "purpose_category",
+  "mosque",
+  "column_break_purpose",
+  "recurring_donation",
+  "frequency",
+  "section_break_admin",
+  "received_by",
+  "verified_by",
+  "receipt_issued",
+  "column_break_admin",
+  "tax_exemption_eligible",
+  "remarks"
  ],
  "fields": [
   {
-   "fieldname": "section_break_ohwg",
-   "fieldtype": "Section Break"
+   "default": "DON-.YYYY.-",
+   "description": "Auto naming series for Donation ID",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series",
+   "no_copy": 1,
+   "options": "DON-.YYYY.-",
+   "print_hide": 1,
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "description": "Auto-generated unique donation ID",
+   "fieldname": "donation_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Donation ID",
+   "length": 140,
+   "no_copy": 1,
+   "read_only": 1,
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "section_break_basic",
+   "fieldtype": "Section Break",
+   "label": "Basic Information"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "default": "Today",
+   "description": "Date of donation",
+   "fieldname": "donation_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Donation Date",
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "default": "General",
+   "description": "Type of donation",
+   "fieldname": "donation_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Donation Type",
+   "options": "Zakat\nSadaqah\nGeneral\nEvent-Specific\nConstruction Fund\nOrphan Support\nEducation Fund\nRamadan Fund\nQurbani\nOther",
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "depends_on": "eval:doc.donation_type == 'Event-Specific'",
+   "description": "Link to event if event-specific donation",
+   "fieldname": "event",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Event",
+   "mandatory_depends_on": "eval:doc.donation_type == 'Event-Specific'",
+   "options": "Event"
+  },
+  {
+   "fieldname": "section_break_donor",
+   "fieldtype": "Section Break",
+   "label": "Donor Details"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Link to member if registered member",
+   "fieldname": "member",
+   "fieldtype": "Small Text",
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Member",
+   "options": "Members"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "description": "Name of the donor",
+   "fieldname": "donor_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Donor Name",
+   "length": 140,
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Email address of donor",
+   "fieldname": "donor_email",
+   "fieldtype": "Data",
+   "in_preview": 1,
+   "label": "Donor Email",
+   "length": 140,
+   "options": "Email"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Phone number of donor",
+   "fieldname": "donor_phone",
+   "fieldtype": "Data",
+   "in_preview": 1,
+   "label": "Donor Phone",
+   "length": 15,
+   "options": "Phone"
+  },
+  {
+   "fieldname": "column_break_donor",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "default": "0",
+   "description": "Check if donor wants to remain anonymous",
+   "fieldname": "anonymous_donation",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Anonymous Donation"
+  },
+  {
+   "fieldname": "section_break_donation",
+   "fieldtype": "Section Break",
+   "label": "Donation Details"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "description": "Donation amount",
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Amount",
+   "precision": "2",
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "default": "INR",
+   "description": "Currency of donation",
+   "fieldname": "currency",
+   "fieldtype": "Small Text",
+   "in_preview": 1,
+   "label": "Currency",
+   "options": "Currency",
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "default": "Cash",
+   "description": "Mode of payment",
+   "fieldname": "payment_mode",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Payment Mode",
+   "options": "Cash\nCard\nUPI\nBank Transfer\nCheque\nOnline",
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Transaction ID or reference number",
+   "fieldname": "payment_reference",
+   "fieldtype": "Data",
+   "in_preview": 1,
+   "label": "Payment Reference",
+   "length": 140
+  },
+  {
+   "fieldname": "column_break_donation",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "default": "Today",
+   "description": "Date of payment",
+   "fieldname": "payment_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Payment Date",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "description": "Auto-generated receipt number",
+   "fieldname": "receipt_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Receipt Number",
+   "length": 140,
+   "no_copy": 1,
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "section_break_purpose",
+   "fieldtype": "Section Break",
+   "label": "Purpose"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Specific purpose or category for donation",
+   "fieldname": "purpose_category",
+   "fieldtype": "Small Text",
+   "in_preview": 1,
+   "label": "Purpose Category"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "description": "Which mosque this donation is for",
+   "fieldname": "mosque",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Mosque ",
+   "options": "Organization",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_purpose",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "default": "0",
+   "description": "Check if this is a recurring donation",
+   "fieldname": "recurring_donation",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Recurring Donation"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "depends_on": "eval:doc.recurring_donation == 1",
+   "description": "Frequency of recurring donation",
+   "fieldname": "frequency",
+   "fieldtype": "Select",
+   "in_preview": 1,
+   "label": "Frequency",
+   "mandatory_depends_on": "eval:doc.recurring_donation == 1",
+   "options": "Monthly\nQuarterly\nYearly"
+  },
+  {
+   "fieldname": "section_break_admin",
+   "fieldtype": "Section Break",
+   "label": "Admin"
+  },
+  {
+   "description": "User who received the donation",
+   "fieldname": "received_by",
+   "fieldtype": "Small Text",
+   "in_preview": 1,
+   "label": "Received By",
+   "no_copy": 1,
+   "options": "User",
+   "print_hide": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "description": "User who verified the donation",
+   "fieldname": "verified_by",
+   "fieldtype": "Small Text",
+   "in_preview": 1,
+   "label": "Verified By",
+   "no_copy": 1,
+   "options": "User",
+   "print_hide": 1
+  },
+  {
+   "default": "0",
+   "description": "Check if receipt has been issued",
+   "fieldname": "receipt_issued",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Receipt Issued",
+   "print_hide": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "column_break_admin",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "default": "0",
+   "description": "Check if eligible for 80G tax exemption",
+   "fieldname": "tax_exemption_eligible",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Tax Exemption Eligible",
+   "print_hide": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Additional notes or comments",
+   "fieldname": "remarks",
+   "fieldtype": "Text",
+   "in_preview": 1,
+   "label": "Remarks"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-05 23:10:41.546291",
+ "modified": "2026-05-07 08:06:21.944941",
  "modified_by": "Administrator",
  "module": "System Event Core",
  "name": "Donations",
+ "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
