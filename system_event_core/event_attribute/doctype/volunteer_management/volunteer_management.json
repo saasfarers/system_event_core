@@ -1,0 +1,383 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-05-04 21:53:23.854525",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "volunteer_id",
+  "section_break_basic",
+  "event",
+  "volunteer_assignment_date",
+  "assignment_status",
+  "section_break_volunteer",
+  "member",
+  "volunteer_name",
+  "email",
+  "phone",
+  "column_break_ytgd",
+  "age",
+  "gender",
+  "section_break_assignment",
+  "role_responsibility",
+  "task_description",
+  "shift_start_time",
+  "shift_end_time",
+  "column_break_sugj",
+  "total_hours",
+  "section_break_skills",
+  "skills",
+  "previous_volunteer_experience",
+  "column_break_tupm",
+  "availability",
+  "section_break_admin",
+  "assigned_by",
+  "mosque",
+  "attendance_marked",
+  "column_break_jqvp",
+  "performance_rating",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "default": "VOL-.YYYY.-",
+   "description": "Auto naming series for Volunteer ID",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series",
+   "no_copy": 1,
+   "options": "VOL-.YYYY.-",
+   "print_hide": 1,
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "description": "Auto-generated unique volunteer ID",
+   "fieldname": "volunteer_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Volunteer ID",
+   "length": 140,
+   "no_copy": 1,
+   "read_only": 1,
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "section_break_basic",
+   "fieldtype": "Section Break",
+   "label": "Basic Information"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "description": "Event for volunteer assignment",
+   "fieldname": "event",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Event",
+   "length": 140,
+   "options": "Event",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "description": "Date of assignment",
+   "fieldname": "volunteer_assignment_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Volunteer Assignment Date",
+   "no_copy": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "default": "Assigned",
+   "description": "Status of assignment",
+   "fieldname": "assignment_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Assignment Status",
+   "options": "Assigned\nConfirmed\nCompleted\nCancelled\nNo-Show",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_volunteer",
+   "fieldtype": "Section Break",
+   "label": "Volunteer Details"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Link to member if registered member",
+   "fieldname": "member",
+   "fieldtype": "Data",
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Member",
+   "length": 140
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "description": "Name of volunteer",
+   "fieldname": "volunteer_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Volunteer Name",
+   "length": 140,
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Email address",
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Email",
+   "length": 140,
+   "options": "Email",
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Phone number",
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Phone",
+   "length": 15,
+   "options": "Phone",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_ytgd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Age of volunteer",
+   "fieldname": "age",
+   "fieldtype": "Int",
+   "in_preview": 1,
+   "label": "Age"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Gender",
+   "fieldname": "gender",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Gender",
+   "options": "Male\nFemale",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_assignment",
+   "fieldtype": "Section Break",
+   "label": "Assignment"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "description": "Role assigned to volunteer",
+   "fieldname": "role_responsibility",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Role Responsibility",
+   "options": "Event Coordinator\nPrayer Leader\nSecurity\nParking\nRegistration Desk\nFood Service\nCleaning\nTechnical Support\nFirst Aid\nChildren Care\nOther",
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Detailed task description",
+   "fieldname": "task_description",
+   "fieldtype": "Small Text",
+   "in_preview": 1,
+   "label": "Task Description"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Shift start date and time",
+   "fieldname": "shift_start_time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Shift Start Time",
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Shift end date and time",
+   "fieldname": "shift_end_time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Shift End Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_sugj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "description": "Calculated total hours (End - Start)",
+   "fieldname": "total_hours",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Total Hours",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_skills",
+   "fieldtype": "Section Break",
+   "label": "Skills & Availability"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Skills and certifications",
+   "fieldname": "skills",
+   "fieldtype": "Small Text",
+   "in_preview": 1,
+   "label": "Skills"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "default": "0",
+   "description": "Has previous volunteer experience",
+   "fieldname": "previous_volunteer_experience",
+   "fieldtype": "Check",
+   "in_preview": 1,
+   "label": "Previous Volunteer Experience"
+  },
+  {
+   "fieldname": "column_break_tupm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Availability preference",
+   "fieldname": "availability",
+   "fieldtype": "Select",
+   "in_preview": 1,
+   "label": "Availability",
+   "options": "Full Day\nMorning\nEvening\nWeekend Only"
+  },
+  {
+   "fieldname": "section_break_admin",
+   "fieldtype": "Section Break",
+   "label": "Admin"
+  },
+  {
+   "description": "User who assigned volunteer",
+   "fieldname": "assigned_by",
+   "fieldtype": "Small Text",
+   "in_preview": 1,
+   "label": "Assigned By",
+   "length": 140,
+   "options": "User",
+   "print_hide": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Mosque where volunteer is assigned",
+   "fieldname": "mosque",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Mosque",
+   "options": "Organization",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "description": "Check if attendance marked",
+   "fieldname": "attendance_marked",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Attendance Marked",
+   "print_hide": 1
+  },
+  {
+   "fieldname": "column_break_jqvp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.assignment_status == 'Completed'",
+   "description": "Performance rating after completion",
+   "fieldname": "performance_rating",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Performance Rating",
+   "options": "Excellent\nGood\nAverage\nNeeds Improvement",
+   "print_hide": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "description": "Additional notes",
+   "fieldname": "remarks",
+   "fieldtype": "Text",
+   "in_preview": 1,
+   "label": "Remarks"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-05-05 21:07:17.752821",
+ "modified_by": "Administrator",
+ "module": "Event Attribute",
+ "name": "Volunteer Management",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
