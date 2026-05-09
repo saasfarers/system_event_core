@@ -376,7 +376,7 @@
  "links": [],
  "modified": "2026-05-07 08:06:21.944941",
  "modified_by": "Administrator",
- "module": "System Event Core",
+ "module": "Event Attribute",
  "name": "Donations",
  "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",

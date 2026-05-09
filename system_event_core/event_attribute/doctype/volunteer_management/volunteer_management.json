@@ -357,7 +357,7 @@
  "links": [],
  "modified": "2026-05-05 21:07:17.752821",
  "modified_by": "Administrator",
- "module": "System Event Core",
+ "module": "Event Attribute",
  "name": "Volunteer Management",
  "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",

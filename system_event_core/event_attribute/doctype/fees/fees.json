@@ -419,7 +419,7 @@
  "links": [],
  "modified": "2026-05-06 20:23:20.007648",
  "modified_by": "Administrator",
- "module": "System Event Core",
+ "module": "Event Attribute",
  "name": "Fees",
  "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
