@@ -1,3 +1,7 @@
 System Event Core
 Event Attribute
+<<<<<<< Updated upstream
 Bookings
+=======
+Event
+>>>>>>> Stashed changes
