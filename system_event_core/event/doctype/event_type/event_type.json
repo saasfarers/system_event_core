@@ -1,27 +1,30 @@
 {
  "actions": [],
- "allow_bulk_edit": 1,
  "allow_rename": 1,
  "creation": "2026-05-10 23:57:37.839793",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "event_type_name",
-  "event_code",
   "event_category",
-  "institution_category",
-  "supports_recurrence",
-  "supports_attendance",
-  "supports_donations",
-  "supports_fees",
-  "supports_volunteers",
-  "supports_inventory",
-  "supports_booking",
-  "supports_travel",
-  "requires_approval",
   "default_workflow",
+  "column_break_sysp",
+  "event_code",
+  "institution_category",
   "description",
-  "is_active"
+  "section_break_azdx",
+  "is_active",
+  "supports_attendance",
+  "supports_recurrence",
+  "requires_approval",
+  "column_break_lehz",
+  "supports_donations",
+  "supports_booking",
+  "supports_volunteers",
+  "column_break_egft",
+  "supports_travel",
+  "supports_fees",
+  "supports_inventory"
  ],
  "fields": [
   {
@@ -34,7 +37,8 @@
   {
    "fieldname": "event_code",
    "fieldtype": "Data",
-   "label": "Event Code"
+   "label": "Event Code",
+   "reqd": 1
   },
   {
    "fieldname": "event_category",
@@ -115,8 +119,9 @@
   },
   {
    "fieldname": "default_workflow",
-   "fieldtype": "Data",
-   "label": "Default Workflow"
+   "fieldtype": "Link",
+   "label": "Default Workflow",
+   "options": "Workflow"
   },
   {
    "fieldname": "description",
@@ -129,15 +134,31 @@
    "fieldtype": "Check",
    "label": "Is Active",
    "reqd": 1
+  },
+  {
+   "fieldname": "column_break_sysp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_azdx",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_lehz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_egft",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-11 00:02:49.911662",
+ "modified": "2026-05-18 23:32:26.455988",
  "modified_by": "Administrator",
  "module": "Event",
- "name": "EVENT TYPE",
+ "name": "Event Type",
  "owner": "Administrator",
  "permissions": [
   {

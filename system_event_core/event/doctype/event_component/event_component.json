@@ -1,37 +1,53 @@
 {
  "actions": [],
- "allow_bulk_edit": 1,
  "allow_rename": 1,
+ "autoname": "autoincrement",
  "creation": "2026-05-11 00:03:01.836029",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "component_name",
-  "component_code",
   "component_type",
-  "is_financial",
-  "supports_timeline",
-  "supports_reminders",
-  "supports_variance",
-  "requires_approval",
+  "column_break_suiq",
+  "component_code",
   "description",
-  "is_active"
+  "section_break_urpu",
+  "supports_timeline",
+  "column_break_nree",
+  "supports_reminders",
+  "column_break_tano",
+  "supports_variance",
+  "section_break_xgxf",
+  "is_financial",
+  "column_break_ybio",
+  "is_active",
+  "column_break_ddlh",
+  "requires_approval"
  ],
  "fields": [
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "component_name",
    "fieldtype": "Data",
-   "label": "Component Name"
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Component Name",
+   "reqd": 1
   },
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "component_code",
    "fieldtype": "Data",
-   "label": "Component Code"
+   "label": "Component Code",
+   "reqd": 1
   },
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "component_type",
    "fieldtype": "Select",
-   "label": "Component Type"
+   "label": "Component Type",
+   "options": "Religious\nPrayer\nEducational\nCommunity\nVolunteer\nFinancial\nDonation\nBooking\nAttendance\nInventory\nTravel\nMedia\nFood\nSecurity\nAdministration\nFundraising\nCeremony\nYouth Program\nWomen Program\nChildren Program\nHealth Camp\nFuneral Service\nNikah Service\nRamadan Activity\nHajj Support\nOther",
+   "reqd": 1
   },
   {
    "default": "0",
@@ -69,19 +85,48 @@
    "label": "Description"
   },
   {
-   "default": "0",
+   "default": "1",
    "fieldname": "is_active",
    "fieldtype": "Check",
    "label": "Is Active"
+  },
+  {
+   "fieldname": "column_break_suiq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_urpu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_nree",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_tano",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_xgxf",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_ybio",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ddlh",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-11 00:05:54.948033",
+ "modified": "2026-05-18 23:12:32.677623",
  "modified_by": "Administrator",
  "module": "Event",
- "name": "EVENT COMPONENT",
+ "name": "Event Component",
+ "naming_rule": "Autoincrement",
  "owner": "Administrator",
  "permissions": [
   {
@@ -97,9 +142,12 @@
    "write": 1
   }
  ],
+ "quick_entry": 1,
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
+ "show_title_field_in_link": 1,
  "sort_field": "creation",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "component_name"
 }

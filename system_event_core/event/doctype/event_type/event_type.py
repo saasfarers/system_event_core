@@ -14,10 +14,10 @@ class EVENTTYPE(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-		default_workflow: DF.Data | None
+		default_workflow: DF.Link | None
 		description: DF.SmallText | None
 		event_category: DF.Data
-		event_code: DF.Data | None
+		event_code: DF.Data
 		event_type_name: DF.Data
 		institution_category: DF.Data
 		is_active: DF.Check
