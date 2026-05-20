@@ -14,7 +14,11 @@ class EventInvitation(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-
+		invitation_channel: DF.Literal[None]
+		invitee: DF.Data | None
+		reminder_count: DF.Int
+		rsvp_status: DF.Literal[None]
+		sent_on: DF.Datetime | None
 	# end: auto-generated types
 
 	pass

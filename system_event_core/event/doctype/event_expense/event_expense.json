@@ -2,21 +2,101 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
- "creation": "2026-05-16 17:07:28.491129",
+ "creation": "2026-05-19 21:55:20.352420",
  "doctype": "DocType",
- "editable_grid": 1,
  "engine": "InnoDB",
- "field_order": [],
- "fields": [],
+ "field_order": [
+  "expense_name",
+  "event",
+  "expense_category",
+  "vendor",
+  "amount",
+  "payment_method",
+  "reference_id",
+  "expense_date",
+  "approved_by",
+  "linked_advance",
+  "status"
+ ],
+ "fields": [
+  {
+   "fieldname": "expense_name",
+   "fieldtype": "Autocomplete",
+   "label": "Expense ID"
+  },
+  {
+   "fieldname": "event",
+   "fieldtype": "Data",
+   "label": "Event"
+  },
+  {
+   "fieldname": "expense_category",
+   "fieldtype": "Data",
+   "label": "Expense Category"
+  },
+  {
+   "fieldname": "vendor",
+   "fieldtype": "Data",
+   "label": "Vendor"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Amount"
+  },
+  {
+   "fieldname": "payment_method",
+   "fieldtype": "Select",
+   "label": "Payment Method"
+  },
+  {
+   "fieldname": "reference_id",
+   "fieldtype": "Data",
+   "label": "Reference ID"
+  },
+  {
+   "fieldname": "expense_date",
+   "fieldtype": "Date",
+   "label": "Expense Date"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Data",
+   "label": "Approved By"
+  },
+  {
+   "fieldname": "linked_advance",
+   "fieldtype": "Data",
+   "label": "Linked Advance"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status"
+  }
+ ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-16 17:07:28.491129",
+ "modified": "2026-05-19 22:11:19.585135",
  "modified_by": "Administrator",
  "module": "Event",
  "name": "Event Expense",
  "owner": "Administrator",
- "permissions": [],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
  "sort_field": "creation",

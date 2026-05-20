@@ -14,7 +14,12 @@ class EventFundAllocation(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-
+		allocated_amount: DF.Currency
+		event: DF.Data | None
+		fund: DF.Data | None
+		remaining_balance: DF.Currency
+		restriction_type: DF.Literal[None]
+		utilized_amount: DF.Currency
 	# end: auto-generated types
 
 	pass

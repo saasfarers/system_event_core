@@ -14,7 +14,14 @@ class EventAttendance(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-
+		attendance_status: DF.Literal["Present", "Absent"]
+		attendance_type: DF.Data | None
+		capture_mode: DF.Literal["Manual", "QR", "RFID", "Biometric", "Mobile App"]
+		captured_by: DF.Data | None
+		check_in_time: DF.Datetime | None
+		check_out_time: DF.Datetime | None
+		event: DF.Data | None
+		participant: DF.Data | None
 	# end: auto-generated types
 
 	pass

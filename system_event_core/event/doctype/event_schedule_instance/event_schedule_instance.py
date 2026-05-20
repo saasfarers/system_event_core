@@ -14,7 +14,11 @@ class EventScheduleInstance(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-
+		end_time: DF.Time | None
+		instance_date: DF.Date | None
+		parent_event: DF.Data | None
+		start_time: DF.Time | None
+		status: DF.Literal[None]
 	# end: auto-generated types
 
 	pass

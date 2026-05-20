@@ -2,21 +2,89 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
- "creation": "2026-05-16 17:07:28.382110",
+ "creation": "2026-05-19 08:08:03.626718",
  "doctype": "DocType",
- "editable_grid": 1,
  "engine": "InnoDB",
- "field_order": [],
- "fields": [],
+ "field_order": [
+  "participant",
+  "family",
+  "participant_type",
+  "rsvp_status",
+  "registration_status",
+  "attendance_status",
+  "check_in_time",
+  "check_out_time",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "participant",
+   "fieldtype": "Data",
+   "label": "Participant"
+  },
+  {
+   "fieldname": "family",
+   "fieldtype": "Data",
+   "label": "Family"
+  },
+  {
+   "fieldname": "participant_type",
+   "fieldtype": "Select",
+   "label": "Participant Type"
+  },
+  {
+   "fieldname": "rsvp_status",
+   "fieldtype": "Select",
+   "label": "RSVP Status"
+  },
+  {
+   "fieldname": "registration_status",
+   "fieldtype": "Select",
+   "label": "Registration Status"
+  },
+  {
+   "fieldname": "attendance_status",
+   "fieldtype": "Select",
+   "label": "Attendance Status"
+  },
+  {
+   "fieldname": "check_in_time",
+   "fieldtype": "Datetime",
+   "label": "Check-In Time"
+  },
+  {
+   "fieldname": "check_out_time",
+   "fieldtype": "Datetime",
+   "label": "Check-Out Time"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-16 17:07:28.382110",
+ "modified": "2026-05-19 08:20:38.654694",
  "modified_by": "Administrator",
  "module": "Event",
  "name": "Event Participant Mapping",
  "owner": "Administrator",
- "permissions": [],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
  "sort_field": "creation",

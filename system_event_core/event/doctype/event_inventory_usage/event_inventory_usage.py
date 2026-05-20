@@ -14,7 +14,12 @@ class EventInventoryusage(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-
+		event: DF.Data | None
+		item: DF.Data | None
+		planned_qty: DF.Float
+		remaining_qty: DF.Float
+		used_qty: DF.Float
+		warehouse: DF.Data | None
 	# end: auto-generated types
 
 	pass

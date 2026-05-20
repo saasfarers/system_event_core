@@ -2,21 +2,65 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
- "creation": "2026-05-16 17:07:28.897889",
+ "creation": "2026-05-20 08:38:41.142424",
  "doctype": "DocType",
- "editable_grid": 1,
  "engine": "InnoDB",
- "field_order": [],
- "fields": [],
+ "field_order": [
+  "approval_level",
+  "approver",
+  "status",
+  "approved_on",
+  "comments"
+ ],
+ "fields": [
+  {
+   "fieldname": "approval_level",
+   "fieldtype": "Int",
+   "label": "Approval Level"
+  },
+  {
+   "fieldname": "approver",
+   "fieldtype": "Data",
+   "label": "Approver"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status"
+  },
+  {
+   "fieldname": "approved_on",
+   "fieldtype": "Datetime",
+   "label": "Approved On"
+  },
+  {
+   "fieldname": "comments",
+   "fieldtype": "Small Text",
+   "label": "Comments"
+  }
+ ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-16 17:07:28.897889",
+ "modified": "2026-05-20 08:40:27.841078",
  "modified_by": "Administrator",
  "module": "Event",
  "name": "Event Approval Workflow",
  "owner": "Administrator",
- "permissions": [],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
  "sort_field": "creation",
