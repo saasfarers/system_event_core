@@ -2,21 +2,108 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
- "creation": "2026-05-16 17:07:28.437945",
+ "creation": "2026-05-19 08:21:59.290516",
  "doctype": "DocType",
- "editable_grid": 1,
  "engine": "InnoDB",
- "field_order": [],
- "fields": [],
+ "field_order": [
+  "donation_name",
+  "event",
+  "donor",
+  "fund",
+  "donation_type",
+  "amount",
+  "payment_mode",
+  "transaction_reference",
+  "is_anonymous",
+  "donation_date",
+  "receipt_number",
+  "status"
+ ],
+ "fields": [
+  {
+   "fieldname": "donation_name",
+   "fieldtype": "Autocomplete",
+   "label": "Donation ID"
+  },
+  {
+   "fieldname": "event",
+   "fieldtype": "Data",
+   "label": "Event"
+  },
+  {
+   "fieldname": "donor",
+   "fieldtype": "Data",
+   "label": "Donor"
+  },
+  {
+   "fieldname": "fund",
+   "fieldtype": "Data",
+   "label": "Fund"
+  },
+  {
+   "fieldname": "donation_type",
+   "fieldtype": "Data",
+   "label": "Donation Type"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Amount"
+  },
+  {
+   "fieldname": "payment_mode",
+   "fieldtype": "Select",
+   "label": "Payment Mode"
+  },
+  {
+   "fieldname": "transaction_reference",
+   "fieldtype": "Data",
+   "label": "Transaction Reference"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_anonymous",
+   "fieldtype": "Check",
+   "label": "Is Anonymous"
+  },
+  {
+   "fieldname": "donation_date",
+   "fieldtype": "Datetime",
+   "label": "Donation Date"
+  },
+  {
+   "fieldname": "receipt_number",
+   "fieldtype": "Data",
+   "label": "Receipt Number"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status"
+  }
+ ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-16 17:07:28.437945",
+ "modified": "2026-05-19 08:41:01.041446",
  "modified_by": "Administrator",
  "module": "Event",
  "name": "Event Donation",
  "owner": "Administrator",
- "permissions": [],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
  "sort_field": "creation",

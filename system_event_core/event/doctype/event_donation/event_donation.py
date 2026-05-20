@@ -14,7 +14,18 @@ class EventDonation(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-
+		amount: DF.Currency
+		donation_date: DF.Datetime | None
+		donation_name: DF.Autocomplete | None
+		donation_type: DF.Data | None
+		donor: DF.Data | None
+		event: DF.Data | None
+		fund: DF.Data | None
+		is_anonymous: DF.Check
+		payment_mode: DF.Literal[None]
+		receipt_number: DF.Data | None
+		status: DF.Literal[None]
+		transaction_reference: DF.Data | None
 	# end: auto-generated types
 
 	pass

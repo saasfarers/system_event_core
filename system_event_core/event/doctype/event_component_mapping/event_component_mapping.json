@@ -2,21 +2,74 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
- "creation": "2026-05-16 17:07:28.319656",
+ "creation": "2026-05-19 08:04:17.596125",
  "doctype": "DocType",
- "editable_grid": 1,
  "engine": "InnoDB",
- "field_order": [],
- "fields": [],
+ "field_order": [
+  "component",
+  "is_mandatory",
+  "start_timeline",
+  "end_timeline",
+  "requires_approval",
+  "is_enabled"
+ ],
+ "fields": [
+  {
+   "fieldname": "component",
+   "fieldtype": "Data",
+   "label": "Component"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_mandatory",
+   "fieldtype": "Check",
+   "label": "Is Mandatory"
+  },
+  {
+   "fieldname": "start_timeline",
+   "fieldtype": "Datetime",
+   "label": "Start Timeline"
+  },
+  {
+   "fieldname": "end_timeline",
+   "fieldtype": "Datetime",
+   "label": "End Timeline"
+  },
+  {
+   "default": "0",
+   "fieldname": "requires_approval",
+   "fieldtype": "Check",
+   "label": "Requires Approval"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_enabled",
+   "fieldtype": "Check",
+   "label": "Is Enabled"
+  }
+ ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-16 17:07:28.319656",
+ "modified": "2026-05-19 08:06:46.223708",
  "modified_by": "Administrator",
  "module": "Event",
  "name": "Event Component Mapping",
  "owner": "Administrator",
- "permissions": [],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
  "sort_field": "creation",

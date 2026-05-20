@@ -14,7 +14,12 @@ class EventVolunteerAssignement(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-
+		assigned_role: DF.Data | None
+		assigned_task: DF.Data | None
+		attendance_status: DF.Literal["Present", "Absent"]
+		hours_contributed: DF.Float
+		shift_timing: DF.Data | None
+		volunteer: DF.Data | None
 	# end: auto-generated types
 
 	pass

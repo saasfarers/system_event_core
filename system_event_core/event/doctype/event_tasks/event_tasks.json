@@ -2,21 +2,96 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
- "creation": "2026-05-16 17:07:28.591268",
+ "creation": "2026-05-20 07:30:12.738108",
  "doctype": "DocType",
- "editable_grid": 1,
  "engine": "InnoDB",
- "field_order": [],
- "fields": [],
+ "field_order": [
+  "task_name",
+  "event",
+  "task_stage",
+  "assigned_to",
+  "start_date",
+  "end_date",
+  "dependency_task",
+  "status",
+  "completion_percentage",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "task_name",
+   "fieldtype": "Data",
+   "label": "Task Name"
+  },
+  {
+   "fieldname": "event",
+   "fieldtype": "Data",
+   "label": "Event"
+  },
+  {
+   "fieldname": "task_stage",
+   "fieldtype": "Select",
+   "label": "Task Stage",
+   "options": "Pre-Event\nDuring Event\nPost-Event\nGeneral"
+  },
+  {
+   "fieldname": "assigned_to",
+   "fieldtype": "Data",
+   "label": "Assigned To"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Datetime",
+   "label": "Start Date"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Datetime",
+   "label": "End Date"
+  },
+  {
+   "fieldname": "dependency_task",
+   "fieldtype": "Data",
+   "label": "Dependency Task"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status"
+  },
+  {
+   "fieldname": "completion_percentage",
+   "fieldtype": "Percent",
+   "label": "Completion %"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-16 17:07:28.591268",
+ "modified": "2026-05-20 07:35:33.652991",
  "modified_by": "Administrator",
  "module": "Event",
  "name": "Event Tasks",
  "owner": "Administrator",
- "permissions": [],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
  "sort_field": "creation",

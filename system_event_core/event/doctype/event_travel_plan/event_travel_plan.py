@@ -14,7 +14,13 @@ class EventTravelPlan(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-
+		arrival_time: DF.Datetime | None
+		departure_location: DF.Data | None
+		departure_time: DF.Datetime | None
+		destination: DF.Data | None
+		emergency_contact: DF.Data | None
+		transport_mode: DF.Literal[None]
+		travel_group_name: DF.Data | None
 	# end: auto-generated types
 
 	pass

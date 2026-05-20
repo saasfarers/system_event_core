@@ -14,7 +14,11 @@ class EventApprovalWorkflow(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-
+		approval_level: DF.Int
+		approved_on: DF.Datetime | None
+		approver: DF.Data | None
+		comments: DF.SmallText | None
+		status: DF.Literal[None]
 	# end: auto-generated types
 
 	pass

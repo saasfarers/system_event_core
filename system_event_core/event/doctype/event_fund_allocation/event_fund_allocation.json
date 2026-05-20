@@ -2,21 +2,71 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
- "creation": "2026-05-16 17:07:28.696023",
+ "creation": "2026-05-20 08:15:27.864758",
  "doctype": "DocType",
- "editable_grid": 1,
  "engine": "InnoDB",
- "field_order": [],
- "fields": [],
+ "field_order": [
+  "event",
+  "fund",
+  "allocated_amount",
+  "utilized_amount",
+  "remaining_balance",
+  "restriction_type"
+ ],
+ "fields": [
+  {
+   "fieldname": "event",
+   "fieldtype": "Data",
+   "label": "Event"
+  },
+  {
+   "fieldname": "fund",
+   "fieldtype": "Data",
+   "label": "Fund"
+  },
+  {
+   "fieldname": "allocated_amount",
+   "fieldtype": "Currency",
+   "label": "Allocated Amount"
+  },
+  {
+   "fieldname": "utilized_amount",
+   "fieldtype": "Currency",
+   "label": "Utilized Amount"
+  },
+  {
+   "fieldname": "remaining_balance",
+   "fieldtype": "Currency",
+   "label": "Remaining Balance"
+  },
+  {
+   "fieldname": "restriction_type",
+   "fieldtype": "Select",
+   "label": "Restriction Type"
+  }
+ ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-16 17:07:28.696023",
+ "modified": "2026-05-20 08:18:10.721099",
  "modified_by": "Administrator",
  "module": "Event",
  "name": "Event Fund Allocation",
  "owner": "Administrator",
- "permissions": [],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
  "sort_field": "creation",

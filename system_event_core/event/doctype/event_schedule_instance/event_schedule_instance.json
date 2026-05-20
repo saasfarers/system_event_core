@@ -2,21 +2,65 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
- "creation": "2026-05-16 17:07:28.945381",
+ "creation": "2026-05-20 08:40:49.705695",
  "doctype": "DocType",
- "editable_grid": 1,
  "engine": "InnoDB",
- "field_order": [],
- "fields": [],
+ "field_order": [
+  "parent_event",
+  "instance_date",
+  "start_time",
+  "end_time",
+  "status"
+ ],
+ "fields": [
+  {
+   "fieldname": "parent_event",
+   "fieldtype": "Data",
+   "label": "Parent Event"
+  },
+  {
+   "fieldname": "instance_date",
+   "fieldtype": "Date",
+   "label": "Instance Date"
+  },
+  {
+   "fieldname": "start_time",
+   "fieldtype": "Time",
+   "label": "Start Time"
+  },
+  {
+   "fieldname": "end_time",
+   "fieldtype": "Time",
+   "label": "End Time"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status"
+  }
+ ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-16 17:07:28.945381",
+ "modified": "2026-05-20 08:43:22.834230",
  "modified_by": "Administrator",
  "module": "Event",
  "name": "Event Schedule Instance",
  "owner": "Administrator",
- "permissions": [],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
  "sort_field": "creation",

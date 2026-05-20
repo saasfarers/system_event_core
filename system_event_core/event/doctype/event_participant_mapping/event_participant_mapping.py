@@ -14,7 +14,15 @@ class EventParticipantMapping(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-
+		attendance_status: DF.Literal[None]
+		check_in_time: DF.Datetime | None
+		check_out_time: DF.Datetime | None
+		family: DF.Data | None
+		participant: DF.Data | None
+		participant_type: DF.Literal[None]
+		registration_status: DF.Literal[None]
+		remarks: DF.SmallText | None
+		rsvp_status: DF.Literal[None]
 	# end: auto-generated types
 
 	pass
