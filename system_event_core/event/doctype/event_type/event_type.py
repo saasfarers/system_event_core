@@ -14,7 +14,7 @@ class EVENTTYPE(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-		default_workflow: DF.Link | None
+		default_workflow: DF.Data | None
 		description: DF.SmallText | None
 		event_category: DF.Data
 		event_code: DF.Data

@@ -1,30 +1,27 @@
 {
  "actions": [],
+ "allow_bulk_edit": 1,
  "allow_rename": 1,
- "creation": "2026-05-10 23:57:37.839793",
+ "creation": "2026-05-21 08:51:46.367922",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "event_type_name",
-  "event_category",
-  "default_workflow",
-  "column_break_sysp",
   "event_code",
+  "event_category",
   "institution_category",
-  "description",
-  "section_break_azdx",
-  "is_active",
-  "supports_attendance",
   "supports_recurrence",
-  "requires_approval",
-  "column_break_lehz",
+  "supports_attendance",
   "supports_donations",
-  "supports_booking",
-  "supports_volunteers",
-  "column_break_egft",
-  "supports_travel",
   "supports_fees",
-  "supports_inventory"
+  "supports_volunteers",
+  "supports_inventory",
+  "supports_booking",
+  "supports_travel",
+  "requires_approval",
+  "default_workflow",
+  "description",
+  "is_active"
  ],
  "fields": [
   {
@@ -43,14 +40,12 @@
   {
    "fieldname": "event_category",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "Event Category",
    "reqd": 1
   },
   {
    "fieldname": "institution_category",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "Institution Category",
    "reqd": 1
   },
@@ -58,44 +53,37 @@
    "default": "0",
    "fieldname": "supports_recurrence",
    "fieldtype": "Check",
-   "in_list_view": 1,
-   "label": "Supports Recurrence",
-   "reqd": 1
+   "label": "Supports Recurrence"
   },
   {
    "default": "0",
    "fieldname": "supports_attendance",
    "fieldtype": "Check",
-   "label": "Supports Attendance",
-   "reqd": 1
+   "label": "Supports Attendance"
   },
   {
    "default": "0",
    "fieldname": "supports_donations",
    "fieldtype": "Check",
-   "label": "Supports Donations",
-   "reqd": 1
+   "label": "Supports Donations"
   },
   {
    "default": "0",
    "fieldname": "supports_fees",
    "fieldtype": "Check",
-   "label": "Supports Fees",
-   "reqd": 1
+   "label": "Supports Fees"
   },
   {
    "default": "0",
    "fieldname": "supports_volunteers",
    "fieldtype": "Check",
-   "label": "Supports Volunteers",
-   "reqd": 1
+   "label": "Supports Volunteers"
   },
   {
    "default": "0",
    "fieldname": "supports_inventory",
    "fieldtype": "Check",
-   "label": "Supports Inventory",
-   "reqd": 1
+   "label": "Supports Inventory"
   },
   {
    "default": "0",
@@ -107,21 +95,18 @@
    "default": "0",
    "fieldname": "supports_travel",
    "fieldtype": "Check",
-   "label": "Supports Travel",
-   "reqd": 1
+   "label": "Supports Travel"
   },
   {
    "default": "0",
    "fieldname": "requires_approval",
    "fieldtype": "Check",
-   "label": "Requires Approval",
-   "reqd": 1
+   "label": "Requires Approval"
   },
   {
    "fieldname": "default_workflow",
-   "fieldtype": "Link",
-   "label": "Default Workflow",
-   "options": "Workflow"
+   "fieldtype": "Data",
+   "label": "Default Workflow"
   },
   {
    "fieldname": "description",
@@ -132,30 +117,13 @@
    "default": "0",
    "fieldname": "is_active",
    "fieldtype": "Check",
-   "label": "Is Active",
-   "reqd": 1
-  },
-  {
-   "fieldname": "column_break_sysp",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "section_break_azdx",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_lehz",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_egft",
-   "fieldtype": "Column Break"
+   "label": "Is Active"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-18 23:32:26.455988",
+ "modified": "2026-05-21 09:15:58.900770",
  "modified_by": "Administrator",
  "module": "Event",
  "name": "Event Type",
