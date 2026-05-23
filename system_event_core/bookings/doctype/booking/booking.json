@@ -1,0 +1,260 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-05-23 09:39:36.059196",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "column_break_gmww",
+  "booking_id",
+  "section_break_fxlh",
+  "booking_type",
+  "resource",
+  "institution",
+  "column_break_tuqo",
+  "linked_event",
+  "requested_by",
+  "beneficiary_party",
+  "section_break_mlqp",
+  "booking_start",
+  "booking_end",
+  "is_recurring",
+  "column_break_rjpg",
+  "recurrence_rule",
+  "purpose",
+  "status_and_approval_section",
+  "status",
+  "approval_remarks",
+  "column_break_gmri",
+  "payment_status",
+  "amount",
+  "deposit_amount",
+  "section_break_elde",
+  "notes"
+ ],
+ "fields": [
+  {
+   "default": "BKG-.YYYY.-####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series",
+   "no_copy": 1,
+   "options": "BKG-.YYYY.-####",
+   "print_hide": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_gmww",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "booking_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Booking ID",
+   "length": 140,
+   "no_copy": 1,
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "section_break_fxlh",
+   "fieldtype": "Section Break",
+   "label": "Basic Information"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "default": "Venue",
+   "fieldname": "booking_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Booking Type",
+   "options": "Venue\nService\nRental\nLease",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "resource",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Resource",
+   "options": "Party Master",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "institution",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Institution",
+   "options": "Institution Master",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_tuqo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "linked_event",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Linked Event",
+   "no_copy": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "requested_by",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Requested By",
+   "options": "Party Master",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "beneficiary_party",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Beneficiary Party",
+   "options": "Party Master"
+  },
+  {
+   "fieldname": "section_break_mlqp",
+   "fieldtype": "Section Break",
+   "label": "Schedule"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "fieldname": "booking_start",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Booking Start",
+   "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "fieldname": "booking_end",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Booking End",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_recurring",
+   "fieldtype": "Check",
+   "label": "Is Recurring"
+  },
+  {
+   "fieldname": "column_break_rjpg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "recurrence_rule",
+   "fieldtype": "Data",
+   "label": "Recurrence Rule"
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Small Text",
+   "label": "Purpose"
+  },
+  {
+   "fieldname": "status_and_approval_section",
+   "fieldtype": "Section Break",
+   "label": "Status and Approval"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nPending\nApproved\nRejected\nCancelled\nCompleted",
+   "reqd": 1
+  },
+  {
+   "fieldname": "approval_remarks",
+   "fieldtype": "Small Text",
+   "label": "Approval Remarks"
+  },
+  {
+   "fieldname": "column_break_gmri",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_status",
+   "fieldtype": "Select",
+   "label": "Payment Status",
+   "options": "Pending\nPartial\nPaid"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Amount"
+  },
+  {
+   "fieldname": "deposit_amount",
+   "fieldtype": "Currency",
+   "label": "Deposit Amount"
+  },
+  {
+   "fieldname": "section_break_elde",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-05-23 10:14:57.714559",
+ "modified_by": "Administrator",
+ "module": "Bookings",
+ "name": "Booking",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
