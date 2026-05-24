@@ -5,6 +5,16 @@ app_description = "This is event details"
 app_email = "saasfarers@gmail.com"
 app_license = "mit"
 
+# Fixtures
+# --------
+# Seed data that is packaged with the app and loaded on bench migrate / restore
+fixtures = [
+	{
+		"dt": "Event Category Master",
+		"filters": [["is_active", "=", 1]],
+	},
+]
+
 # Apps
 # ------------------
 

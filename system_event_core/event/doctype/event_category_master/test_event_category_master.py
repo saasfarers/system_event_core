@@ -13,9 +13,9 @@ IGNORE_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
 
 
 
-class IntegrationTestEVENTCATEGORYMASTER(IntegrationTestCase):
+class IntegrationTestEventCategoryMaster(IntegrationTestCase):
 	"""
-	Integration tests for EVENTCATEGORYMASTER.
+	Integration tests for EventCategoryMaster.
 	Use this class for testing interactions between multiple components.
 	"""
 

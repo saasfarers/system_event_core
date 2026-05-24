@@ -1,0 +1,526 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "EVT-.YYYY.-.#####",
+ "creation": "2026-05-23 16:37:40.579758",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "tab_basic",
+  "sec_core",
+  "event_name",
+  "event_code",
+  "col_break_core1",
+  "event_category",
+  "event_type",
+  "status",
+  "sec_desc",
+  "description",
+  "col_break_desc",
+  "event_image",
+  "tab_schedule",
+  "sec_datetime",
+  "start_date",
+  "start_time",
+  "all_day",
+  "col_break_dt1",
+  "end_date",
+  "end_time",
+  "is_multi_day",
+  "sec_venue",
+  "venue",
+  "expected_attendance",
+  "col_break_venue1",
+  "is_off_premise",
+  "off_premise_address",
+  "sec_recurring",
+  "recurrence_pattern",
+  "repeat_on_days",
+  "col_break_rec1",
+  "recurrence_end_date",
+  "total_occurrences",
+  "tab_components",
+  "sec_components_ui",
+  "sec_components_table",
+  "event_components",
+  "tab_structure",
+  "sec_sponsor",
+  "is_member_sponsored",
+  "created_by_type",
+  "col_break_sponsor",
+  "sponsored_by",
+  "sec_subevent",
+  "is_sub_event",
+  "col_break_sub1",
+  "parent_event",
+  "tab_approval",
+  "sec_roles",
+  "event_owner",
+  "finance_manager",
+  "col_break_roles1",
+  "volunteer_coordinator",
+  "event_approver",
+  "sec_approval",
+  "approval_status",
+  "submitted_by",
+  "submitted_on",
+  "col_break_appr1",
+  "admin_approver",
+  "admin_approved_on",
+  "finance_approver",
+  "finance_approved_on",
+  "rejection_reason",
+  "sec_reminders",
+  "send_reminders",
+  "reminder_days_before",
+  "col_break_rem1",
+  "notification_channel",
+  "sec_meta",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "tab_basic",
+   "fieldtype": "Tab Break",
+   "label": "Basic Details"
+  },
+  {
+   "fieldname": "sec_core",
+   "fieldtype": "Section Break",
+   "label": "Event Information"
+  },
+  {
+   "bold": 1,
+   "fieldname": "event_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Event Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "event_code",
+   "fieldtype": "Data",
+   "label": "Event Code"
+  },
+  {
+   "fieldname": "col_break_core1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "event_category",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Event Category",
+   "options": "Event Category Master",
+   "reqd": 1
+  },
+  {
+   "fieldname": "event_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Event Type",
+   "options": "Standalone\nRecurring\nMulti-day",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nPending Approval\nApproved\nActive\nCompleted\nCancelled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_desc",
+   "fieldtype": "Section Break",
+   "label": "Description & Media"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description"
+  },
+  {
+   "fieldname": "col_break_desc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "event_image",
+   "fieldtype": "Attach Image",
+   "label": "Event Image"
+  },
+  {
+   "fieldname": "tab_schedule",
+   "fieldtype": "Tab Break",
+   "label": "Schedule & Venue"
+  },
+  {
+   "fieldname": "sec_datetime",
+   "fieldtype": "Section Break",
+   "label": "Date & Time"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "start_time",
+   "fieldtype": "Time",
+   "label": "Start Time"
+  },
+  {
+   "default": "0",
+   "fieldname": "all_day",
+   "fieldtype": "Check",
+   "label": "All Day Event"
+  },
+  {
+   "fieldname": "col_break_dt1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_time",
+   "fieldtype": "Time",
+   "label": "End Time"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_multi_day",
+   "fieldtype": "Check",
+   "label": "Is Multi-Day?"
+  },
+  {
+   "fieldname": "sec_venue",
+   "fieldtype": "Section Break",
+   "label": "Venue & Location"
+  },
+  {
+   "fieldname": "venue",
+   "fieldtype": "Data",
+   "label": "Venue"
+  },
+  {
+   "fieldname": "expected_attendance",
+   "fieldtype": "Int",
+   "label": "Expected Attendance"
+  },
+  {
+   "fieldname": "col_break_venue1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_off_premise",
+   "fieldtype": "Check",
+   "label": "Is Off-Premise?"
+  },
+  {
+   "depends_on": "eval:doc.is_off_premise == 1",
+   "fieldname": "off_premise_address",
+   "fieldtype": "Small Text",
+   "label": "Off-Premise Address"
+  },
+  {
+   "depends_on": "eval:doc.event_type == 'Recurring'",
+   "fieldname": "sec_recurring",
+   "fieldtype": "Section Break",
+   "label": "Recurring Settings"
+  },
+  {
+   "depends_on": "eval:doc.event_type == 'Recurring'",
+   "fieldname": "recurrence_pattern",
+   "fieldtype": "Select",
+   "label": "Recurrence Pattern",
+   "options": "Daily\nWeekly\nMonthly\nCustom"
+  },
+  {
+   "depends_on": "eval:doc.event_type == 'Recurring'",
+   "fieldname": "repeat_on_days",
+   "fieldtype": "Small Text",
+   "label": "Repeat On Days"
+  },
+  {
+   "fieldname": "col_break_rec1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.event_type == 'Recurring'",
+   "fieldname": "recurrence_end_date",
+   "fieldtype": "Date",
+   "label": "Recurrence End Date"
+  },
+  {
+   "depends_on": "eval:doc.event_type == 'Recurring'",
+   "fieldname": "total_occurrences",
+   "fieldtype": "Int",
+   "label": "Total Occurrences"
+  },
+  {
+   "fieldname": "tab_components",
+   "fieldtype": "Tab Break",
+   "label": "Components"
+  },
+  {
+   "fieldname": "sec_components_ui",
+   "fieldtype": "Section Break",
+   "label": "Select Event Components"
+  },
+  {
+   "fieldname": "sec_components_table",
+   "fieldtype": "Section Break",
+   "label": "Selected Components"
+  },
+  {
+   "fieldname": "event_components",
+   "fieldtype": "Table",
+   "label": "Event Components",
+   "options": "Event Component Mapping"
+  },
+  {
+   "fieldname": "tab_structure",
+   "fieldtype": "Tab Break",
+   "label": "Structure & Sponsorship"
+  },
+  {
+   "fieldname": "sec_sponsor",
+   "fieldtype": "Section Break",
+   "label": "Sponsorship"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_member_sponsored",
+   "fieldtype": "Check",
+   "label": "Is Member Sponsored?"
+  },
+  {
+   "fieldname": "created_by_type",
+   "fieldtype": "Select",
+   "label": "Created By Type",
+   "options": "Organization\nMember"
+  },
+  {
+   "fieldname": "col_break_sponsor",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.is_member_sponsored == 1",
+   "fieldname": "sponsored_by",
+   "fieldtype": "Link",
+   "label": "Sponsored By (Party)",
+   "options": "Party Master"
+  },
+  {
+   "fieldname": "sec_subevent",
+   "fieldtype": "Section Break",
+   "label": "Sub-Event"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_sub_event",
+   "fieldtype": "Check",
+   "label": "Is Sub-Event?"
+  },
+  {
+   "fieldname": "col_break_sub1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.is_sub_event == 1",
+   "fieldname": "parent_event",
+   "fieldtype": "Link",
+   "label": "Parent Event",
+   "options": "Events"
+  },
+  {
+   "fieldname": "tab_approval",
+   "fieldtype": "Tab Break",
+   "label": "Team & Approval"
+  },
+  {
+   "fieldname": "sec_roles",
+   "fieldtype": "Section Break",
+   "label": "Roles & Assignments"
+  },
+  {
+   "fieldname": "event_owner",
+   "fieldtype": "Link",
+   "label": "Event Owner",
+   "options": "User"
+  },
+  {
+   "fieldname": "finance_manager",
+   "fieldtype": "Link",
+   "label": "Finance Manager",
+   "options": "User"
+  },
+  {
+   "fieldname": "col_break_roles1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "volunteer_coordinator",
+   "fieldtype": "Link",
+   "label": "Volunteer Coordinator",
+   "options": "User"
+  },
+  {
+   "fieldname": "event_approver",
+   "fieldtype": "Link",
+   "label": "Event Approver",
+   "options": "User"
+  },
+  {
+   "fieldname": "sec_approval",
+   "fieldtype": "Section Break",
+   "label": "Approval Status"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "approval_status",
+   "fieldtype": "Select",
+   "label": "Approval Status",
+   "options": "Pending\nMember Approved\nAdmin Approved\nFinance Approved\nRejected",
+   "read_only": 1
+  },
+  {
+   "fieldname": "submitted_by",
+   "fieldtype": "Link",
+   "label": "Submitted By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "submitted_on",
+   "fieldtype": "Datetime",
+   "label": "Submitted On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_appr1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "admin_approver",
+   "fieldtype": "Link",
+   "label": "Admin Approver",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "admin_approved_on",
+   "fieldtype": "Datetime",
+   "label": "Admin Approved On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "finance_approver",
+   "fieldtype": "Link",
+   "label": "Finance Approver",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "finance_approved_on",
+   "fieldtype": "Datetime",
+   "label": "Finance Approved On",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.approval_status == 'Rejected'",
+   "fieldname": "rejection_reason",
+   "fieldtype": "Small Text",
+   "label": "Rejection Reason"
+  },
+  {
+   "fieldname": "sec_reminders",
+   "fieldtype": "Section Break",
+   "label": "Reminders"
+  },
+  {
+   "default": "0",
+   "fieldname": "send_reminders",
+   "fieldtype": "Check",
+   "label": "Send Reminders?"
+  },
+  {
+   "depends_on": "eval:doc.send_reminders == 1",
+   "fieldname": "reminder_days_before",
+   "fieldtype": "Int",
+   "label": "Reminder Days Before"
+  },
+  {
+   "fieldname": "col_break_rem1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.send_reminders == 1",
+   "fieldname": "notification_channel",
+   "fieldtype": "Select",
+   "label": "Notification Channel",
+   "options": "Email\nSMS\nWhatsApp\nAll"
+  },
+  {
+   "fieldname": "sec_meta",
+   "fieldtype": "Section Break",
+   "label": "Internal Notes"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks (Internal)"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Events",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-05-23 16:51:39.603895",
+ "modified_by": "Administrator",
+ "module": "Event",
+ "name": "Events",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "role": "System Manager",
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "All",
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "event_name,event_category,status",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "event_name",
+ "track_changes": 1,
+ "track_seen": 1
+}

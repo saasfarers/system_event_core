@@ -1,0 +1,86 @@
+[
+  {
+    "doctype": "Event Category Master",
+    "name": "Religious Events",
+    "event_category_name": "Religious Events",
+    "category_code": "RELIG",
+    "description": "Pooja, Mass, Zakat, Bhajan, Prayers, Nikah and other religious observances.",
+    "is_active": 1,
+    "is_religious_event": 1,
+    "is_financial_event": 0,
+    "is_booking_enabled": 1,
+    "is_volunteer_enabled": 1
+  },
+  {
+    "doctype": "Event Category Master",
+    "name": "Community Events",
+    "event_category_name": "Community Events",
+    "category_code": "COMM",
+    "description": "Annadhanam, welfare drives, social gatherings and community service events.",
+    "is_active": 1,
+    "is_religious_event": 0,
+    "is_financial_event": 0,
+    "is_booking_enabled": 1,
+    "is_volunteer_enabled": 1
+  },
+  {
+    "doctype": "Event Category Master",
+    "name": "Administrative Events",
+    "event_category_name": "Administrative Events",
+    "category_code": "ADMIN",
+    "description": "Fee collection, membership drives, organizational meetings and administrative gatherings.",
+    "is_active": 1,
+    "is_religious_event": 0,
+    "is_financial_event": 1,
+    "is_booking_enabled": 0,
+    "is_volunteer_enabled": 0
+  },
+  {
+    "doctype": "Event Category Master",
+    "name": "Member-Sponsored Events",
+    "event_category_name": "Member-Sponsored Events",
+    "category_code": "MSPN",
+    "description": "Weddings, Baptisms, naming ceremonies and other events sponsored by members.",
+    "is_active": 1,
+    "is_religious_event": 0,
+    "is_financial_event": 1,
+    "is_booking_enabled": 1,
+    "is_volunteer_enabled": 1
+  },
+  {
+    "doctype": "Event Category Master",
+    "name": "Off-Premise Services",
+    "event_category_name": "Off-Premise Services",
+    "category_code": "OFFP",
+    "description": "Home prayers, outside marriages and services conducted outside the organization premises.",
+    "is_active": 1,
+    "is_religious_event": 0,
+    "is_financial_event": 0,
+    "is_booking_enabled": 0,
+    "is_volunteer_enabled": 1
+  },
+  {
+    "doctype": "Event Category Master",
+    "name": "Educational Events",
+    "event_category_name": "Educational Events",
+    "category_code": "EDUC",
+    "description": "Classes, Madarsha sessions, workshops, lectures and educational programmes with batch and syllabus tracking.",
+    "is_active": 1,
+    "is_religious_event": 0,
+    "is_financial_event": 0,
+    "is_booking_enabled": 1,
+    "is_volunteer_enabled": 0
+  },
+  {
+    "doctype": "Event Category Master",
+    "name": "Emergency Events",
+    "event_category_name": "Emergency Events",
+    "category_code": "EMRG",
+    "description": "Flood relief, pandemic response and emergency community support events accepting all donor types.",
+    "is_active": 1,
+    "is_religious_event": 0,
+    "is_financial_event": 1,
+    "is_booking_enabled": 0,
+    "is_volunteer_enabled": 1
+  }
+]

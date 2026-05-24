@@ -2,31 +2,46 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
+ "autoname": "ESI-.YYYY.-.#####",
  "creation": "2026-05-20 08:40:49.705695",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "parent_event",
   "instance_date",
+  "col_break_1",
   "start_time",
   "end_time",
-  "status"
+  "sec_status",
+  "status",
+  "notes"
  ],
  "fields": [
   {
    "fieldname": "parent_event",
-   "fieldtype": "Data",
-   "label": "Parent Event"
+   "fieldtype": "Link",
+   "label": "Parent Event",
+   "options": "Events",
+   "reqd": 1,
+   "in_list_view": 1,
+   "bold": 1
   },
   {
    "fieldname": "instance_date",
    "fieldtype": "Date",
-   "label": "Instance Date"
+   "label": "Instance Date",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "start_time",
    "fieldtype": "Time",
-   "label": "Start Time"
+   "label": "Start Time",
+   "in_list_view": 1
   },
   {
    "fieldname": "end_time",
@@ -34,15 +49,28 @@
    "label": "End Time"
   },
   {
+   "fieldname": "sec_status",
+   "fieldtype": "Section Break",
+   "label": "Status"
+  },
+  {
+   "default": "Scheduled",
    "fieldname": "status",
    "fieldtype": "Select",
-   "label": "Status"
+   "label": "Status",
+   "options": "Scheduled\nActive\nCompleted\nCancelled\nPostponed",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-20 08:43:22.834230",
+ "modified": "2026-05-24 07:05:00.000000",
  "modified_by": "Administrator",
  "module": "Event",
  "name": "Event Schedule Instance",
@@ -59,11 +87,17 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "read": 1,
+   "role": "All"
   }
  ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
- "sort_field": "creation",
- "sort_order": "DESC",
- "states": []
+ "search_fields": "parent_event,instance_date,status",
+ "sort_field": "instance_date",
+ "sort_order": "ASC",
+ "states": [],
+ "title_field": "instance_date"
 }
