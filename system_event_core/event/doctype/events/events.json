@@ -41,6 +41,7 @@
   "total_occurrences",
   "tab_components",
   "sec_components_ui",
+  "components_ui_html",
   "sec_components_table",
   "event_components",
   "tab_structure",
@@ -275,6 +276,11 @@
    "fieldname": "sec_components_ui",
    "fieldtype": "Section Break",
    "label": "Select Event Components"
+  },
+  {
+   "fieldname": "components_ui_html",
+   "fieldtype": "HTML",
+   "label": "Components UI"
   },
   {
    "fieldname": "sec_components_table",
