@@ -1,25 +1,43 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2026-05-24 22:50:03.431798",
+ "autoname": "autoincrement",
+ "creation": "2026-05-31 22:42:35.340244",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "section_break_9yvo"
+  "form_name",
+  "description",
+  "question"
  ],
  "fields": [
   {
-   "fieldname": "section_break_9yvo",
-   "fieldtype": "Section Break"
+   "fieldname": "form_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Form Name"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "question",
+   "fieldtype": "Table",
+   "label": "Question",
+   "options": "Registration Form Items"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-24 22:50:03.431798",
+ "modified": "2026-05-31 22:46:45.476198",
  "modified_by": "Administrator",
  "module": "Event Attribute",
  "name": "Registration",
+ "naming_rule": "Autoincrement",
  "owner": "Administrator",
  "permissions": [
   {

@@ -6,3 +6,17 @@
 
 // 	},
 // });
+frappe.ui.form.on("Registration", {
+    refresh(frm) {
+
+        frm.add_custom_button("Preview Form", function() {
+
+            frappe.set_route(
+                "registration-form",
+                frm.doc.name
+            );
+
+        });
+
+    }
+});

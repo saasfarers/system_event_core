@@ -5,7 +5,7 @@
 from frappe.model.document import Document
 
 
-class Registration(Document):
+class RegistrationFormItems(Document):
 	# begin: auto-generated types
 	# This code is auto-generated. Do not modify anything in this block.
 
@@ -13,12 +13,15 @@ class Registration(Document):
 
 	if TYPE_CHECKING:
 		from frappe.types import DF
-		from system_event_core.event_attribute.doctype.registration_form_items.registration_form_items import RegistrationFormItems
 
-		description: DF.SmallText | None
-		form_name: DF.Data | None
-		name: DF.Int | None
-		question: DF.Table[RegistrationFormItems]
+		field_type: DF.Literal["Data", "Small Text", "Int", "Float", "Check", "Select", "Date", "Attach", "Email", "Phone"]
+		option: DF.SmallText | None
+		order: DF.Int
+		parent: DF.Data
+		parentfield: DF.Data
+		parenttype: DF.Data
+		question: DF.Data | None
+		required: DF.Check
 	# end: auto-generated types
 
 	pass

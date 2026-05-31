@@ -5,7 +5,7 @@
 from frappe.model.document import Document
 
 
-class Registration(Document):
+class Attendance(Document):
 	# begin: auto-generated types
 	# This code is auto-generated. Do not modify anything in this block.
 
@@ -13,12 +13,16 @@ class Registration(Document):
 
 	if TYPE_CHECKING:
 		from frappe.types import DF
-		from system_event_core.event_attribute.doctype.registration_form_items.registration_form_items import RegistrationFormItems
 
-		description: DF.SmallText | None
-		form_name: DF.Data | None
+		attendance_date: DF.Date | None
+		checkin: DF.Datetime | None
+		checkout: DF.Datetime | None
+		is_external: DF.Check
+		name1: DF.Data | None
 		name: DF.Int | None
-		question: DF.Table[RegistrationFormItems]
+		people: DF.Link | None
+		status: DF.Literal["Present", "Absent"]
+		working_hours: DF.Duration | None
 	# end: auto-generated types
 
 	pass
