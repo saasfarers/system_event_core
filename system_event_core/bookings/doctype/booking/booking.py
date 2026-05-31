@@ -22,6 +22,7 @@ class Booking(Document):
 		booking_start: DF.Datetime
 		booking_type: DF.Literal["Venue", "Service", "Rental", "Lease"]
 		deposit_amount: DF.Currency
+		frequency: DF.Literal["Daily", "Weekly", "Monthly"]
 		institution: DF.Link
 		is_recurring: DF.Check
 		linked_event: DF.Data | None
@@ -29,7 +30,10 @@ class Booking(Document):
 		notes: DF.SmallText | None
 		payment_status: DF.Literal["Pending", "Partial", "Paid"]
 		purpose: DF.SmallText | None
-		recurrence_rule: DF.Data | None
+		recurrence_end_date: DF.Date | None
+		repeat_every_days: DF.Int
+		repeat_on_date: DF.Int
+		repeat_on_day: DF.Literal["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 		requested_by: DF.Link
 		resource: DF.Link
 		status: DF.Literal["Draft", "Pending", "Approved", "Rejected", "Cancelled", "Completed"]

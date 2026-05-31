@@ -22,7 +22,11 @@
   "booking_end",
   "is_recurring",
   "column_break_rjpg",
-  "recurrence_rule",
+  "frequency",
+  "repeat_every_days",
+  "repeat_on_day",
+  "repeat_on_date",
+  "recurrence_end_date",
   "purpose",
   "status_and_approval_section",
   "status",
@@ -173,11 +177,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "recurrence_rule",
-   "fieldtype": "Data",
-   "label": "Recurrence Rule"
-  },
-  {
    "fieldname": "purpose",
    "fieldtype": "Small Text",
    "label": "Purpose"
@@ -227,12 +226,48 @@
    "fieldname": "notes",
    "fieldtype": "Small Text",
    "label": "Notes"
+  },
+  {
+   "depends_on": "eval:doc.is_recurring == 1",
+   "fieldname": "frequency",
+   "fieldtype": "Select",
+   "label": "Frequency",
+   "mandatory_depends_on": "eval:doc.is_recurring == 1",
+   "options": "Daily\nWeekly\nMonthly",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "depends_on": "eval:doc.is_recurring == 1 && doc.frequency == \"Daily\"",
+   "fieldname": "repeat_every_days",
+   "fieldtype": "Int",
+   "label": "Repeat Every (Days)"
+  },
+  {
+   "depends_on": "eval:doc.is_recurring == 1 && doc.frequency == \"Weekly\"",
+   "fieldname": "repeat_on_day",
+   "fieldtype": "Select",
+   "label": "Repeat On (Day)",
+   "options": "Monday\nTuesday\nWednesday\nThursday\nFriday\nSaturday\nSunday"
+  },
+  {
+   "depends_on": "eval:doc.is_recurring == 1 && doc.frequency == \"Monthly\"",
+   "description": "Day of month (1\u201331)",
+   "fieldname": "repeat_on_date",
+   "fieldtype": "Int",
+   "label": "Repeat On Date"
+  },
+  {
+   "depends_on": "eval:doc.is_recurring == 1",
+   "fieldname": "recurrence_end_date",
+   "fieldtype": "Date",
+   "label": "Recurrence End Date"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-23 10:14:57.714559",
+ "modified": "2026-05-26 17:19:31.580576",
  "modified_by": "Administrator",
  "module": "Bookings",
  "name": "Booking",
@@ -256,5 +291,6 @@
  "rows_threshold_for_grid_search": 20,
  "sort_field": "creation",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "booking_type"
 }
