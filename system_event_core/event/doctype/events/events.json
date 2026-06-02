@@ -7,16 +7,15 @@
  "engine": "InnoDB",
  "field_order": [
   "tab_basic",
+  "event_code",
   "sec_core",
   "event_name",
-  "event_code",
+  "event_type",
   "col_break_core1",
   "event_category",
-  "event_type",
   "status",
   "sec_desc",
   "description",
-  "col_break_desc",
   "event_image",
   "tab_schedule",
   "sec_datetime",
@@ -29,10 +28,8 @@
   "is_multi_day",
   "sec_venue",
   "venue",
-  "expected_attendance",
-  "col_break_venue1",
-  "is_off_premise",
   "off_premise_address",
+  "is_off_premise",
   "sec_recurring",
   "recurrence_pattern",
   "repeat_on_days",
@@ -41,14 +38,14 @@
   "total_occurrences",
   "tab_components",
   "sec_components_ui",
+  "components_ui_html",
   "sec_components_table",
   "event_components",
   "tab_structure",
   "sec_sponsor",
-  "is_member_sponsored",
   "created_by_type",
-  "col_break_sponsor",
   "sponsored_by",
+  "is_member_sponsored",
   "sec_subevent",
   "is_sub_event",
   "col_break_sub1",
@@ -101,7 +98,8 @@
   {
    "fieldname": "event_code",
    "fieldtype": "Data",
-   "label": "Event Code"
+   "label": "Event Code",
+   "read_only": 1
   },
   {
    "fieldname": "col_break_core1",
@@ -143,10 +141,6 @@
    "label": "Description"
   },
   {
-   "fieldname": "col_break_desc",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "event_image",
    "fieldtype": "Attach Image",
    "label": "Event Image"
@@ -174,7 +168,7 @@
    "label": "Start Time"
   },
   {
-   "default": "0",
+   "default": "1",
    "fieldname": "all_day",
    "fieldtype": "Check",
    "label": "All Day Event"
@@ -206,18 +200,11 @@
    "label": "Venue & Location"
   },
   {
+   "depends_on": "eval:doc.is_off_premise == 0",
    "fieldname": "venue",
-   "fieldtype": "Data",
-   "label": "Venue"
-  },
-  {
-   "fieldname": "expected_attendance",
-   "fieldtype": "Int",
-   "label": "Expected Attendance"
-  },
-  {
-   "fieldname": "col_break_venue1",
-   "fieldtype": "Column Break"
+   "fieldtype": "Link",
+   "label": "Venue",
+   "options": "Institution Master"
   },
   {
    "default": "0",
@@ -277,6 +264,11 @@
    "label": "Select Event Components"
   },
   {
+   "fieldname": "components_ui_html",
+   "fieldtype": "HTML",
+   "label": "Components UI"
+  },
+  {
    "fieldname": "sec_components_table",
    "fieldtype": "Section Break",
    "label": "Selected Components"
@@ -308,10 +300,6 @@
    "fieldtype": "Select",
    "label": "Created By Type",
    "options": "Organization\nMember"
-  },
-  {
-   "fieldname": "col_break_sponsor",
-   "fieldtype": "Column Break"
   },
   {
    "depends_on": "eval:doc.is_member_sponsored == 1",
@@ -356,13 +344,13 @@
    "fieldname": "event_owner",
    "fieldtype": "Link",
    "label": "Event Owner",
-   "options": "User"
+   "options": "Party Master"
   },
   {
    "fieldname": "finance_manager",
    "fieldtype": "Link",
    "label": "Finance Manager",
-   "options": "User"
+   "options": "Party Master"
   },
   {
    "fieldname": "col_break_roles1",
@@ -372,13 +360,13 @@
    "fieldname": "volunteer_coordinator",
    "fieldtype": "Link",
    "label": "Volunteer Coordinator",
-   "options": "User"
+   "options": "Party Master"
   },
   {
    "fieldname": "event_approver",
    "fieldtype": "Link",
    "label": "Event Approver",
-   "options": "User"
+   "options": "Party Master"
   },
   {
    "fieldname": "sec_approval",
@@ -397,7 +385,7 @@
    "fieldname": "submitted_by",
    "fieldtype": "Link",
    "label": "Submitted By",
-   "options": "User",
+   "options": "Party Master",
    "read_only": 1
   },
   {
@@ -414,7 +402,7 @@
    "fieldname": "admin_approver",
    "fieldtype": "Link",
    "label": "Admin Approver",
-   "options": "User",
+   "options": "Party Master",
    "read_only": 1
   },
   {
@@ -427,7 +415,7 @@
    "fieldname": "finance_approver",
    "fieldtype": "Link",
    "label": "Finance Approver",
-   "options": "User",
+   "options": "Party Master",
    "read_only": 1
   },
   {
@@ -492,10 +480,11 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-05-23 16:51:39.603895",
+ "modified": "2026-05-31 22:44:47.574970",
  "modified_by": "Administrator",
  "module": "Event",
  "name": "Events",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

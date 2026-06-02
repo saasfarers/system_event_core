@@ -12,8 +12,11 @@ from frappe.utils import (
 )
 from frappe.utils.data import now_datetime
 from datetime import date, timedelta
-
-
+from system_event_core.utils.schedule_calendar import (
+    sync_schedule_entry,
+    cancel_schedule_entry,
+)	
+from frappe.utils import get_datetime
 class Events(Document):
 	# begin: auto-generated types
 	# This code is auto-generated. Do not modify anything in this block.
@@ -41,7 +44,6 @@ class Events(Document):
 		event_name: DF.Data
 		event_owner: DF.Link | None
 		event_type: DF.Literal["Standalone", "Recurring", "Multi-day"]
-		expected_attendance: DF.Int
 		finance_approved_on: DF.Datetime | None
 		finance_approver: DF.Link | None
 		finance_manager: DF.Link | None
@@ -66,12 +68,18 @@ class Events(Document):
 		submitted_by: DF.Link | None
 		submitted_on: DF.Datetime | None
 		total_occurrences: DF.Int
-		venue: DF.Data | None
+		venue: DF.Link | None
 		volunteer_coordinator: DF.Link | None
 	# end: auto-generated types
 
 	def before_insert(self):
 		self._set_created_by_type()
+
+
+	def before_save(self):
+		if self.name and not self.event_code:
+			self.event_code = self.name
+	
 
 	def validate(self):
 		self._set_created_by_type()
@@ -80,15 +88,40 @@ class Events(Document):
 		self._validate_sub_event()
 		self._validate_recurring()
 
-	def before_submit(self):
-		self._check_approval_before_submit()
+	# def before_submit(self):
+	# 	# self._check_approval_before_submit()
+
 
 	def on_submit(self):
+		
 		self._set_status_on_submit()
+
+		start_dt = get_datetime(
+			f"{self.start_date} {self.start_time or '00:00:00'}"
+		)
+
+		end_dt = get_datetime(
+			f"{self.end_date} {self.end_time or '23:59:59'}"
+		)
+		frappe.msgprint("Before Sync")
+
+		sync_schedule_entry(
+			reference_type="Events",
+			reference_name=self.name,
+			title=self.event_name,
+			start_datetime=start_dt,
+			end_datetime=end_dt,
+			category="Event",
+		)
+		frappe.msgprint("After Sync")
 
 	def on_cancel(self):
 		self.status = "Cancelled"
 		self.approval_status = "Pending"
+		cancel_schedule_entry(
+			reference_type="Events",
+			reference_name=self.name
+		)
 
 	# ── Internal helpers ──────────────────────────────────────────
 
@@ -140,15 +173,15 @@ class Events(Document):
 					title=_("Recurrence End Required"),
 				)
 
-	def _check_approval_before_submit(self):
-		if self.approval_status != "Finance Approved":
-			frappe.throw(
-				_(
-					f"Event must be Finance Approved before submitting. "
-					f"Current: <b>{self.approval_status}</b>"
-				),
-				title=_("Approval Pending"),
-			)
+		# def _check_approval_before_submit(self):
+		# 	if self.approval_status != "Finance Approved":
+		# 		frappe.throw(
+		# 			_(
+		# 				f"Event must be Finance Approved before submitting. "
+		# 				f"Current: <b>{self.approval_status}</b>"
+		# 			),
+		# 			title=_("Approval Pending"),
+		# 		)
 
 	def _set_status_on_submit(self):
 		self.status = "Active" if getdate(self.start_date) <= getdate(nowdate()) else "Approved"
