@@ -14,10 +14,12 @@ fixtures = [
 		"filters": [["is_active", "=", 1]],
 	},
 ]
-
+doctype_calendar_js = {
+    "Event Schedules": "public/js/event_schedule_calendar.js"
+}
 # Apps
 # ------------------
-
+	
 # required_apps = []
 
 # Each item in the list will be shown as an app in the apps page

@@ -114,6 +114,7 @@ frappe.events_list_render_modal = function(d) {
 
 	// ── Active components ────────────────────────────────────────
 	var comps = (d.event_components || []).filter(function(c){ return c.is_enabled; });
+	console.log(comps);		
 	var comp_html = "";
 	if (comps.length) {
 		comps.forEach(function(c) {
@@ -121,7 +122,9 @@ frappe.events_list_render_modal = function(d) {
 				+ "background:#e8f0fe;border:1px solid #c7d4f5;border-radius:20px;"
 				+ "padding:4px 13px;font-size:12px;color:#1a56db;margin:3px;'>"
 				+ "<span style='color:#198754;font-weight:700;'>&#10003;</span> "
-				+ frappe.utils.escape_html(c.component) + "</span>";
+				+ frappe.utils.escape_html(
+					c.component_name || c.component
+				) + "</span>";
 		});
 	} else {
 		comp_html = "<span style='color:#aaa;font-size:13px;font-style:italic;'>"
@@ -208,7 +211,6 @@ frappe.events_list_render_modal = function(d) {
 		+ "<tr>"
 		+ "<td style='width:50%;vertical-align:top;padding-right:20px;'>"
 		+ "<table style='width:100%;'>"
-		+ row("&#128197;", "Event ID",  d.name)
 		+ row("&#128196;", "Event Code", d.event_code)
 		+ row("&#128197;", "Dates", date_str)
 		+ row("&#128205;", "Venue", d.venue || (d.is_off_premise ? d.off_premise_address : null))
