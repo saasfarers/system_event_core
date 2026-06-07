@@ -6,19 +6,20 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "is_external",
+  "people",
   "name1",
   "email",
   "phone_number",
-  "role",
-  "assigned_task",
-  "shift",
   "location",
+  "role",
   "availability_status",
-  "attendance_status",
-  "remarks"
+  "available_from",
+  "available_to"
  ],
  "fields": [
   {
+   "depends_on": "eval:doc.is_external",
    "fieldname": "name1",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -26,11 +27,13 @@
    "label": "Name"
   },
   {
+   "depends_on": "eval:doc.is_external",
    "fieldname": "email",
    "fieldtype": "Data",
    "label": "Email"
   },
   {
+   "depends_on": "eval:doc.is_external",
    "fieldname": "phone_number",
    "fieldtype": "Data",
    "label": "Phone Number"
@@ -40,22 +43,10 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "in_preview": 1,
-   "label": "Role"
+   "label": "Activity"
   },
   {
-   "fieldname": "assigned_task",
-   "fieldtype": "Small Text",
-   "label": "Assigned Task"
-  },
-  {
-   "fieldname": "shift",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "in_preview": 1,
-   "label": "Shift",
-   "options": "Morning\nEVening\nAfternoon\nFull day"
-  },
-  {
+   "depends_on": "eval:doc.is_external",
    "fieldname": "location",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -71,23 +62,33 @@
    "options": "Available\nNot Available\nTentative"
   },
   {
-   "fieldname": "attendance_status",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "in_preview": 1,
-   "label": "Attendance Status",
-   "options": "Present\nAbsent"
+   "default": "0",
+   "fieldname": "is_external",
+   "fieldtype": "Check",
+   "label": "Is External"
   },
   {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks"
+   "depends_on": "eval:!doc.is_external",
+   "fieldname": "people",
+   "fieldtype": "Link",
+   "label": "People",
+   "options": "Party Master"
+  },
+  {
+   "fieldname": "available_from",
+   "fieldtype": "Datetime",
+   "label": "Available From"
+  },
+  {
+   "fieldname": "available_to",
+   "fieldtype": "Datetime",
+   "label": "Available To"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-06 21:54:38.275861",
+ "modified": "2026-06-07 20:24:22.715250",
  "modified_by": "Administrator",
  "module": "Event Attribute",
  "name": "Volunteer",

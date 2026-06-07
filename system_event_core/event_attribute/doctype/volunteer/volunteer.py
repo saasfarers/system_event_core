@@ -14,17 +14,17 @@ class Volunteer(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-		assigned_task: DF.SmallText | None
-		attendance_status: DF.Literal["Present", "Absent"]
 		availability_status: DF.Literal["Available", "Not Available", "Tentative"]
+		available_from: DF.Datetime | None
+		available_to: DF.Datetime | None
 		email: DF.Data | None
+		is_external: DF.Check
 		location: DF.Data | None
 		name1: DF.Data | None
 		name: DF.Int | None
+		people: DF.Link | None
 		phone_number: DF.Data | None
-		remarks: DF.SmallText | None
 		role: DF.Data | None
-		shift: DF.Literal["Morning", "EVening", "Afternoon", "Full day"]
 	# end: auto-generated types
 
 	pass
