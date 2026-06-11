@@ -1,0 +1,52 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-06-07 21:40:26.480884",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "registration_form_name",
+  "response"
+ ],
+ "fields": [
+  {
+   "fieldname": "registration_form_name",
+   "fieldtype": "Link",
+   "label": "Registration Form Name",
+   "options": "Registration"
+  },
+  {
+   "fieldname": "response",
+   "fieldtype": "Table",
+   "label": "Responses",
+   "options": "Registration Response Items"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-07 22:14:58.588322",
+ "modified_by": "Administrator",
+ "module": "Event Attribute",
+ "name": "Registration Response",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
