@@ -39,8 +39,17 @@
   "tab_components",
   "sec_components_ui",
   "components_ui_html",
+  "section_break_katf",
+  "registration_form",
+  "max_registrations",
   "sec_components_table",
   "event_components",
+  "tab_volunteers",
+  "sec_volunteer_requirements",
+  "event_volunteer_requirements",
+  "sec_volunteer_assignments",
+  "volunteer_summary_html",
+  "event_volunteers",
   "tab_structure",
   "sec_sponsor",
   "created_by_type",
@@ -280,6 +289,39 @@
    "options": "Event Component Mapping"
   },
   {
+   "fieldname": "tab_volunteers",
+   "fieldtype": "Tab Break",
+   "label": "Volunteers"
+  },
+  {
+   "fieldname": "sec_volunteer_requirements",
+   "fieldtype": "Section Break",
+   "label": "Volunteer Requirements"
+  },
+  {
+   "fieldname": "event_volunteer_requirements",
+   "fieldtype": "Table",
+   "label": "Volunteer Requirements",
+   "options": "Event Volunteer Requirement"
+  },
+  {
+   "fieldname": "sec_volunteer_assignments",
+   "fieldtype": "Section Break",
+   "label": "Volunteer Assignments"
+  },
+  {
+   "fieldname": "volunteer_summary_html",
+   "fieldtype": "HTML",
+   "label": "Volunteer Summary"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "event_volunteers",
+   "fieldtype": "Table",
+   "label": "Volunteer Assignments",
+   "options": "Event Volunteer Assignment"
+  },
+  {
    "fieldname": "tab_structure",
    "fieldtype": "Tab Break",
    "label": "Structure & Sponsorship"
@@ -476,12 +518,27 @@
    "options": "Events",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "section_break_katf",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "registration_form",
+   "fieldtype": "Link",
+   "label": "Registration Form",
+   "options": "Registration"
+  },
+  {
+   "fieldname": "max_registrations",
+   "fieldtype": "Int",
+   "label": "Maximum Registrations"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-05-31 22:44:47.574970",
- "modified_by": "Administrator",
+ "modified": "2026-06-13 21:27:04.542319",
+ "modified_by": "vairavan1092003@gmail.com",
  "module": "Event",
  "name": "Events",
  "naming_rule": "Expression",

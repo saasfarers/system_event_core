@@ -6,7 +6,12 @@ frappe.pages['registration-form'].on_page_load = function(wrapper) {
         single_column: true
     });
 
-    let registration_name = frappe.get_route()[1];
+    const route = frappe.get_route();
+
+let registration_name = route[1];
+let event_name = route[2];
+console.log("Registration:", registration_name);
+console.log("Event:", event_name);
 
     if (!registration_name) {
         page.main.html(`
@@ -283,15 +288,33 @@ frappe.pages['registration-form'].on_page_load = function(wrapper) {
                     });
 
 frappe.call({
-    method: "system_event_core.event_attribute.page.registration_form.registration_form.save_registration_response",
+    method: "system_event_core.event_attribute.doctype.registration_response.registration_response.submit_registration",
     args: {
+        event: event_name,
         registration_form: registration_name,
-        responses: responses
+        answers_json: JSON.stringify(
+            responses.map(r => ({
+                question_label: r.question,
+                answer: r.answer
+            }))
+        )
     },
     freeze: true,
     freeze_message: "Submitting...",
-    callback: function (r) {
-        frappe.msgprint("Registration Submitted Successfully");
+    callback: function(r) {
+
+        if (r.message?.success) {
+
+            frappe.msgprint({
+                title: __("Success"),
+                message: __("Registration Submitted Successfully"),
+                indicator: "green"
+            });
+
+            frappe.set_route(
+                "community-events"
+            );
+        }
     }
 });
 

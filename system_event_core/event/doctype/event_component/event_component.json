@@ -11,6 +11,7 @@
   "column_break_suiq",
   "component_code",
   "description",
+  "configuration_doctype",
   "section_break_urpu",
   "supports_timeline",
   "column_break_nree",
@@ -117,12 +118,18 @@
   {
    "fieldname": "column_break_ddlh",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "configuration_doctype",
+   "fieldtype": "Link",
+   "label": "Configuration Doctype",
+   "options": "DocType"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-18 23:12:32.677623",
+ "modified": "2026-06-11 12:42:53.905278",
  "modified_by": "Administrator",
  "module": "Event",
  "name": "Event Component",

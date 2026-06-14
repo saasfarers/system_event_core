@@ -12,11 +12,11 @@ frappe.ui.form.on("Events", {
 		_set_field_visibility(frm);
 		_add_approval_buttons(frm);
 		_set_status_indicator(frm);
+		toggle_volunteer_tab(frm);
 
 		// "View Event" button — only on saved docs
 		if (!frm.doc.__islocal && frm.doc.name) {
 			frm.add_custom_button(__("View Event"), function() {
-				// Use the shared function from events_list.js
 				if (frappe.events_list_show_summary) {
 					frappe.events_list_show_summary(frm.doc.name);
 				}
@@ -28,16 +28,32 @@ frappe.ui.form.on("Events", {
 
 		// Render component checkboxes
 		_render_components_selector(frm);
+		toggle_registration_form(frm);
+
+		// ── Volunteer management ────────────────────────────────
+		_set_volunteer_link_filter(frm);
+		render_volunteer_summary(frm);
+		_add_volunteer_attendance_button(frm);
 
 		// Re-render when Components tab clicked (Frappe lazy-renders tabs)
 		frm.page.wrapper
-	.find('.form-tabs-list [data-fieldname="tab_components"]')
-	.off("click.comp")
-	.on("click.comp", function() {
-		setTimeout(() => {
-			_render_components_selector(frm);
-		}, 300);
-	});
+			.find('.form-tabs-list [data-fieldname="tab_components"]')
+			.off("click.comp")
+			.on("click.comp", function() {
+				setTimeout(() => {
+					_render_components_selector(frm);
+				}, 300);
+			});
+
+		// Re-render volunteer summary when Volunteers tab clicked
+		frm.page.wrapper
+			.find('.form-tabs-list [data-fieldname="tab_volunteers"]')
+			.off("click.vol")
+			.on("click.vol", function() {
+				setTimeout(() => {
+					render_volunteer_summary(frm);
+				}, 200);
+			});
 	},
 
 	// ── Field triggers ────────────────────────────────────────────
@@ -87,6 +103,251 @@ frappe.ui.form.on("Events", {
 });
 
 
+// ═══════════════════════════════════════════════════════════════════════════
+// VOLUNTEER MANAGEMENT — child table handlers
+// Re-render summary whenever rows are added/removed/edited
+// ═══════════════════════════════════════════════════════════════════════════
+
+frappe.ui.form.on("Event Volunteer Assignment", {
+	role_at_event: function(frm) { render_volunteer_summary(frm); },
+	volunteer:     function(frm, cdt, cdn) {
+		// Optional: auto-pull volunteer's general role as default role_at_event
+		let row = locals[cdt][cdn];
+		if (row.volunteer && !row.role_at_event) {
+			frappe.db.get_value("Volunteer", row.volunteer, "role", function(r) {
+				if (r && r.role) {
+					frappe.model.set_value(cdt, cdn, "role_at_event", r.role);
+					render_volunteer_summary(frm);
+				}
+			});
+		}
+		render_volunteer_summary(frm);
+	},
+	event_volunteers_add:    function(frm) { render_volunteer_summary(frm); },
+	event_volunteers_remove: function(frm) { render_volunteer_summary(frm); },
+});
+
+frappe.ui.form.on("Event Volunteer Requirement", {
+	role_at_event: function(frm) { render_volunteer_summary(frm); },
+	slots_needed:  function(frm) { render_volunteer_summary(frm); },
+	event_volunteer_requirements_add:    function(frm) { render_volunteer_summary(frm); },
+	event_volunteer_requirements_remove: function(frm) { render_volunteer_summary(frm); },
+});
+
+
+// ─────────────────────────────────────────────
+// VOLUNTEER LINK FILTER
+// Only show Volunteers with availability_status = Available
+// in the Event Volunteer Assignment -> volunteer Link field
+// ─────────────────────────────────────────────
+function _set_volunteer_link_filter(frm) {
+	frm.set_query("volunteer", "event_volunteers", function() {
+		return {
+			filters: {
+				availability_status: "Available"
+			}
+		};
+	});
+}
+
+
+// ─────────────────────────────────────────────
+// VOLUNTEER SUMMARY WIDGET
+// Groups Assignment rows by role_at_event, compares against
+// Requirement rows' slots_needed, renders progress bars.
+// ─────────────────────────────────────────────
+function render_volunteer_summary(frm) {
+	var wrapperField = frm.fields_dict.volunteer_summary_html;
+	if (!wrapperField || !wrapperField.$wrapper) return;
+
+	var requirements = frm.doc.event_volunteer_requirements || [];
+	var assignments  = frm.doc.event_volunteers || [];
+
+	// Count assignments per role
+	var filled = {};
+	assignments.forEach(function(row) {
+		var role = row.role_at_event || "Unassigned";
+		filled[role] = (filled[role] || 0) + 1;
+	});
+
+	var html = "";
+
+	if (!requirements.length && !assignments.length) {
+		html = "<div style='padding:14px;text-align:center;color:#9ca3af;"
+			+ "font-size:12px;border:1px dashed #e2e8f0;border-radius:10px;'>"
+			+ "No volunteer requirements or assignments added yet."
+			+ "</div>";
+	} else {
+		html += "<div style='display:flex;flex-direction:column;gap:10px;"
+			+ "margin-bottom:10px;'>";
+
+		requirements.forEach(function(req) {
+			var role   = req.role_at_event || "—";
+			var needed = req.slots_needed || 0;
+			var have   = filled[role] || 0;
+			var pct    = needed ? Math.min((have / needed) * 100, 100) : (have ? 100 : 0);
+
+			var color = "#1d7a43"; // green
+			if (needed && have < needed) color = "#a86518"; // orange
+			if (needed && have === 0) color = "#b54747";    // red
+			if (!needed && have) color = "#0f6a5b";          // unlimited / teal
+
+			html += "<div style='border:1px solid #e2e8f0;border-radius:10px;"
+				+ "padding:10px 14px;'>"
+				+ "<div style='display:flex;justify-content:space-between;"
+				+ "font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;'>"
+				+ "<span>" + frappe.utils.escape_html(role) + "</span>"
+				+ "<span>" + have + (needed ? (" / " + needed) : " (unlimited)") + "</span>"
+				+ "</div>"
+				+ "<div style='width:100%;height:8px;border-radius:999px;"
+				+ "background:#f1f5f9;overflow:hidden;'>"
+				+ "<div style='height:100%;border-radius:999px;width:" + pct + "%;"
+				+ "background:" + color + ";transition:width .3s ease;'></div>"
+				+ "</div>"
+				+ "</div>";
+		});
+
+		// Any roles filled but with no matching requirement row
+		Object.keys(filled).forEach(function(role) {
+			var hasReq = requirements.some(function(r) { return r.role_at_event === role; });
+			if (!hasReq) {
+				html += "<div style='border:1px dashed #e2e8f0;border-radius:10px;"
+					+ "padding:10px 14px;color:#9ca3af;font-size:12px;'>"
+					+ frappe.utils.escape_html(role) + ": " + filled[role]
+					+ " assigned (no requirement defined)"
+					+ "</div>";
+			}
+		});
+
+		html += "</div>";
+	}
+
+	wrapperField.$wrapper.html(
+		"<div class='volunteer-summary-wrapper' style='padding:4px 2px 10px;'>"
+		+ html + "</div>"
+	);
+}
+
+
+// ─────────────────────────────────────────────
+// BULK ATTENDANCE — Check-in / Check-out / No-show
+// Coordinator selects volunteers from a dialog and marks status in bulk
+// ─────────────────────────────────────────────
+function _add_volunteer_attendance_button(frm) {
+	if (frm.doc.__islocal) return; // only on saved docs
+	if (!(frm.doc.event_volunteers || []).length) return;
+
+	frm.add_custom_button(__("Mark Volunteer Attendance"), function() {
+		_show_attendance_dialog(frm);
+	}, __("Volunteers"));
+}
+
+function _show_attendance_dialog(frm) {
+	var rows = frm.doc.event_volunteers || [];
+
+	var rows_html = rows.map(function(row) {
+		var label = frappe.utils.escape_html(row.volunteer_name || row.volunteer || "Unknown");
+		var role  = frappe.utils.escape_html(row.role_at_event || "—");
+		var status = row.attendance_status || "Pending";
+
+		var status_color =
+			status === "Present" ? "#1d7a43" :
+			status === "Absent"  ? "#b54747" : "#6b7280";
+
+		return "<label style='display:flex;align-items:center;gap:10px;"
+			+ "padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;"
+			+ "margin-bottom:6px;cursor:pointer;'>"
+			+ "<input type='checkbox' class='attendance-row-check' "
+			+ "data-name='" + row.name + "' style='width:16px;height:16px;'>"
+			+ "<div style='flex:1;'>"
+			+ "<div style='font-weight:600;font-size:13px;'>" + label + "</div>"
+			+ "<div style='font-size:11px;color:#6b7280;'>" + role + "</div>"
+			+ "</div>"
+			+ "<span style='font-size:11px;font-weight:700;color:" + status_color + ";'>"
+			+ status + "</span>"
+			+ "</label>";
+	}).join("");
+
+	var dialog = new frappe.ui.Dialog({
+		title: __("Mark Volunteer Attendance"),
+		size: "large",
+		fields: [
+			{
+				fieldname: "select_all",
+				fieldtype: "Check",
+				label: __("Select All")
+			},
+			{
+				fieldname: "rows_html",
+				fieldtype: "HTML",
+				options: "<div id='attendance-rows-list'>" + rows_html + "</div>"
+			}
+		],
+		primary_action_label: __("Check In Selected"),
+		primary_action: function() {
+			_run_attendance_action(frm, dialog, "check_in");
+		},
+		secondary_action_label: __("Check Out Selected"),
+		secondary_action: function() {
+			_run_attendance_action(frm, dialog, "check_out");
+		},
+	});
+
+	dialog.show();
+
+	// Select-all toggle
+	dialog.fields_dict.select_all.$input.on("change", function() {
+		var checked = $(this).is(":checked");
+		dialog.$wrapper.find(".attendance-row-check").prop("checked", checked);
+	});
+
+	// Extra button: No-show
+	dialog.$wrapper.find(".modal-footer").prepend(
+		"<button class='btn btn-default btn-sm' id='btn-mark-noshow'>"
+		+ __("Mark No-show") + "</button>"
+	);
+	dialog.$wrapper.find("#btn-mark-noshow").on("click", function() {
+		_run_attendance_action(frm, dialog, "no_show");
+	});
+}
+
+function _run_attendance_action(frm, dialog, action) {
+	var selected = [];
+	dialog.$wrapper.find(".attendance-row-check:checked").each(function() {
+		selected.push($(this).data("name"));
+	});
+
+	if (!selected.length) {
+		frappe.msgprint({
+			message: __("Please select at least one volunteer."),
+			indicator: "orange"
+		});
+		return;
+	}
+
+	frappe.call({
+		method: "system_event_core.event.doctype.events.events.mark_volunteer_attendance",
+		args: {
+			docname: frm.doc.name,
+			assignment_names: JSON.stringify(selected),
+			action: action
+		},
+		freeze: true,
+		freeze_message: __("Updating attendance..."),
+		callback: function(r) {
+			if (r.message && r.message.status === "ok") {
+				frappe.show_alert({
+					message: __("Updated {0} volunteer(s).", [r.message.updated]),
+					indicator: "green"
+				}, 3);
+				dialog.hide();
+				frm.reload_doc();
+			}
+		}
+	});
+}
+
+
 // ─────────────────────────────────────────────
 // MAKE CHILD TABLE READ-ONLY
 // User manages components only via checkboxes
@@ -113,8 +374,6 @@ function _make_table_readonly(frm) {
 
 // ─────────────────────────────────────────────
 // AUTO-CHECK FROM CATEGORY
-// Fetch default_components from Event Category Master
-// Clear all → add defaults → re-render checkboxes
 // ─────────────────────────────────────────────
 function _auto_check_from_category(frm) {
 	frappe.call({
@@ -127,18 +386,15 @@ function _auto_check_from_category(frm) {
 				return c.is_default;
 			});
 
-			// Clear child table
 			frm.doc.event_components = [];
 
-			// Add default rows
 			defaults.forEach(function(dc) {
 				var row        = frm.add_child("event_components");
-				row.component  = dc.component; // numeric autoincrement name
+				row.component  = dc.component;
 				row.is_enabled = 1;
 				row.phase      = dc.phase || "During Event";
 			});
 
-			// Refresh grid silently
 			if (frm.fields_dict["event_components"] &&
 			    frm.fields_dict["event_components"].grid) {
 				frm.fields_dict["event_components"].grid.refresh();
@@ -151,8 +407,9 @@ function _auto_check_from_category(frm) {
 				}, 4);
 			}
 
-			// Force full re-render of checkboxes
 			_render_components_selector(frm);
+			toggle_volunteer_tab(frm);
+			toggle_registration_form(frm);
 		},
 	});
 }
@@ -160,20 +417,6 @@ function _auto_check_from_category(frm) {
 
 // ─────────────────────────────────────────────
 // COMPONENT CHECKBOX SELECTOR
-//
-// ✅ CORRECT FLOW:
-//   • Load ALL active Event Components from master
-//   • Show as checkboxes grouped by type
-//   • ALWAYS visible — never hidden
-//   • Checked  = component is in event_components child table
-//   • Uncheck  = remove from child table
-//   • Check    = add to child table
-//   • Child table refreshed via grid.refresh() NOT frm.refresh_field()
-//     (frm.refresh_field triggers the full refresh hook → re-renders → breaks)
-//
-// ⚠️  Event Component uses autoincrement naming:
-//   c.name          = number (1, 2, 3…)  → stored in row.component
-//   c.component_name = display label
 // ─────────────────────────────────────────────
 function _render_components_selector(frm) {
 	frappe.call({
@@ -182,9 +425,9 @@ function _render_components_selector(frm) {
 			doctype: "Event Component",
 			filters: [["is_active","=",1]],
 			fields: [
-				"name",            // autoincrement number
-				"component_name",  // display label
-				"component_type",  // group by
+				"name",
+				"component_name",
+				"component_type",
 				"is_financial",
 				"requires_approval",
 				"supports_timeline",
@@ -196,13 +439,10 @@ function _render_components_selector(frm) {
 			if (!r.message) return;
 			var all_comps = r.message;
 
-			// Build selected ID list from child table
-			// NOTE: component field stores the autoincrement number as string
 			var selected = (frm.doc.event_components || []).map(function(c) {
 				return String(c.component);
 			});
 
-			// Group by type
 			var groups = {};
 			all_comps.forEach(function(c) {
 				var t = c.component_type || "Other";
@@ -210,10 +450,8 @@ function _render_components_selector(frm) {
 				groups[t].push(c);
 			});
 
-			// ── Build HTML ─────────────────────────────────────
 			var html = "<div class='evt-comp-root'>";
 
-			// Sticky header hint
 			html += "<div style='background:#f0f4ff;border-radius:8px;"
 				+ "padding:9px 14px;margin-bottom:16px;"
 				+ "font-size:12px;color:#4a5568;border:1px solid #c7d4f5;'>"
@@ -222,7 +460,6 @@ function _render_components_selector(frm) {
 				+ "Table below updates automatically."
 				+ "</div>";
 
-			// Scrollable grid area
 			html += "<div class='evt-comp-scroll' "
 				+ "style='max-height:360px;overflow-y:auto;"
 				+ "padding-right:6px;'>";
@@ -239,7 +476,6 @@ function _render_components_selector(frm) {
 			type_keys.forEach(function(type) {
 				var comps = groups[type];
 
-				// Group heading
 				html += "<div style='margin-bottom:16px;'>"
 					+ "<div style='font-size:11px;font-weight:700;color:#4a5568;"
 					+ "text-transform:uppercase;letter-spacing:.8px;"
@@ -249,13 +485,12 @@ function _render_components_selector(frm) {
 					+ "<div style='display:flex;flex-wrap:wrap;gap:10px;'>";
 
 				comps.forEach(function(c) {
-					var id     = String(c.name); // numeric autoincrement
+					var id     = String(c.name);
 					var is_chk = selected.includes(id);
 					var bg     = is_chk ? "#e8f0fe" : "#f8fafc";
 					var bord   = is_chk ? "#4a86e8" : "#e2e8f0";
 					var tc     = is_chk ? "#1a56db" : "#374151";
 
-					// Badges
 					var badges = "";
 					if (c.is_financial)
 						badges += "<span style='background:#fef3c7;color:#92400e;"
@@ -270,8 +505,6 @@ function _render_components_selector(frm) {
 							+ "border-radius:4px;padding:1px 6px;font-size:10px;'>"
 							+ "Timeline</span>";
 
-					// Pill — uses data attributes, NO inline onclick
-					// click handled via event delegation below
 					html += "<div class='evt-comp-pill'"
 						+ " data-comp-id='" + id + "'"
 						+ " data-comp-name='" + frappe.utils.escape_html(c.component_name) + "'"
@@ -281,7 +514,6 @@ function _render_components_selector(frm) {
 						+ "border-radius:10px;padding:10px 14px;"
 						+ "min-width:160px;max-width:220px;flex:1;"
 						+ "transition:background .12s,border-color .12s;'>"
-						// Visual checkbox (div-based, always visible)
 						+ "<div class='evt-chk-box' style='"
 						+ "width:17px;height:17px;border-radius:4px;flex-shrink:0;"
 						+ "margin-top:1px;border:2px solid " + (is_chk ? "#4a86e8" : "#d1d5db") + ";"
@@ -293,7 +525,6 @@ function _render_components_selector(frm) {
 							  + "&#10003;</span>"
 							: "")
 						+ "</div>"
-						// Label
 						+ "<div style='min-width:0;'>"
 						+ "<div class='evt-comp-label' style='font-size:12px;"
 						+ "font-weight:600;color:" + tc + ";line-height:1.4;'>"
@@ -303,30 +534,14 @@ function _render_components_selector(frm) {
 							  + badges + "</div>"
 							: "")
 						+ "</div>"
-						+ "</div>"; // end pill
+						+ "</div>";
 				});
 
-				html += "</div></div>"; // end flex + group
+				html += "</div></div>";
 			});
 
-			html += "</div></div>"; // end scroll + root
+			html += "</div></div>";
 
-			// ── Inject into section ────────────────────────────
-			// var $section = frm.layout.wrapper
-			// 	.find(".section-head:contains('Select Event Components')")
-			// 	.closest(".form-section");
-
-			// if (!$section.length) return;
-
-			// $section.find(".evt-comp-wrapper").remove();
-			// $section.find(".section-body").prepend(
-			// 	"<div class='evt-comp-wrapper' style='padding:14px 18px;'>"
-			// 	+ html + "</div>"
-			// );
-
-			// // Force Frappe to show the section (it marks empty sections hidden)
-			// $section.removeClass("empty-section");
-			// $section.find(".section-head, .section-body").show();
 			var wrapper = frm.fields_dict.components_ui_html.$wrapper;
 
 			wrapper.html(
@@ -335,23 +550,49 @@ function _render_components_selector(frm) {
 				"</div>"
 			);
 
-			// ── Event delegation for pill clicks ───────────────
-			// Remove old handler first to avoid duplicates
 			wrapper.off("click.comp-toggle")
-	.on("click.comp-toggle", ".evt-comp-pill", function() {
-		_toggle_component(frm, $(this));
-	});
+				.on("click.comp-toggle", ".evt-comp-pill", function() {
+					_toggle_component(frm, $(this));
+				});
 
 			window._events_frm = frm;
 		},
 	});
 }
 
+function toggle_registration_form(frm) {
+    let hasRegistration = (frm.doc.event_components || []).some(row => {
+        return String(row.component) === "1";
+    });
+
+    frm.toggle_display("registration_form", hasRegistration);
+
+    if (!hasRegistration) {
+        frm.set_value("registration_form", "");
+    }
+}
+
+// ─────────────────────────────────────────────
+// VOLUNTEER TAB TOGGLE
+// Show "Volunteers" tab only when "Volunteer Management"
+// component (Event Component id = 5) is selected
+// ─────────────────────────────────────────────
+function toggle_volunteer_tab(frm) {
+    let show = (frm.doc.event_components || []).some(function(r) {
+        return String(r.component) === "5";
+    });
+
+    frm.toggle_display("tab_volunteers", show);
+
+    frm.page.wrapper
+        .find('.form-tabs-list [data-fieldname="tab_volunteers"]')
+        .closest("li")
+        .toggle(show);
+}
+
 
 // ─────────────────────────────────────────────
 // TOGGLE COMPONENT
-// Called when user clicks a component pill
-// Updates visual + child table WITHOUT re-rendering the selector
 // ─────────────────────────────────────────────
 function _toggle_component(frm, $pill) {
 	var comp_id   = String($pill.attr("data-comp-id"));
@@ -359,9 +600,8 @@ function _toggle_component(frm, $pill) {
 	var currently = rows.find(function(r) {
 		return String(r.component) === comp_id;
 	});
-	var will_check = !currently; // toggle
+	var will_check = !currently;
 
-	// ── Update visual immediately ──────────────────────────────
 	var $box   = $pill.find(".evt-chk-box");
 	var $label = $pill.find(".evt-comp-label");
 
@@ -376,7 +616,6 @@ function _toggle_component(frm, $pill) {
 		$label.css("color","#374151");
 	}
 
-	// ── Update child table ─────────────────────────────────────
 	if (will_check) {
 		var exists = rows.find(function(r) {
 			return String(r.component) === comp_id;
@@ -394,12 +633,12 @@ function _toggle_component(frm, $pill) {
 		if (idx > -1) frm.doc.event_components.splice(idx, 1);
 	}
 
-	// ── Refresh grid ONLY (not frm.refresh_field — that triggers hooks) ──
 	var grid = frm.fields_dict["event_components"] &&
 	           frm.fields_dict["event_components"].grid;
 	if (grid) grid.refresh();
+	toggle_registration_form(frm);
+	toggle_volunteer_tab(frm);
 
-	// Re-apply readonly after grid refresh
 	setTimeout(function() { _make_table_readonly(frm); }, 200);
 }
 

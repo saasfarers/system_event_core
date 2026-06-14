@@ -5,7 +5,7 @@
 from frappe.model.document import Document
 
 
-class EventComponentMapping(Document):
+class EventVolunteerRequirement(Document):
 	# begin: auto-generated types
 	# This code is auto-generated. Do not modify anything in this block.
 
@@ -14,21 +14,13 @@ class EventComponentMapping(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-		component: DF.Link
-		component_name: DF.Data | None
-		configuration_doctype: DF.Link | None
-		configuration_document: DF.DynamicLink | None
-		end_timeline: DF.Datetime | None
-		is_enabled: DF.Check
-		is_mandatory: DF.Check
 		notes: DF.SmallText | None
 		parent: DF.Data
 		parentfield: DF.Data
 		parenttype: DF.Data
-		phase: DF.Literal["Pre-Event", "During Event", "Post-Event"]
-		reminder_date: DF.Date | None
-		requires_approval: DF.Check
-		start_timeline: DF.Datetime | None
+		role_at_event: DF.Data | None
+		slots_filled: DF.Int
+		slots_needed: DF.Int
 	# end: auto-generated types
 
 	pass

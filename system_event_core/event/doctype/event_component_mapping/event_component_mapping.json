@@ -1,85 +1,126 @@
 {
-  "name": "Event Component Mapping",
-  "doctype": "DocType",
-  "module": "Event",
-  "is_child_table": 1,
-  "istable": 1,
-  "fields": [
-    {
-      "fieldname": "component",
-      "fieldtype": "Link",
-      "label": "Component",
-      "options": "Event Component",
-      "reqd": 1,
-      "in_list_view": 1
-    },
-    {
-    "fieldname": "component_name",
-    "fieldtype": "Data",
-    "label": "Component Name",
-    "fetch_from": "component.component_name",
-    "read_only": 1,
-    "in_list_view": 1
-    },
-    {
-      "fieldname": "is_enabled",
-      "fieldtype": "Check",
-      "label": "Is Enabled",
-      "default": "1",
-      "in_list_view": 1
-    },
-    {
-      "fieldname": "is_mandatory",
-      "fieldtype": "Check",
-      "label": "Is Mandatory",
-      "in_list_view": 1
-    },
-    {
-      "fieldname": "col_break_1",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "phase",
-      "fieldtype": "Select",
-      "label": "Phase",
-      "options": "Pre-Event\nDuring Event\nPost-Event",
-      "in_list_view": 1
-    },
-    {
-      "fieldname": "requires_approval",
-      "fieldtype": "Check",
-      "label": "Requires Approval"
-    },
-    {
-      "fieldname": "timeline_section",
-      "fieldtype": "Section Break",
-      "label": "Timeline"
-    },
-    {
-      "fieldname": "start_timeline",
-      "fieldtype": "Datetime",
-      "label": "Start Timeline"
-    },
-    {
-      "fieldname": "end_timeline",
-      "fieldtype": "Datetime",
-      "label": "End Timeline"
-    },
-    {
-      "fieldname": "col_break_2",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "reminder_date",
-      "fieldtype": "Date",
-      "label": "Reminder Date"
-    },
-    {
-      "fieldname": "notes",
-      "fieldtype": "Small Text",
-      "label": "Notes"
-    }
-  ],
-  "permissions": [],
-  "track_changes": 0
+ "actions": [],
+ "creation": "2026-05-30 12:50:14.169888",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "component",
+  "component_name",
+  "is_enabled",
+  "is_mandatory",
+  "col_break_1",
+  "phase",
+  "requires_approval",
+  "configuration_doctype",
+  "configuration_document",
+  "timeline_section",
+  "start_timeline",
+  "end_timeline",
+  "col_break_2",
+  "reminder_date",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "component",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Component",
+   "options": "Event Component",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "component.component_name",
+   "fieldname": "component_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Component Name",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "is_enabled",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Enabled"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_mandatory",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Mandatory"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "phase",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Phase",
+   "options": "Pre-Event\nDuring Event\nPost-Event"
+  },
+  {
+   "default": "0",
+   "fieldname": "requires_approval",
+   "fieldtype": "Check",
+   "label": "Requires Approval"
+  },
+  {
+   "fieldname": "timeline_section",
+   "fieldtype": "Section Break",
+   "label": "Timeline"
+  },
+  {
+   "fieldname": "start_timeline",
+   "fieldtype": "Datetime",
+   "label": "Start Timeline"
+  },
+  {
+   "fieldname": "end_timeline",
+   "fieldtype": "Datetime",
+   "label": "End Timeline"
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reminder_date",
+   "fieldtype": "Date",
+   "label": "Reminder Date"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "configuration_doctype",
+   "fieldtype": "Link",
+   "label": "Configuration Type",
+   "options": "DocType",
+   "read_only": 1
+  },
+  {
+   "fieldname": "configuration_document",
+   "fieldtype": "Dynamic Link",
+   "label": "Configuration",
+   "options": "configuration_doctype"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-11 12:40:22.121414",
+ "modified_by": "Administrator",
+ "module": "Event",
+ "name": "Event Component Mapping",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
 }

@@ -6,12 +6,16 @@
  "engine": "InnoDB",
  "field_order": [
   "registration_form_name",
-  "response"
+  "response",
+  "event",
+  "party_master"
  ],
  "fields": [
   {
    "fieldname": "registration_form_name",
    "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Registration Form Name",
    "options": "Registration"
   },
@@ -20,12 +24,28 @@
    "fieldtype": "Table",
    "label": "Responses",
    "options": "Registration Response Items"
+  },
+  {
+   "fieldname": "event",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Event",
+   "options": "Events"
+  },
+  {
+   "fieldname": "party_master",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Party Member",
+   "options": "Party Master"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-07 22:14:58.588322",
+ "modified": "2026-06-12 22:18:05.251148",
  "modified_by": "Administrator",
  "module": "Event Attribute",
  "name": "Registration Response",

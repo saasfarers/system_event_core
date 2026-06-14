@@ -17,6 +17,9 @@ from system_event_core.utils.schedule_calendar import (
     cancel_schedule_entry,
 )	
 from frappe.utils import get_datetime
+import json
+
+
 class Events(Document):
 	# begin: auto-generated types
 	# This code is auto-generated. Do not modify anything in this block.
@@ -26,6 +29,8 @@ class Events(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 		from system_event_core.event.doctype.event_component_mapping.event_component_mapping import EventComponentMapping
+		from system_event_core.event_attribute.doctype.event_volunteer_assignment.event_volunteer_assignment import EventVolunteerAssignment
+		from system_event_core.event_attribute.doctype.event_volunteer_requirement.event_volunteer_requirement import EventVolunteerRequirement
 
 		admin_approved_on: DF.Datetime | None
 		admin_approver: DF.Link | None
@@ -44,6 +49,8 @@ class Events(Document):
 		event_name: DF.Data
 		event_owner: DF.Link | None
 		event_type: DF.Literal["Standalone", "Recurring", "Multi-day"]
+		event_volunteer_requirements: DF.Table[EventVolunteerRequirement]
+		event_volunteers: DF.Table[EventVolunteerAssignment]
 		finance_approved_on: DF.Datetime | None
 		finance_approver: DF.Link | None
 		finance_manager: DF.Link | None
@@ -51,11 +58,13 @@ class Events(Document):
 		is_multi_day: DF.Check
 		is_off_premise: DF.Check
 		is_sub_event: DF.Check
+		max_registrations: DF.Int
 		notification_channel: DF.Literal["Email", "SMS", "WhatsApp", "All"]
 		off_premise_address: DF.SmallText | None
 		parent_event: DF.Link | None
 		recurrence_end_date: DF.Date | None
 		recurrence_pattern: DF.Literal["Daily", "Weekly", "Monthly", "Custom"]
+		registration_form: DF.Link | None
 		rejection_reason: DF.SmallText | None
 		remarks: DF.SmallText | None
 		reminder_days_before: DF.Int
@@ -87,6 +96,7 @@ class Events(Document):
 		self._auto_set_multi_day()
 		self._validate_sub_event()
 		self._validate_recurring()
+		self._sync_volunteer_slots_filled()
 
 	# def before_submit(self):
 	# 	# self._check_approval_before_submit()
@@ -103,7 +113,6 @@ class Events(Document):
 		end_dt = get_datetime(
 			f"{self.end_date} {self.end_time or '23:59:59'}"
 		)
-		frappe.msgprint("Before Sync")
 
 		sync_schedule_entry(
 			reference_type="Events",
@@ -113,7 +122,6 @@ class Events(Document):
 			end_datetime=end_dt,
 			category="Event",
 		)
-		frappe.msgprint("After Sync")
 
 	def on_cancel(self):
 		self.status = "Cancelled"
@@ -187,6 +195,20 @@ class Events(Document):
 		self.status = "Active" if getdate(self.start_date) <= getdate(nowdate()) else "Approved"
 		self.db_update()
 
+	# ── Volunteer helpers ───────────────────────────────────────────
+
+	def _sync_volunteer_slots_filled(self):
+		"""Keep slots_filled on each Volunteer Requirement row in sync
+		with the actual count of Volunteer Assignment rows for that role."""
+		counts = {}
+		for row in (self.event_volunteers or []):
+			role = row.role_at_event
+			if role:
+				counts[role] = counts.get(role, 0) + 1
+
+		for req in (self.event_volunteer_requirements or []):
+			req.slots_filled = counts.get(req.role_at_event, 0)
+
 	# ── Approval workflow ─────────────────────────────────────────
 
 	@frappe.whitelist()
@@ -237,6 +259,46 @@ class Events(Document):
 			)
 
 
+# ── Volunteer attendance — bulk check-in / check-out / no-show ─────────────────
+# Called from events.js via frappe.call({
+#     method: "...events.mark_volunteer_attendance",
+#     args: { docname, assignment_names: JSON.stringify([...]), action }
+# })
+
+@frappe.whitelist()
+def mark_volunteer_attendance(docname: str, assignment_names, action: str) -> dict:
+	"""
+	action: "check_in" | "check_out" | "no_show"
+	assignment_names: JSON-encoded list of child row names (frm row.name values)
+	"""
+	if isinstance(assignment_names, str):
+		assignment_names = json.loads(assignment_names)
+
+	doc = frappe.get_doc("Events", docname)
+	now = now_datetime()
+	updated = 0
+
+	for row in doc.event_volunteers:
+		if row.name in assignment_names:
+			if action == "check_in":
+				row.check_in_time = now
+				row.attendance_status = "Present"
+				if row.assignment_status == "Assigned":
+					row.assignment_status = "Confirmed"
+			elif action == "check_out":
+				row.check_out_time = now
+			elif action == "no_show":
+				row.attendance_status = "Absent"
+				row.assignment_status = "No-show"
+			else:
+				frappe.throw(_("Invalid action: {0}").format(action))
+			updated += 1
+
+	doc.save(ignore_permissions=True)
+	frappe.db.commit()
+	return {"status": "ok", "updated": updated}
+
+
 # ── Standalone whitelisted function for recurring instances ────────────────────
 # Called from events.js via frappe.call({ method: "...events.generate_recurring_instances" })
 
@@ -247,12 +309,12 @@ def generate_recurring_instances(docname: str) -> dict:
 
 	Rules
 	-----
-	• Daily   → one instance per day from start_date to recurrence_end_date
+	- Daily   → one instance per day from start_date to recurrence_end_date
 	           (or total_occurrences days)
-	• Weekly  → respects repeat_on_days (comma-separated day names, e.g. "Monday,Friday")
+	- Weekly  → respects repeat_on_days (comma-separated day names, e.g. "Monday,Friday")
 	           If blank, uses the day-of-week of start_date
-	• Monthly → same day-of-month each month
-	• Custom  → same as Daily (caller can edit instances manually)
+	- Monthly → same day-of-month each month
+	- Custom  → same as Daily (caller can edit instances manually)
 
 	Existing instances for the same event + date are skipped (no duplicates).
 	Returns {"created": N, "skipped": M}

@@ -1,0 +1,54 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-06-13 18:22:24.864643",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "role_at_event",
+  "slots_needed",
+  "slots_filled",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "role_at_event",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Role at Event"
+  },
+  {
+   "fieldname": "slots_needed",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Slots Needed"
+  },
+  {
+   "fieldname": "slots_filled",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Slots Filled"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-14 18:36:59.942744",
+ "modified_by": "vairavan1092003@gmail.com",
+ "module": "Event Attribute",
+ "name": "Event Volunteer Requirement",
+ "owner": "vairavan1092003@gmail.com",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

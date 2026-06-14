@@ -17,6 +17,7 @@ class EventComponent(Document):
 		component_code: DF.Data
 		component_name: DF.Data
 		component_type: DF.Literal["Religious", "Prayer", "Educational", "Community", "Volunteer", "Financial", "Donation", "Booking", "Attendance", "Inventory", "Travel", "Media", "Food", "Security", "Administration", "Fundraising", "Ceremony", "Youth Program", "Women Program", "Children Program", "Health Camp", "Funeral Service", "Nikah Service", "Ramadan Activity", "Hajj Support", "Other"]
+		configuration_doctype: DF.Link | None
 		description: DF.SmallText | None
 		is_active: DF.Check
 		is_financial: DF.Check
