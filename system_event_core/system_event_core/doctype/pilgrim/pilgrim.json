@@ -1,0 +1,279 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-06-16 14:24:43.093309",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "pilgrim_id",
+  "section_break_vibl",
+  "full_name",
+  "gender",
+  "date_of_birth",
+  "age",
+  "mobile_number",
+  "email",
+  "institution",
+  "column_break_qiaf",
+  "id_proof",
+  "passport_number",
+  "passport_expiry",
+  "aadhaar_number",
+  "nationality",
+  "marital_status",
+  "guardianmahram",
+  "travel_and_package_section",
+  "package",
+  "package_cost",
+  "application_date",
+  "column_break_arzd",
+  "status",
+  "payment_status",
+  "visa_status",
+  "medical_and_documents_section",
+  "medical_clearance",
+  "medical_notes",
+  "emergency_contact_name",
+  "emergency_contact_number",
+  "notes"
+ ],
+ "fields": [
+  {
+   "default": "PLG-.YYYY.-####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "Naming Series",
+   "no_copy": 1,
+   "options": "PLG-.YYYY.-####",
+   "read_only": 1
+  },
+  {
+   "fieldname": "pilgrim_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "Pilgrim ID",
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "section_break_vibl",
+   "fieldtype": "Section Break",
+   "label": "Basic Information"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "bold": 1,
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Full Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "gender",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Gender",
+   "options": "Male\nFemale\nTransgender",
+   "reqd": 1
+  },
+  {
+   "fieldname": "date_of_birth",
+   "fieldtype": "Date",
+   "label": "Date of Birth"
+  },
+  {
+   "fieldname": "age",
+   "fieldtype": "Int",
+   "in_preview": 1,
+   "label": "Age",
+   "read_only": 1
+  },
+  {
+   "fieldname": "mobile_number",
+   "fieldtype": "Data",
+   "in_preview": 1,
+   "label": "Mobile Number",
+   "reqd": 1
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email"
+  },
+  {
+   "fieldname": "institution",
+   "fieldtype": "Link",
+   "label": "Institution",
+   "options": "Institution Master"
+  },
+  {
+   "depends_on": "eval:doc.id_type=='Passport'",
+   "fieldname": "column_break_qiaf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "id_proof",
+   "fieldtype": "Select",
+   "label": "ID Proof",
+   "options": "Passport\nAadhaar\nOthers",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.id_type=='Passport'",
+   "fieldname": "passport_number",
+   "fieldtype": "Data",
+   "label": "Passport Number"
+  },
+  {
+   "fieldname": "passport_expiry",
+   "fieldtype": "Data",
+   "label": "Passport Expiry"
+  },
+  {
+   "depends_on": "eval:doc.id_type=='Aadhaar'",
+   "fieldname": "aadhaar_number",
+   "fieldtype": "Data",
+   "label": "Aadhaar Number"
+  },
+  {
+   "fieldname": "nationality",
+   "fieldtype": "Data",
+   "label": "Nationality"
+  },
+  {
+   "default": "Unmarried",
+   "fieldname": "marital_status",
+   "fieldtype": "Select",
+   "label": "Marital Status",
+   "options": "Married\nUnmarried\nDivorced\nWidowed"
+  },
+  {
+   "fieldname": "guardianmahram",
+   "fieldtype": "Link",
+   "label": "Guardian/Mahram",
+   "options": "Party Master"
+  },
+  {
+   "fieldname": "travel_and_package_section",
+   "fieldtype": "Section Break",
+   "label": "Travel and Package"
+  },
+  {
+   "fieldname": "package",
+   "fieldtype": "Link",
+   "label": "Package",
+   "options": "Packages"
+  },
+  {
+   "fieldname": "package_cost",
+   "fieldtype": "Currency",
+   "label": "Package Cost",
+   "non_negative": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "application_date",
+   "fieldtype": "Date",
+   "label": "Application Date"
+  },
+  {
+   "fieldname": "column_break_arzd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Pending\nApproved\nRejected\nCancelled",
+   "reqd": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "payment_status",
+   "fieldtype": "Select",
+   "label": "Payment Status",
+   "options": "Pending\nPartial\nCompleted"
+  },
+  {
+   "default": "Not Applied",
+   "fieldname": "visa_status",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Visa Status",
+   "options": "Not Applied\nApplied\nApproved\nRejected"
+  },
+  {
+   "fieldname": "medical_and_documents_section",
+   "fieldtype": "Section Break",
+   "label": "Medical and Documents"
+  },
+  {
+   "default": "0",
+   "fieldname": "medical_clearance",
+   "fieldtype": "Check",
+   "label": "Medical Clearance"
+  },
+  {
+   "depends_on": "eval:doc.medical_clearance == 0",
+   "fieldname": "medical_notes",
+   "fieldtype": "Small Text",
+   "label": "Medical Notes"
+  },
+  {
+   "fieldname": "emergency_contact_name",
+   "fieldtype": "Data",
+   "label": "Emergency Contact Name"
+  },
+  {
+   "fieldname": "emergency_contact_number",
+   "fieldtype": "Data",
+   "label": "Emergency Contact Number"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-16 17:47:15.967974",
+ "modified_by": "Administrator",
+ "module": "System Event Core",
+ "name": "Pilgrim",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "full_name"
+}

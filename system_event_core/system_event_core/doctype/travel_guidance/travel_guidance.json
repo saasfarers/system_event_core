@@ -1,0 +1,115 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-06-16 17:56:47.803181",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "guidance_id",
+  "section_break_cviq",
+  "title",
+  "pre_preparations_section",
+  "text_editor_dcrp",
+  "column_break_vsiq",
+  "travel_essentials",
+  "travel_essentials_section",
+  "text_editor_oxqv",
+  "column_break_lrfx",
+  "emergency_contacts"
+ ],
+ "fields": [
+  {
+   "default": "TGD-.YYYY.-####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series",
+   "no_copy": 1,
+   "options": "TGD-.YYYY.-####"
+  },
+  {
+   "fieldname": "guidance_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Guidance ID",
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title"
+  },
+  {
+   "fieldname": "pre_preparations_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "text_editor_dcrp",
+   "fieldtype": "Text Editor",
+   "label": "Pre-Preparations"
+  },
+  {
+   "fieldname": "travel_essentials_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "text_editor_oxqv",
+   "fieldtype": "Text Editor",
+   "label": "Health Guidelines"
+  },
+  {
+   "fieldname": "section_break_cviq",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_vsiq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "travel_essentials",
+   "fieldtype": "Text Editor",
+   "label": "Travel Essentials"
+  },
+  {
+   "fieldname": "column_break_lrfx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "emergency_contacts",
+   "fieldtype": "Text Editor",
+   "label": "Emergency Contacts"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-16 18:42:33.495830",
+ "modified_by": "Administrator",
+ "module": "System Event Core",
+ "name": "Travel Guidance",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "title"
+}
