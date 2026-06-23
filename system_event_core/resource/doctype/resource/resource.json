@@ -1,0 +1,293 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "autoincrement",
+ "creation": "2026-06-22 23:10:05.732689",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "general_details_section",
+  "assert_name",
+  "assert_category",
+  "description",
+  "assert_code",
+  "acquistion_type",
+  "purchasedonation_date",
+  "donar_name",
+  "status",
+  "photo",
+  "category_details_section",
+  "jewellary_name",
+  "metal_type",
+  "purity22k24k",
+  "gross_weight",
+  "net_weight",
+  "stone_type",
+  "stone_weight",
+  "hallmark_number",
+  "certificate_number",
+  "storage_location",
+  "last_audit_date",
+  "vehicle_name",
+  "vehicle_number",
+  "chassis_number",
+  "engine_number",
+  "rc_number",
+  "insurance_number",
+  "insurance_expiry_date",
+  "puc_expiry",
+  "fuel_type",
+  "seat_capacity",
+  "last_service",
+  "next_service",
+  "odometer_reading"
+ ],
+ "fields": [
+  {
+   "fieldname": "general_details_section",
+   "fieldtype": "Section Break",
+   "label": "General Details"
+  },
+  {
+   "fieldname": "assert_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Asset Name"
+  },
+  {
+   "fieldname": "assert_category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Asset Category",
+   "options": "Jewellary\nVehicle\nChariot\nEquipment\nElectrical\nKitchen Utilities\nDress\nFurniture\nMusical Instrument"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "assert_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Asset Code"
+  },
+  {
+   "fieldname": "acquistion_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Acquistion Type",
+   "options": "Purchased\nDonated"
+  },
+  {
+   "fieldname": "purchasedonation_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Purchase/Donation Date"
+  },
+  {
+   "depends_on": "eval:doc.acquistion_type==\"Donated\"",
+   "fieldname": "donar_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Donar Name"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Status",
+   "options": "Active\nIn use\nUnder Maintainence\nDamaged\nLost\nRetired"
+  },
+  {
+   "fieldname": "photo",
+   "fieldtype": "Attach Image",
+   "label": "Photo"
+  },
+  {
+   "fieldname": "category_details_section",
+   "fieldtype": "Section Break",
+   "label": "Category Details"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Jewellary\"",
+   "fieldname": "jewellary_name",
+   "fieldtype": "Data",
+   "label": "Jewellary Name"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Jewellary\"",
+   "fieldname": "metal_type",
+   "fieldtype": "Data",
+   "label": "Metal Type"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Jewellary\"",
+   "fieldname": "purity22k24k",
+   "fieldtype": "Data",
+   "label": "Purity(22k/24k)"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Jewellary\"",
+   "fieldname": "gross_weight",
+   "fieldtype": "Data",
+   "label": "Gross Weight"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Jewellary\"",
+   "fieldname": "net_weight",
+   "fieldtype": "Data",
+   "label": "Net Weight"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Jewellary\"",
+   "fieldname": "stone_type",
+   "fieldtype": "Data",
+   "label": "Stone Type"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Jewellary\"",
+   "fieldname": "stone_weight",
+   "fieldtype": "Data",
+   "label": "Stone Weight"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Jewellary\"",
+   "fieldname": "hallmark_number",
+   "fieldtype": "Data",
+   "label": "Hallmark number"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Jewellary\"",
+   "fieldname": "certificate_number",
+   "fieldtype": "Data",
+   "label": "Certificate Number"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Jewellary\"",
+   "fieldname": "storage_location",
+   "fieldtype": "Data",
+   "label": "Storage Location"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Jewellary\"",
+   "fieldname": "last_audit_date",
+   "fieldtype": "Date",
+   "label": "Last Audit Date"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Vehicle\"",
+   "fieldname": "vehicle_name",
+   "fieldtype": "Data",
+   "label": "Vehicle Name"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Vehicle\"",
+   "fieldname": "vehicle_number",
+   "fieldtype": "Data",
+   "label": "Vehicle Number"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Vehicle\"",
+   "fieldname": "chassis_number",
+   "fieldtype": "Data",
+   "label": "Chassis Number"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Vehicle\"",
+   "fieldname": "engine_number",
+   "fieldtype": "Data",
+   "label": "Engine Number"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Vehicle\"",
+   "fieldname": "rc_number",
+   "fieldtype": "Data",
+   "label": "RC Number"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Vehicle\"",
+   "fieldname": "insurance_number",
+   "fieldtype": "Data",
+   "label": "Insurance Number"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Vehicle\"",
+   "fieldname": "insurance_expiry_date",
+   "fieldtype": "Date",
+   "label": "Insurance Expiry Date"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Vehicle\"",
+   "fieldname": "puc_expiry",
+   "fieldtype": "Date",
+   "label": "PUC Expiry"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Vehicle\"",
+   "fieldname": "fuel_type",
+   "fieldtype": "Data",
+   "label": "Fuel Type"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Vehicle\"",
+   "fieldname": "seat_capacity",
+   "fieldtype": "Int",
+   "label": "Seat Capacity"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Vehicle\"",
+   "fieldname": "last_service",
+   "fieldtype": "Date",
+   "label": "Last Service "
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Vehicle\"",
+   "fieldname": "next_service",
+   "fieldtype": "Date",
+   "label": "Next Service"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Vehicle\"",
+   "fieldname": "odometer_reading",
+   "fieldtype": "Int",
+   "label": "Odometer Reading"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-23 23:40:06.257581",
+ "modified_by": "Administrator",
+ "module": "Resource",
+ "name": "Resource",
+ "naming_rule": "Autoincrement",
+ "owner": "administrator@gmail.com",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
