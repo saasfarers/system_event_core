@@ -26,7 +26,6 @@
   "stone_weight",
   "hallmark_number",
   "certificate_number",
-  "storage_location",
   "last_audit_date",
   "vehicle_name",
   "vehicle_number",
@@ -40,7 +39,39 @@
   "seat_capacity",
   "last_service",
   "next_service",
-  "odometer_reading"
+  "odometer_reading",
+  "chariot_name",
+  "chariot_type",
+  "height",
+  "width",
+  "weight",
+  "number_of_wheels",
+  "festival_used_for",
+  "last_used_date",
+  "equipment_name",
+  "name1",
+  "manufacturer",
+  "model_number",
+  "warranty_start_date",
+  "warranty_end_date",
+  "vendor_name",
+  "installation_date",
+  "last_service_date",
+  "next_service_date",
+  "service_provider",
+  "power_rating",
+  "voltage",
+  "material",
+  "unit",
+  "capacity",
+  "cloth_material",
+  "colour",
+  "size",
+  "quantity",
+  "purchase_date",
+  "storage_location",
+  "identifier_number",
+  "last_service_done"
  ],
  "fields": [
   {
@@ -166,13 +197,13 @@
    "label": "Hallmark number"
   },
   {
-   "depends_on": "eval:doc.assert_category==\"Jewellary\"",
+   "depends_on": "eval:doc.assert_category==\"Jewellary\"&&\"Chariot\"",
    "fieldname": "certificate_number",
    "fieldtype": "Data",
    "label": "Certificate Number"
   },
   {
-   "depends_on": "eval:doc.assert_category==\"Jewellary\"",
+   "depends_on": "eval:doc.assert_category==\"Jewellary\"|| doc.assert_category==\"Chariot\"||doc.assert_category==\"Kitchen Utilities\"||doc.assert_category==\"Dress\"||doc.assert_category==\"Furniture\"||doc.assert_category==\"Musical Instrument\"",
    "fieldname": "storage_location",
    "fieldtype": "Data",
    "label": "Storage Location"
@@ -260,12 +291,199 @@
    "fieldname": "odometer_reading",
    "fieldtype": "Int",
    "label": "Odometer Reading"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Chariot\"",
+   "fieldname": "chariot_name",
+   "fieldtype": "Data",
+   "label": "Chariot Name"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Chariot\"",
+   "fieldname": "chariot_type",
+   "fieldtype": "Data",
+   "label": "Chariot Type"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Chariot\"",
+   "fieldname": "height",
+   "fieldtype": "Int",
+   "label": "Height"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Chariot\"",
+   "fieldname": "width",
+   "fieldtype": "Int",
+   "label": "Width"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Chariot\"",
+   "fieldname": "weight",
+   "fieldtype": "Int",
+   "label": "Weight"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Chariot\"",
+   "fieldname": "number_of_wheels",
+   "fieldtype": "Int",
+   "label": "Number Of Wheels"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Chariot\"",
+   "fieldname": "festival_used_for",
+   "fieldtype": "Data",
+   "label": "Festival Used For"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Chariot\"",
+   "fieldname": "last_used_date",
+   "fieldtype": "Date",
+   "label": "Last Used Date"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Equipment\"",
+   "fieldname": "equipment_name",
+   "fieldtype": "Data",
+   "label": "Equipment Name"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Equipment\"||doc.assert_category==\"Electrical\"||doc.assert_category==\"Furniture\"||doc.assert_category==\"Musical Instrument\"",
+   "fieldname": "manufacturer",
+   "fieldtype": "Data",
+   "label": "Manufacturer"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Equipment\"||doc.assert_category==\"Electrical\"",
+   "fieldname": "model_number",
+   "fieldtype": "Data",
+   "label": "Model Number"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Equipment\"",
+   "fieldname": "warranty_start_date",
+   "fieldtype": "Date",
+   "label": "Warranty Start Date"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Equipment\"||doc.assert_category==\"Electrical\"",
+   "fieldname": "warranty_end_date",
+   "fieldtype": "Date",
+   "label": "Warranty End Date"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Equipment\"",
+   "fieldname": "vendor_name",
+   "fieldtype": "Data",
+   "label": "Vendor Name"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Equipment\"||doc.assert_category==\"Electrical\"",
+   "fieldname": "installation_date",
+   "fieldtype": "Date",
+   "label": "Installation Date"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Equipment\"||doc.assert_category==\"Electrical\"",
+   "fieldname": "last_service_date",
+   "fieldtype": "Date",
+   "label": "Last Service Date"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Equipment\"||doc.assert_category==\"Electrical\"",
+   "fieldname": "next_service_date",
+   "fieldtype": "Date",
+   "label": "Next Service Date"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Equipment\"",
+   "fieldname": "service_provider",
+   "fieldtype": "Data",
+   "label": "Service Provider"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Equipment\" || doc.assert_category==\"Electrical\"",
+   "fieldname": "power_rating",
+   "fieldtype": "Data",
+   "label": "Power Rating"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Electrical\"||doc.assert_category==\"Kitchen Utilities\"||doc.assert_category==\"Dress\"||doc.assert_category==\"Furniture\"||doc.assert_category==\"Dress\"||doc.assert_category==\"Musical Instrument\"",
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "label": "Name"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Electrical\"",
+   "fieldname": "voltage",
+   "fieldtype": "Data",
+   "label": "Voltage"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Kitchen Utilities\"||doc.assert_category==\"Furniture\"||doc.assert_category==\"Musical Instrument\"",
+   "fieldname": "material",
+   "fieldtype": "Data",
+   "label": "Material"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Kitchen Utilities\"",
+   "fieldname": "unit",
+   "fieldtype": "Select",
+   "label": "Unit",
+   "options": "Kg\nLiter"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Kitchen Utilities\"",
+   "fieldname": "capacity",
+   "fieldtype": "Data",
+   "label": "Capacity"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Kitchen Utilities\"||doc.assert_category==\"Dress\"||doc.assert_category==\"Furniture\"||doc.assert_category==\"Musical Instrument\"",
+   "fieldname": "quantity",
+   "fieldtype": "Int",
+   "label": "Quantity"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Dress\"",
+   "fieldname": "cloth_material",
+   "fieldtype": "Data",
+   "label": "Cloth Material"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Dress\"",
+   "fieldname": "colour",
+   "fieldtype": "Data",
+   "label": "Colour"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Dress\"",
+   "fieldname": "size",
+   "fieldtype": "Data",
+   "label": "Size"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Furniture\"||doc.assert_category==\"Musical Instrument\"",
+   "fieldname": "purchase_date",
+   "fieldtype": "Date",
+   "label": "Purchase Date"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Musical Instrument\"",
+   "fieldname": "identifier_number",
+   "fieldtype": "Int",
+   "label": "Identifier Number"
+  },
+  {
+   "depends_on": "eval:doc.assert_category==\"Musical Instrument\"",
+   "fieldname": "last_service_done",
+   "fieldtype": "Date",
+   "label": "Last Service Done"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-23 23:40:06.257581",
+ "modified": "2026-06-27 14:19:30.852205",
  "modified_by": "Administrator",
  "module": "Resource",
  "name": "Resource",
