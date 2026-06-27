@@ -2,3 +2,4 @@ System Event Core
 Bookings
 Event
 Event Attribute
+Resource
