@@ -39,7 +39,7 @@
   "tab_components",
   "sec_components_ui",
   "components_ui_html",
-  "section_break_katf",
+  "registration_details",
   "registration_form",
   "max_registrations",
   "sec_components_table",
@@ -520,10 +520,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "section_break_katf",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "registration_form",
    "fieldtype": "Link",
    "label": "Registration Form",
@@ -533,12 +529,17 @@
    "fieldname": "max_registrations",
    "fieldtype": "Int",
    "label": "Maximum Registrations"
+  },
+  {
+   "fieldname": "registration_details",
+   "fieldtype": "Section Break",
+   "label": "Registration Details"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-06-13 21:27:04.542319",
- "modified_by": "vairavan1092003@gmail.com",
+ "modified": "2026-07-05 23:15:46.817556",
+ "modified_by": "Administrator",
  "module": "Event",
  "name": "Events",
  "naming_rule": "Expression",
