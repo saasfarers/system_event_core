@@ -33,7 +33,9 @@ frappe.ui.form.on("Events", {
 		// ── Volunteer management ────────────────────────────────
 		_set_volunteer_link_filter(frm);
 		render_volunteer_summary(frm);
-		_add_volunteer_attendance_button(frm);
+
+		// ── Attendance management ──────────────────────────────
+		_add_attendance_buttons(frm);
 
 		// Re-render when Components tab clicked (Frappe lazy-renders tabs)
 		frm.page.wrapper
@@ -348,6 +350,172 @@ function _run_attendance_action(frm, dialog, action) {
 }
 
 
+function _add_attendance_buttons(frm) {
+	if (frm.doc.__islocal || !frm.doc.name) return;
+
+	let hasAttendance = (frm.doc.event_components || []).some(row => {
+		return String(row.component) === "2";
+	});
+
+	let hasVolunteers = (frm.doc.event_components || []).some(row => {
+		return String(row.component) === "5";
+	});
+
+	if (hasAttendance) {
+		frm.add_custom_button(__("Mark Participant Attendance"), function () {
+			_show_event_attendance_dialog(frm);
+		}, __("Attendance"));
+
+		if (hasVolunteers && (frm.doc.event_volunteers || []).length) {
+			frm.add_custom_button(__("Mark Volunteer Attendance"), function () {
+				_show_attendance_dialog(frm);
+			}, __("Attendance"));
+		}
+
+		frm.add_custom_button(__("View Event Attendance"), function () {
+			frappe.set_route("List", "Attendance", {"event": frm.doc.name});
+		}, __("Attendance"));
+
+		frm.add_custom_button(__("New Attendance Entry"), function () {
+			frappe.new_doc("Attendance", {
+				"event": frm.doc.name,
+				"attendance_date": frm.doc.start_date
+			});
+		}, __("Attendance"));
+	}
+}
+
+function _show_event_attendance_dialog(frm) {
+	frappe.call({
+		method: "system_event_core.event.doctype.events.events.get_event_registrations",
+		args: { docname: frm.doc.name },
+		freeze: true,
+		freeze_message: __("Loading Registrations…"),
+		callback: function (r) {
+			let registrations = r.message || [];
+			if (!registrations.length) {
+				frappe.msgprint({
+					title: __("No Registrations"),
+					message: __("There are no registered participants for this event yet."),
+					indicator: "orange"
+				});
+				return;
+			}
+
+			let rows_html = registrations.map(function (row) {
+				let label = frappe.utils.escape_html(row.name || "Unknown");
+				let email = frappe.utils.escape_html(row.email || "—");
+				let status = row.status || "Pending";
+
+				let status_color =
+					status === "Present" ? "#1d7a43" :
+						status === "Absent" ? "#b54747" : "#6b7280";
+
+				return "<label style='display:flex;align-items:center;gap:10px;"
+					+ "padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;"
+					+ "margin-bottom:6px;cursor:pointer;'>"
+					+ "<input type='checkbox' class='event-attendance-row-check' "
+					+ "data-party-master='" + (row.party_master || "") + "' "
+					+ "data-name='" + label + "' "
+					+ "data-is-external='" + row.is_external + "' "
+					+ "data-registration-id='" + (row.registration_id || "") + "' "
+					+ "style='width:16px;height:16px;'>"
+					+ "<div style='flex:1;'>"
+					+ "<div style='font-weight:600;font-size:13px;'>" + label + "</div>"
+					+ "<div style='font-size:11px;color:#6b7280;'>" + email + "</div>"
+					+ "</div>"
+					+ "<span style='font-size:11px;font-weight:700;color:" + status_color + ";'>"
+					+ status + "</span>"
+					+ "</label>";
+			}).join("");
+
+			let dialog = new frappe.ui.Dialog({
+				title: __("Mark Event Attendance"),
+				size: "large",
+				fields: [
+					{
+						fieldname: "select_all",
+						fieldtype: "Check",
+						label: __("Select All")
+					},
+					{
+						fieldname: "rows_html",
+						fieldtype: "HTML",
+						options: "<div id='event-attendance-rows-list' style='max-height: 400px; overflow-y: auto;'>" + rows_html + "</div>"
+					}
+				],
+				primary_action_label: __("Check In Selected"),
+				primary_action: function () {
+					_run_event_attendance_action(frm, dialog, "check_in");
+				},
+				secondary_action_label: __("Check Out Selected"),
+				secondary_action: function () {
+					_run_event_attendance_action(frm, dialog, "check_out");
+				},
+			});
+
+			dialog.show();
+
+			// Select-all toggle
+			dialog.fields_dict.select_all.$input.on("change", function () {
+				let checked = $(this).is(":checked");
+				dialog.$wrapper.find(".event-attendance-row-check").prop("checked", checked);
+			});
+
+			// Extra button: Mark Absent
+			dialog.$wrapper.find(".modal-footer").prepend(
+				"<button class='btn btn-default btn-sm' id='btn-event-mark-absent'>"
+				+ __("Mark Absent") + "</button>"
+			);
+			dialog.$wrapper.find("#btn-event-mark-absent").on("click", function () {
+				_run_event_attendance_action(frm, dialog, "no_show");
+			});
+		}
+	});
+}
+
+function _run_event_attendance_action(frm, dialog, action) {
+	let selected = [];
+	dialog.$wrapper.find(".event-attendance-row-check:checked").each(function () {
+		selected.push({
+			party_master: $(this).data("party-master") || null,
+			name: $(this).data("name"),
+			is_external: parseInt($(this).data("is-external")),
+			registration_id: $(this).data("registration-id") || null
+		});
+	});
+
+	if (!selected.length) {
+		frappe.msgprint({
+			message: __("Please select at least one participant."),
+			indicator: "orange"
+		});
+		return;
+	}
+
+	frappe.call({
+		method: "system_event_core.event.doctype.events.events.mark_event_attendance",
+		args: {
+			docname: frm.doc.name,
+			registrations: JSON.stringify(selected),
+			action: action
+		},
+		freeze: true,
+		freeze_message: __("Updating attendance..."),
+		callback: function (r) {
+			if (r.message && r.message.status === "ok") {
+				frappe.show_alert({
+					message: __("Updated {0} participant(s) attendance.", [r.message.updated]),
+					indicator: "green"
+				}, 3);
+				dialog.hide();
+				frm.reload_doc();
+			}
+		}
+	});
+}
+
+
 // ─────────────────────────────────────────────
 // MAKE CHILD TABLE READ-ONLY
 // User manages components only via checkboxes
@@ -593,7 +761,12 @@ function toggle_registration_form(frm) {
 	frm.toggle_display("registration_details", hasRegistration);
 
 	if (!hasRegistration) {
-		frm.set_value("registration_details", "");
+		if (frm.doc.registration_form) {
+			frm.set_value("registration_form", "");
+		}
+		if (frm.doc.max_registrations) {
+			frm.set_value("max_registrations", 0);
+		}
 	}
 }
 
@@ -704,7 +877,7 @@ function _set_field_visibility(frm) {
 // APPROVAL BUTTONS
 // ─────────────────────────────────────────────
 function _add_approval_buttons(frm) {
-	if (frm.doc.docstatus === 1) return;
+	if (frm.doc.__islocal || frm.is_new() || frm.doc.docstatus === 1) return;
 	var s = frm.doc.approval_status;
 
 	if (s === "Pending") {

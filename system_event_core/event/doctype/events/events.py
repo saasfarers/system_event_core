@@ -294,6 +294,67 @@ def mark_volunteer_attendance(docname: str, assignment_names, action: str) -> di
 				frappe.throw(_("Invalid action: {0}").format(action))
 			updated += 1
 
+			# ALSO create/update record in separate Attendance Doctype!
+			is_external = 0
+			party_master = None
+			volunteer_name = row.volunteer_name or row.volunteer
+
+			# Find the Volunteer record to see if it links to Party Master
+			if row.volunteer:
+				vol_info = frappe.db.get_value("Volunteer", row.volunteer, ["people", "is_external"], as_dict=True)
+				if vol_info:
+					party_master = vol_info.people
+					is_external = int(vol_info.is_external or 0)
+
+			# If they don't have a linked Party Master, treat them as external
+			if not party_master:
+				is_external = 1
+
+			# Check if Attendance record already exists for this event and volunteer
+			filters = {
+				"event": docname,
+				"attendance_type": "Volunteer"
+			}
+			if party_master:
+				filters["people"] = party_master
+				filters["is_external"] = 0
+			else:
+				filters["name1"] = volunteer_name
+				filters["is_external"] = 1
+
+			existing = frappe.get_all("Attendance", filters=filters, limit=1, pluck="name")
+
+			if existing:
+				att_doc = frappe.get_doc("Attendance", existing[0])
+			else:
+				att_doc = frappe.new_doc("Attendance")
+				att_doc.event = docname
+				att_doc.attendance_type = "Volunteer"
+				att_doc.attendance_date = doc.start_date
+				if party_master:
+					att_doc.people = party_master
+					att_doc.is_external = 0
+				else:
+					att_doc.name1 = volunteer_name
+					att_doc.is_external = 1
+
+			if action == "check_in":
+				att_doc.checkin = now
+				att_doc.status = "Present"
+			elif action == "check_out":
+				att_doc.checkout = now
+				if att_doc.checkin:
+					# Calculate working hours in seconds
+					from frappe.utils import get_datetime
+					start = get_datetime(att_doc.checkin)
+					end = get_datetime(att_doc.checkout)
+					seconds = (end - start).total_seconds()
+					att_doc.working_hours = seconds
+			elif action == "no_show":
+				att_doc.status = "Absent"
+
+			att_doc.save(ignore_permissions=True)
+
 	doc.save(ignore_permissions=True)
 	frappe.db.commit()
 	return {"status": "ok", "updated": updated}
@@ -450,3 +511,201 @@ def _build_date_series(
 				)
 
 	return result
+
+
+@frappe.whitelist()
+def get_event_registrations(docname: str) -> list:
+	"""
+	Fetch all registered participants for the event (from Registration Response),
+	resolving their names, emails, is_external status, and existing Attendance status.
+	"""
+	responses = frappe.get_all(
+		"Registration Response",
+		filters={"event": docname},
+		fields=["name", "party_master", "owner"]
+	)
+
+	registrations = []
+	for r in responses:
+		name = ""
+		email = ""
+		is_external = 1
+		party_master = r.party_master
+		owner_user = r.owner
+
+		# Try to resolve party_master from owner user if not set
+		if not party_master and owner_user and owner_user != "Guest":
+			# Check if Party Master exists for this user
+			party_master = frappe.db.get_value("Party Master", {"user": owner_user}, "name")
+			if not party_master:
+				# Automatically create Party Master for this system user
+				try:
+					user_doc = frappe.get_doc("User", owner_user)
+					pm_doc = frappe.new_doc("Party Master")
+					pm_doc.party_name = user_doc.full_name or user_doc.name
+					pm_doc.party_type = "Individual"
+					pm_doc.status = "Active"
+					pm_doc.naming_series = "PM-"
+					pm_doc.user = owner_user
+					pm_doc.email = user_doc.email
+					pm_doc.insert(ignore_permissions=True)
+					party_master = pm_doc.name
+					
+					# Update the Registration Response to link it
+					frappe.db.set_value("Registration Response", r.name, "party_master", party_master)
+				except Exception as e:
+					frappe.log_error(f"Failed to auto-create Party Master for {owner_user}: {str(e)}")
+
+		if party_master:
+			# Internal member
+			party_info = frappe.db.get_value("Party Master", party_master, ["party_name", "email"], as_dict=True)
+			if party_info:
+				name = party_info.party_name or party_master
+				email = party_info.email or ""
+			else:
+				name = party_master
+			is_external = 0
+		else:
+			# External/guest, extract name and email from Registration Response Items
+			items = frappe.get_all(
+				"Registration Response Items",
+				filters={"parent": r.name},
+				fields=["question", "answer"]
+			)
+			for item in items:
+				q = (item.question or "").lower()
+				if "name" in q and not name:
+					name = item.answer
+				if "email" in q and not email:
+					email = item.answer
+			if not name:
+				if email:
+					name = email.split("@")[0].title()
+				else:
+					name = f"Guest ({r.name})"
+
+		# Check if there is an existing Attendance record for this person and event
+		filters = {
+			"event": docname,
+			"is_external": is_external
+		}
+		if party_master:
+			filters["people"] = party_master
+		else:
+			filters["name1"] = name
+
+		existing_att = frappe.get_all(
+			"Attendance",
+			filters=filters,
+			fields=["name", "status", "checkin", "checkout"]
+		)
+
+		status = "Pending"
+		att_name = None
+		if existing_att:
+			status = existing_att[0].status or "Pending"
+			att_name = existing_att[0].name
+
+		registrations.append({
+			"registration_id": r.name,
+			"party_master": party_master,
+			"name": name,
+			"email": email,
+			"is_external": is_external,
+			"status": status,
+			"attendance_name": att_name
+		})
+
+	return registrations
+
+
+@frappe.whitelist()
+def mark_event_attendance(docname: str, registrations, action: str) -> dict:
+	"""
+	action: "check_in" | "check_out" | "no_show"
+	registrations: JSON-encoded list of registrations:
+	  [{"party_master": "...", "name": "...", "is_external": 0/1, "registration_id": "..."}]
+	"""
+	if isinstance(registrations, str):
+		registrations = json.loads(registrations)
+
+	event_doc = frappe.get_doc("Events", docname)
+	event_date = event_doc.start_date
+	now = now_datetime()
+	updated = 0
+
+	for reg in registrations:
+		party_master = reg.get("party_master")
+		name = reg.get("name")
+		is_external = int(reg.get("is_external") or 0)
+		registration_id = reg.get("registration_id")
+
+		# Check if party_master can be auto-resolved from registration_id/owner
+		if not party_master and registration_id:
+			owner_user = frappe.db.get_value("Registration Response", registration_id, "owner")
+			if owner_user and owner_user != "Guest":
+				party_master = frappe.db.get_value("Party Master", {"user": owner_user}, "name")
+				if not party_master:
+					try:
+						user_doc = frappe.get_doc("User", owner_user)
+						pm_doc = frappe.new_doc("Party Master")
+						pm_doc.party_name = user_doc.full_name or user_doc.name
+						pm_doc.party_type = "Individual"
+						pm_doc.status = "Active"
+						pm_doc.naming_series = "PM-"
+						pm_doc.user = owner_user
+						pm_doc.email = user_doc.email
+						pm_doc.insert(ignore_permissions=True)
+						party_master = pm_doc.name
+						frappe.db.set_value("Registration Response", registration_id, "party_master", party_master)
+						is_external = 0
+					except Exception as e:
+						frappe.log_error(f"Failed to auto-create Party Master for {owner_user}: {str(e)}")
+				else:
+					is_external = 0
+
+		# Build filters to find existing Attendance record
+		filters = {"event": docname}
+		if party_master:
+			filters["people"] = party_master
+			filters["is_external"] = 0
+		else:
+			filters["name1"] = name
+			filters["is_external"] = 1
+
+		existing = frappe.get_all("Attendance", filters=filters, limit=1, pluck="name")
+
+		if existing:
+			att_doc = frappe.get_doc("Attendance", existing[0])
+		else:
+			att_doc = frappe.new_doc("Attendance")
+			att_doc.event = docname
+			att_doc.attendance_date = event_date
+			if party_master:
+				att_doc.people = party_master
+				att_doc.is_external = 0
+			else:
+				att_doc.name1 = name
+				att_doc.is_external = 1
+
+		if action == "check_in":
+			att_doc.checkin = now
+			att_doc.status = "Present"
+		elif action == "check_out":
+			att_doc.checkout = now
+			if att_doc.checkin:
+				# Calculate working hours in seconds
+				start = get_datetime(att_doc.checkin)
+				end = get_datetime(att_doc.checkout)
+				seconds = (end - start).total_seconds()
+				att_doc.working_hours = seconds
+		elif action == "no_show":
+			att_doc.status = "Absent"
+		else:
+			frappe.throw(_("Invalid action: {0}").format(action))
+
+		att_doc.save(ignore_permissions=True)
+		updated += 1
+
+	frappe.db.commit()
+	return {"status": "ok", "updated": updated}

@@ -42,6 +42,7 @@
   "registration_details",
   "registration_form",
   "max_registrations",
+  "expected_attendance",
   "sec_components_table",
   "event_components",
   "tab_volunteers",
@@ -529,6 +530,11 @@
    "fieldname": "max_registrations",
    "fieldtype": "Int",
    "label": "Maximum Registrations"
+  },
+  {
+   "fieldname": "expected_attendance",
+   "fieldtype": "Int",
+   "label": "Expected Attendance"
   },
   {
    "fieldname": "registration_details",

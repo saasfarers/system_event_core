@@ -66,7 +66,7 @@ def get_events_with_registration():
         "Events",
         fields=[
             "name", "event_name", "event_category", "description",
-            "event_image", "start_date", "start_time", "venue",
+            "event_image", "start_date", "end_date", "start_time", "venue",
             "off_premise_address", "is_off_premise", "event_owner",
             "registration_form", "max_registrations"
         ],
