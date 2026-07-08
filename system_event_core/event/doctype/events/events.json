@@ -62,6 +62,14 @@
   "sec_invitations_list",
   "event_invitations",
   "invitation_list_html",
+  "tab_donations",
+  "sec_donation_config",
+  "donation_goal",
+  "col_donation_summary",
+  "donation_collected",
+  "donation_causes",
+  "sec_donation_dashboard",
+  "donation_summary_html",
   "tab_structure",
   "sec_sponsor",
   "created_by_type",
@@ -390,6 +398,47 @@
    "fieldname": "invitation_list_html",
    "fieldtype": "HTML",
    "label": "Actions Toolbar"
+  },
+  {
+   "fieldname": "tab_donations",
+   "fieldtype": "Tab Break",
+   "label": "Donations"
+  },
+  {
+   "fieldname": "sec_donation_config",
+   "fieldtype": "Section Break",
+   "label": "Donation Goal Configuration"
+  },
+  {
+   "fieldname": "donation_goal",
+   "fieldtype": "Currency",
+   "label": "Donation Goal Amount"
+  },
+  {
+   "fieldname": "col_donation_summary",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "donation_collected",
+   "fieldtype": "Currency",
+   "label": "Total Amount Collected",
+   "read_only": 1
+  },
+  {
+   "fieldname": "donation_causes",
+   "fieldtype": "Table",
+   "label": "Donation Causes & Targets",
+   "options": "Event Donation Cause"
+  },
+  {
+   "fieldname": "sec_donation_dashboard",
+   "fieldtype": "Section Break",
+   "label": "Donations Dashboard & History"
+  },
+  {
+   "fieldname": "donation_summary_html",
+   "fieldtype": "HTML",
+   "label": "Donations Panel"
   },
   {
    "fieldname": "tab_structure",

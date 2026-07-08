@@ -68,12 +68,13 @@ def get_events_with_registration():
             "name", "event_name", "event_category", "description",
             "event_image", "start_date", "end_date", "start_time", "venue",
             "off_premise_address", "is_off_premise", "event_owner",
-            "registration_form", "max_registrations"
+            "registration_form", "max_registrations", "donation_goal", "donation_collected"
         ],
         filters={"status": ["in", ["Approved", "Active"]]}
     )
 
     VOLUNTEER_COMPONENT_ID = "5"  # "Volunteer Management" Event Component id
+    DONATION_COMPONENT_ID = "3"   # "Donations" Event Component id
 
     for ev in events:
         ev["has_registration"] = bool(ev.get("registration_form"))
@@ -93,11 +94,15 @@ def get_events_with_registration():
             ev["registration_closed"] = False
             ev["registration_percentage"] = None
 
-        # ── Volunteer info ────────────────────────────────────────
+        # ── Volunteer & Donation info ────────────────────────────────────────
         event_doc = frappe.get_doc("Events", ev["name"])
 
         has_vol = any(
             str(c.component) == VOLUNTEER_COMPONENT_ID
+            for c in (event_doc.event_components or [])
+        )
+        has_don = any(
+            str(c.component) == DONATION_COMPONENT_ID
             for c in (event_doc.event_components or [])
         )
 
@@ -107,6 +112,24 @@ def get_events_with_registration():
         ev["has_volunteer_opportunity"] = has_vol
         ev["volunteer_slots_total"] = sum((r.slots_needed or 0) for r in vol_reqs)
         ev["volunteer_slots_filled"] = len(vol_assignments)
+
+        ev["has_donation"] = has_don
+        goal = float(ev.get("donation_goal") or 0.0)
+        collected = float(ev.get("donation_collected") or 0.0)
+        ev["donation_percentage"] = round((collected / goal) * 100, 1) if goal > 0 else 0.0
+
+        causes = []
+        if event_doc.donation_causes:
+            for cause in event_doc.donation_causes:
+                c_collected = float(cause.collected_amount or 0.0)
+                c_target = float(cause.target_amount or 0.0)
+                causes.append({
+                    "cause_name": cause.cause_name,
+                    "target_amount": c_target,
+                    "collected_amount": c_collected,
+                    "percentage": round((c_collected / c_target) * 100, 1) if c_target > 0 else 0.0
+                })
+        ev["donation_causes"] = causes
 
     return events
 

@@ -2,13 +2,16 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
+ "autoname": "format:DON-{YYYY}-{#####}",
  "creation": "2026-05-19 08:21:59.290516",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "donation_name",
   "event",
   "donor",
+  "donor_name",
+  "email",
+  "phone",
   "fund",
   "donation_type",
   "amount",
@@ -21,39 +24,62 @@
  ],
  "fields": [
   {
-   "fieldname": "donation_name",
-   "fieldtype": "Autocomplete",
-   "label": "Donation ID"
-  },
-  {
    "fieldname": "event",
-   "fieldtype": "Data",
-   "label": "Event"
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Event",
+   "options": "Events",
+   "reqd": 1
   },
   {
    "fieldname": "donor",
+   "fieldtype": "Link",
+   "label": "Member Donor",
+   "options": "Party Master"
+  },
+  {
+   "fieldname": "donor_name",
    "fieldtype": "Data",
-   "label": "Donor"
+   "in_list_view": 1,
+   "label": "Donor Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email"
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Phone"
   },
   {
    "fieldname": "fund",
-   "fieldtype": "Data",
-   "label": "Fund"
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Fund",
+   "options": "Fund Master"
   },
   {
    "fieldname": "donation_type",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Donation Type"
   },
   {
    "fieldname": "amount",
    "fieldtype": "Currency",
-   "label": "Amount"
+   "in_list_view": 1,
+   "label": "Amount",
+   "reqd": 1
   },
   {
    "fieldname": "payment_mode",
    "fieldtype": "Select",
-   "label": "Payment Mode"
+   "label": "Payment Mode",
+   "options": "Cash\nCheque\nBank Transfer\nOnline/Card\nOther",
+   "default": "Cash"
   },
   {
    "fieldname": "transaction_reference",
@@ -69,7 +95,9 @@
   {
    "fieldname": "donation_date",
    "fieldtype": "Datetime",
-   "label": "Donation Date"
+   "in_list_view": 1,
+   "label": "Donation Date",
+   "reqd": 1
   },
   {
    "fieldname": "receipt_number",
@@ -79,13 +107,16 @@
   {
    "fieldname": "status",
    "fieldtype": "Select",
-   "label": "Status"
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nReceived\nCancelled",
+   "default": "Received"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-19 08:41:01.041446",
+ "modified": "2026-07-08 17:52:00.000000",
  "modified_by": "Administrator",
  "module": "Event",
  "name": "Event Donation",

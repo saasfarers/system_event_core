@@ -14,6 +14,7 @@ frappe.ui.form.on("Events", {
 		_set_status_indicator(frm);
 		toggle_volunteer_tab(frm);
 		toggle_invitations_tab(frm);
+		toggle_donations_tab(frm);
 
 		// "View Event" button — only on saved docs
 		if (!frm.doc.__islocal && frm.doc.name) {
@@ -71,6 +72,19 @@ frappe.ui.form.on("Events", {
 					render_invitation_tab(frm);
 				}, 200);
 			});
+
+		// Render donations tab content
+		render_donations_dashboard(frm);
+
+		// Re-render when Donations tab clicked
+		frm.page.wrapper
+			.find('.form-tabs-list [data-fieldname="tab_donations"]')
+			.off("click.don")
+			.on("click.don", function () {
+				setTimeout(() => {
+					render_donations_dashboard(frm);
+				}, 200);
+			});
 	},
 
 	// ── Field triggers ────────────────────────────────────────────
@@ -108,6 +122,10 @@ frappe.ui.form.on("Events", {
 
 	invitation: function (frm) {
 		render_invitation_tab(frm);
+	},
+
+	donation_goal: function (frm) {
+		render_donations_dashboard(frm);
 	},
 
 	start_date: function (frm) { _validate_dates(frm); },
@@ -864,6 +882,8 @@ function _toggle_component(frm, $pill) {
 	setTimeout(function () { _make_table_readonly(frm); }, 200);
 	toggle_registration_form(frm);
 	toggle_volunteer_tab(frm);
+	toggle_invitations_tab(frm);
+	toggle_donations_tab(frm);
 
 	// Refresh the "Send Invitations" custom button
 	frm.remove_custom_button(__("Send Invitations"), __("Action"));
@@ -1344,4 +1364,312 @@ function _preview_invitation(doc) {
 
 	dialog.show();
 	dialog.fields_dict.preview_html.$wrapper.html(html);
+}
+
+// ─────────────────────────────────────────────
+// DONATIONS TAB AND DASHBOARD
+// ─────────────────────────────────────────────
+
+function toggle_donations_tab(frm) {
+	let show = (frm.doc.event_components || []).some(function (r) {
+		return String(r.component) === "3"; // Donations component ID is 3
+	});
+
+	frm.toggle_display("tab_donations", show);
+
+	frm.page.wrapper
+		.find('.form-tabs-list [data-fieldname="tab_donations"]')
+		.closest("li")
+		.toggle(show);
+}
+
+function render_donations_dashboard(frm) {
+	let wrapper = frm.fields_dict.donation_summary_html ? frm.fields_dict.donation_summary_html.$wrapper : null;
+	if (!wrapper) return;
+
+	if (frm.doc.__islocal || !frm.doc.name) {
+		wrapper.html(`
+			<div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:20px; text-align:center; color:#64748b;">
+				<h4>⚠️ Event must be saved first</h4>
+				<p style="font-size:12px; margin-top:4px;">Save the event to access the Donations Dashboard.</p>
+			</div>
+		`);
+		return;
+	}
+
+	// Fetch all donations linked to this event
+	frappe.call({
+		method: "frappe.client.get_list",
+		args: {
+			doctype: "Event Donation",
+			filters: { event: frm.doc.name },
+			fields: ["name", "donor_name", "amount", "payment_mode", "donation_date", "status"],
+			order_by: "donation_date desc"
+		},
+		callback: function (r) {
+			let donations = r.message || [];
+			let goal = frm.doc.donation_goal || 0.0;
+			if (frm.doc.donation_causes && frm.doc.donation_causes.length) {
+				goal = frm.doc.donation_causes.reduce((sum, c) => sum + (c.target_amount || 0.0), 0.0);
+			}
+
+			let collected = donations
+				.filter(d => d.status === "Received")
+				.reduce((sum, d) => sum + (d.amount || 0), 0);
+			let pct = goal > 0 ? Math.min(Math.round((collected / goal) * 100), 100) : 0;
+
+			let currency_symbol = frappe.defaults.get_default("currency") || "INR";
+			let fmt_money = (val) => {
+				return format_currency(val, currency_symbol);
+			};
+
+			let causes_html = "";
+			if (frm.doc.donation_causes && frm.doc.donation_causes.length) {
+				let cause_cards = frm.doc.donation_causes.map(c => {
+					let c_goal = c.target_amount || 0.0;
+					let c_collected = c.collected_amount || 0.0;
+					let c_pct = c_goal > 0 ? Math.min(Math.round((c_collected / c_goal) * 100), 100) : 0;
+					return `
+						<div style="flex:1; min-width:200px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px;">
+							<div style="font-weight:700; color:#334155; font-size:13px; margin-bottom:4px;">${c.cause_name}</div>
+							<div style="display:flex; justify-content:space-between; font-size:12px; color:#475569; margin-bottom:8px; font-weight:500;">
+								<span>Raised: ${fmt_money(c_collected)}</span>
+								<span>Goal: ${fmt_money(c_goal)}</span>
+							</div>
+							<div style="background:#e2e8f0; border-radius:4px; height:6px; position:relative; overflow:hidden;">
+								<div style="background:#10b981; height:100%; width:${c_pct}%; border-radius:4px;"></div>
+							</div>
+							<div style="font-size:11px; text-align:right; font-weight:600; color:#059669; margin-top:4px;">${c_pct}%</div>
+						</div>
+					`;
+				}).join("");
+				causes_html = `
+					<div style="margin-bottom:24px;">
+						<div style="font-weight:700; font-size:13px; color:#475569; margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;">🎯 Target Breakdown</div>
+						<div style="display:flex; flex-wrap:wrap; gap:16px;">
+							${cause_cards}
+						</div>
+					</div>
+				`;
+			}
+
+			let rows_html = donations.map((d, index) => `
+				<tr style="border-bottom:1px solid #f1f5f9;">
+					<td style="padding:10px; font-weight:600; color:#334155;">#${index+1}</td>
+					<td style="padding:10px; color:#1e293b; font-weight:500;">
+						<a href="/app/event-donation/${d.name}" target="_blank" style="color:#2563eb; text-decoration:underline;">${d.donor_name}</a>
+					</td>
+					<td style="padding:10px; color:#059669; font-weight:700;">${fmt_money(d.amount)}</td>
+					<td style="padding:10px; color:#64748b;"><span class="badge" style="background:#e2e8f0; color:#475569; padding:4px 8px; border-radius:4px; font-size:11px;">${d.payment_mode}</span></td>
+					<td style="padding:10px; color:#64748b; font-size:12px;">${frappe.datetime.str_to_user(d.donation_date)}</td>
+					<td style="padding:10px;"><span class="badge" style="background:${d.status === 'Received' ? '#dcfce7; color:#15803d' : '#fef3c7; color:#b45309'}; padding:4px 8px; border-radius:4px; font-size:11px;">${d.status}</span></td>
+				</tr>
+			`).join("");
+
+			if (!donations.length) {
+				rows_html = `
+					<tr>
+						<td colspan="6" style="padding:30px; text-align:center; color:#94a3b8; font-style:italic; font-size:13px;">
+							No donations recorded yet for this event.
+						</td>
+					</tr>
+				`;
+			}
+
+			wrapper.html(`
+				<div style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+					<!-- Dashboard Summary Card -->
+					<div style="background:linear-gradient(135deg, #10b981, #059669); border-radius:12px; padding:24px; color:white; box-shadow:0 4px 12px rgba(16,185,129,0.15); margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;">
+						<div style="flex:1; min-width:250px;">
+							<div style="font-size:13px; text-transform:uppercase; letter-spacing:0.5px; opacity:0.85; font-weight:600;">Fundraising Target</div>
+							<div style="display:flex; align-items:baseline; gap:8px; margin:4px 0 12px 0;">
+								<span style="font-size:32px; font-weight:800; letter-spacing:-1px;">${fmt_money(collected)}</span>
+								<span style="font-size:15px; opacity:0.85;">raised of ${fmt_money(goal)} goal</span>
+							</div>
+							
+							<div style="background:rgba(255,255,255,0.2); border-radius:10px; height:8px; width:100%; position:relative; overflow:hidden; margin-bottom:4px;">
+								<div style="background:#ffffff; height:100%; width:${pct}%; border-radius:10px; transition:width 0.4s ease;"></div>
+							</div>
+							<div style="font-size:12px; text-align:right; font-weight:600; opacity:0.9;">${pct}% Completed</div>
+						</div>
+						<div style="display:flex; flex-direction:column; gap:10px; align-items:flex-end;">
+							<button class="btn btn-record-offline-donation" style="background:white; color:#059669; font-weight:700; border:none; padding:8px 16px; border-radius:6px; box-shadow:0 2px 4px rgba(0,0,0,0.1); cursor:pointer;">
+								➕ Record Offline Donation
+							</button>
+							<button class="btn btn-refresh-donations" style="background:transparent; color:white; border:1px solid rgba(255,255,255,0.4); padding:6px 12px; border-radius:6px; font-size:11px; cursor:pointer;">
+								🔄 Refresh
+							</button>
+						</div>
+					</div>
+
+					${causes_html}
+
+					<!-- Donation List Grid -->
+					<div style="background:white; border:1px solid #e2e8f0; border-radius:12px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+						<div style="padding:16px 20px; border-bottom:1px solid #e2e8f0; background:#f8fafc; font-weight:700; color:#334155; font-size:14px;">
+							📋 Donation Log
+						</div>
+						<div style="overflow-x:auto;">
+							<table style="width:100%; border-collapse:collapse; text-align:left; font-size:13px;">
+								<thead>
+									<tr style="border-bottom:2px solid #e2e8f0; background:#f8fafc; color:#64748b; font-weight:600; text-transform:uppercase; font-size:11px; letter-spacing:0.5px;">
+										<th style="padding:12px 10px;">S.No</th>
+										<th style="padding:12px 10px;">Donor Name</th>
+										<th style="padding:12px 10px;">Amount</th>
+										<th style="padding:12px 10px;">Payment Mode</th>
+										<th style="padding:12px 10px;">Date</th>
+										<th style="padding:12px 10px;">Status</th>
+									</tr>
+								</thead>
+								<tbody>
+									${rows_html}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			`);
+
+			// Bind buttons
+			wrapper.find(".btn-refresh-donations").off("click").on("click", function() {
+				frm.reload_doc().then(() => {
+					render_donations_dashboard(frm);
+				});
+			});
+
+			wrapper.find(".btn-record-offline-donation").off("click").on("click", function() {
+				let d = new frappe.ui.Dialog({
+					title: __("Record Offline Donation"),
+					fields: [
+						{
+							fieldname: "is_guest",
+							fieldtype: "Check",
+							label: __("Guest Donor?"),
+							default: 1,
+							change: function() {
+								let is_guest = this.get_value();
+								d.set_df_property("donor", "hidden", is_guest);
+								d.set_df_property("donor", "reqd", !is_guest);
+								
+								d.set_value("donor", "");
+								d.set_value("donor_name", "");
+								d.set_value("email", "");
+								d.set_value("phone", "");
+								
+								d.set_df_property("donor_name", "read_only", !is_guest);
+								d.set_df_property("email", "read_only", !is_guest);
+								d.set_df_property("phone", "read_only", !is_guest);
+							}
+						},
+						{
+							fieldname: "donor",
+							fieldtype: "Link",
+							label: __("Registered Member"),
+							options: "Party Master",
+							hidden: 1,
+							reqd: 0,
+							change: function() {
+								let donor_id = this.get_value();
+								if (donor_id) {
+									frappe.db.get_value("Party Master", donor_id, ["party_name", "email", "mobile_number"], function(r) {
+										if (r) {
+											d.set_value("donor_name", r.party_name || donor_id);
+											d.set_value("email", r.email || "");
+											d.set_value("phone", r.mobile_number || "");
+										}
+									});
+								} else {
+									d.set_value("donor_name", "");
+									d.set_value("email", "");
+									d.set_value("phone", "");
+								}
+							}
+						},
+						{
+							fieldname: "donor_name",
+							fieldtype: "Data",
+							label: __("Donor Name"),
+							reqd: 1
+						},
+						{
+							fieldname: "email",
+							fieldtype: "Data",
+							label: __("Email Address")
+						},
+						{
+							fieldname: "phone",
+							fieldtype: "Data",
+							label: __("Phone Number")
+						},
+						{
+							fieldname: "fund",
+							fieldtype: "Link",
+							label: __("Fund Program (Optional)"),
+							options: "Fund Master"
+						},
+						{
+							fieldname: "donation_type",
+							fieldtype: "Select",
+							label: __("Donation Type"),
+							options: (frm.doc.donation_causes || []).length 
+								? frm.doc.donation_causes.map(c => c.cause_name) 
+								: ["General Donation", "Building/Infrastructure Fund", "Charity/Alms", "Religious Offering", "Festival/Special Pooja", "Other"],
+							default: (frm.doc.donation_causes || []).length 
+								? frm.doc.donation_causes[0].cause_name 
+								: "General Donation",
+							reqd: 1
+						},
+						{
+							fieldname: "amount",
+							fieldtype: "Currency",
+							label: __("Amount"),
+							reqd: 1
+						},
+						{
+							fieldname: "payment_mode",
+							fieldtype: "Select",
+							label: __("Payment Mode"),
+							options: ["Cash", "Cheque", "Bank Transfer", "Other"],
+							default: "Cash",
+							reqd: 1
+						},
+						{
+							fieldname: "transaction_reference",
+							fieldtype: "Data",
+							label: __("Transaction / Receipt Ref")
+						}
+					],
+					primary_action_label: __("Record & Save"),
+					primary_action: function(values) {
+						d.hide();
+						frappe.call({
+							method: "system_event_core.event.doctype.events.events.record_event_donation",
+							args: {
+								event_name: frm.doc.name,
+								donor_name: values.donor_name,
+								amount: values.amount,
+								payment_mode: values.payment_mode,
+								email: values.email,
+								phone: values.phone,
+								donation_type: values.donation_type,
+								transaction_reference: values.transaction_reference,
+								donor: values.donor
+							},
+							freeze: true,
+							freeze_message: __("Recording donation..."),
+							callback: function(res) {
+								if (res.message && res.message.status === "ok") {
+									frappe.show_alert({ message: __("Donation recorded successfully!"), indicator: "green" });
+									frm.reload_doc().then(() => {
+										render_donations_dashboard(frm);
+									});
+								}
+							}
+						});
+					}
+				});
+				d.show();
+			});
+		}
+	});
 }

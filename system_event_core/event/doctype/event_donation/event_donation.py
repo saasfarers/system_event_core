@@ -28,4 +28,22 @@ class EventDonation(Document):
 		transaction_reference: DF.Data | None
 	# end: auto-generated types
 
-	pass
+	def before_insert(self):
+		import frappe
+		from frappe.utils import now_datetime
+		if not self.donation_date:
+			self.donation_date = now_datetime()
+		if not self.receipt_number:
+			self.receipt_number = self.name or frappe.model.naming.make_autoname("REC-.YYYY.-.#####")
+
+	def on_update(self):
+		import frappe
+		if self.event:
+			from system_event_core.event.doctype.events.events import update_event_donation_collected
+			update_event_donation_collected(self.event)
+
+	def on_trash(self):
+		import frappe
+		if self.event:
+			from system_event_core.event.doctype.events.events import update_event_donation_collected
+			frappe.db.after_commit.add(lambda: update_event_donation_collected(self.event))

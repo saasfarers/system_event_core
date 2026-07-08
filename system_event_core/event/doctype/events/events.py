@@ -883,3 +883,127 @@ def get_registrations_for_bulk(event_name: str) -> list:
 			"phone": phone
 		})
 	return resolved
+
+
+@frappe.whitelist()
+def update_event_donation_collected(event_name: str) -> float:
+	"""
+	Recalculates and updates the total donation collected for an event and its causes.
+	"""
+	total = frappe.db.sql("""
+		select sum(amount) from `tabEvent Donation`
+		where event = %s and status = 'Received'
+	""", event_name)[0][0] or 0.0
+	
+	frappe.db.set_value("Events", event_name, "donation_collected", total, update_modified=True)
+	
+	event_doc = frappe.get_doc("Events", event_name)
+	if event_doc.donation_causes:
+		for cause in event_doc.donation_causes:
+			cause_total = frappe.db.sql("""
+				select sum(amount) from `tabEvent Donation`
+				where event = %s and status = 'Received' and donation_type = %s
+			""", (event_name, cause.cause_name))[0][0] or 0.0
+			cause.collected_amount = float(cause_total)
+		event_doc.save(ignore_permissions=True)
+		
+	return float(total)
+
+
+@frappe.whitelist()
+def send_donation_receipt(donation_name: str) -> bool:
+	"""
+	Generates and dispatches a beautiful HTML donation receipt/thank-you letter.
+	"""
+	doc = frappe.get_doc("Event Donation", donation_name)
+	if not doc.email:
+		return False
+
+	event_name = frappe.db.get_value("Events", doc.event, "event_name") or doc.event
+	amount_formatted = frappe.utils.fmt_money(doc.amount, currency=frappe.db.get_default("currency") or "USD")
+	donation_date_formatted = frappe.utils.format_datetime(doc.donation_date)
+
+	subject = f"Thank you for your donation to {event_name}!"
+	message = f"""
+	<div style="background-color: #f1f5f9; padding: 30px; font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b;">
+		<div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); overflow: hidden; border: 1px solid #e2e8f0;">
+			<div style="background: linear-gradient(135deg, #10b981, #059669); padding: 30px 20px; text-align: center; color: #ffffff;">
+				<span style="font-size: 40px;">💝</span>
+				<h2 style="margin: 10px 0 0 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Donation Receipt</h2>
+				<p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px;">Thank you for your generous contribution!</p>
+			</div>
+			<div style="padding: 30px 25px;">
+				<p style="font-size: 16px; line-height: 1.5; margin: 0 0 20px 0;">Dear <strong>{doc.donor_name}</strong>,</p>
+				<p style="font-size: 15px; line-height: 1.6; color: #475569; margin: 0 0 25px 0;">We have successfully received your contribution for the event <strong>{event_name}</strong>. Your support helps us run spiritual gatherings, community services, and volunteer programs.</p>
+				
+				<div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+					<h4 style="margin: 0 0 12px 0; color: #334155; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Transaction Details</h4>
+					<table style="width: 100%; font-size: 14px; border-collapse: collapse;">
+						<tr style="border-bottom: 1px solid #f1f5f9;">
+							<td style="padding: 8px 0; color: #64748b; font-weight: 500;">Receipt Number:</td>
+							<td style="padding: 8px 0; text-align: right; font-weight: 600; color: #0f172a;">{doc.receipt_number or doc.name}</td>
+						</tr>
+						<tr style="border-bottom: 1px solid #f1f5f9;">
+							<td style="padding: 8px 0; color: #64748b; font-weight: 500;">Donation Date:</td>
+							<td style="padding: 8px 0; text-align: right; color: #334155;">{donation_date_formatted}</td>
+						</tr>
+						<tr style="border-bottom: 1px solid #f1f5f9;">
+							<td style="padding: 8px 0; color: #64748b; font-weight: 500;">Payment Mode:</td>
+							<td style="padding: 8px 0; text-align: right; color: #334155;">{doc.payment_mode or "Cash"}</td>
+						</tr>
+						{f'<tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 8px 0; color: #64748b; font-weight: 500;">Reference:</td><td style="padding: 8px 0; text-align: right; color: #334155;">{doc.transaction_reference}</td></tr>' if doc.transaction_reference else ''}
+						<tr>
+							<td style="padding: 12px 0 0 0; color: #059669; font-weight: 700; font-size: 16px;">Amount Contributed:</td>
+							<td style="padding: 12px 0 0 0; text-align: right; font-weight: 700; font-size: 18px; color: #059669;">{amount_formatted}</td>
+						</tr>
+					</table>
+				</div>
+				
+				<p style="font-size: 14px; color: #64748b; line-height: 1.5; text-align: center; margin: 0;">May you be rewarded abundantly for your kindness and support!</p>
+			</div>
+			<div style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 20px; text-align: center; font-size: 12px; color: #94a3b8;">
+				This is an automated confirmation of your contribution to our community system.
+			</div>
+		</div>
+	</div>
+	"""
+
+	frappe.sendmail(
+		recipients=[doc.email],
+		subject=subject,
+		message=message,
+		reference_doctype="Events",
+		reference_name=doc.event
+	)
+	return True
+
+
+@frappe.whitelist(allow_guest=True)
+def record_event_donation(event_name: str, donor_name: str, amount: float, payment_mode: str, email: str = None, phone: str = None, donation_type: str = None, transaction_reference: str = None, is_anonymous: int = 0, donor: str = None) -> dict:
+	"""
+	API endpoint to log an event donation. Auto-dispatches receipts.
+	"""
+	if not frappe.db.exists("Events", event_name):
+		frappe.throw(_("Event does not exist"))
+
+	doc = frappe.new_doc("Event Donation")
+	doc.event = event_name
+	doc.donor = donor
+	doc.donor_name = donor_name
+	doc.amount = float(amount)
+	doc.payment_mode = payment_mode
+	doc.email = email
+	doc.phone = phone
+	doc.donation_type = donation_type or "General Donation"
+	doc.transaction_reference = transaction_reference
+	doc.is_anonymous = int(is_anonymous)
+	doc.status = "Received"
+	doc.save(ignore_permissions=True)
+	
+	if email:
+		try:
+			send_donation_receipt(doc.name)
+		except Exception as e:
+			frappe.log_error(f"Failed to send donation receipt for {doc.name}: {str(e)}")
+
+	return {"status": "ok", "donation": doc.name, "receipt_number": doc.receipt_number}
