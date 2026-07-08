@@ -6,7 +6,11 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "event",
+  "party_member",
   "invitee",
+  "email",
+  "phone",
   "invitation_channel",
   "rsvp_status",
   "sent_on",
@@ -14,19 +18,50 @@
  ],
  "fields": [
   {
+   "fieldname": "event",
+   "fieldtype": "Link",
+   "label": "Event",
+   "options": "Events"
+  },
+  {
+   "fieldname": "party_member",
+   "fieldtype": "Link",
+   "label": "Party Member",
+   "options": "Party Master",
+   "in_list_view": 1
+  },
+  {
    "fieldname": "invitee",
    "fieldtype": "Data",
-   "label": "Invitee"
+   "label": "Invitee",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Phone",
+   "in_list_view": 1
   },
   {
    "fieldname": "invitation_channel",
    "fieldtype": "Select",
-   "label": "Invitation Channel"
+   "label": "Invitation Channel",
+   "options": "Email\nSMS\nWhatsApp\nAll"
   },
   {
    "fieldname": "rsvp_status",
    "fieldtype": "Select",
-   "label": "RSVP Status"
+   "label": "Response Status",
+   "options": "Pending\nWill Attend\nWon't Attend",
+   "default": "Pending",
+   "in_list_view": 1
   },
   {
    "fieldname": "sent_on",
@@ -36,7 +71,8 @@
   {
    "fieldname": "reminder_count",
    "fieldtype": "Int",
-   "label": "Reminder Count"
+   "label": "Reminder Count",
+   "default": 0
   }
  ],
  "grid_page_length": 50,
@@ -47,6 +83,7 @@
  "module": "Event",
  "name": "Event Invitation",
  "owner": "Administrator",
+ "istable": 1,
  "permissions": [
   {
    "create": 1,

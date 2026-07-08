@@ -51,6 +51,17 @@
   "sec_volunteer_assignments",
   "volunteer_summary_html",
   "event_volunteers",
+  "tab_invitations",
+  "sec_invitation_config",
+  "invitation",
+  "invitation_send_date",
+  "col_invitation_channel",
+  "invitation_channel",
+  "sec_invitation_preview",
+  "invitation_preview_html",
+  "sec_invitations_list",
+  "event_invitations",
+  "invitation_list_html",
   "tab_structure",
   "sec_sponsor",
   "created_by_type",
@@ -321,6 +332,64 @@
    "fieldtype": "Table",
    "label": "Volunteer Assignments",
    "options": "Event Volunteer Assignment"
+  },
+  {
+   "fieldname": "tab_invitations",
+   "fieldtype": "Tab Break",
+   "label": "Invitations"
+  },
+  {
+   "fieldname": "sec_invitation_config",
+   "fieldtype": "Section Break",
+   "label": "Invitation Configuration"
+  },
+  {
+   "fieldname": "invitation",
+   "fieldtype": "Link",
+   "label": "Invitation Template",
+   "options": "Invitation"
+  },
+  {
+   "fieldname": "invitation_send_date",
+   "fieldtype": "Datetime",
+   "label": "Invitation Send Time"
+  },
+  {
+   "fieldname": "col_invitation_channel",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "invitation_channel",
+   "fieldtype": "Select",
+   "label": "Invitation Channel",
+   "options": "Email\nSMS\nWhatsApp\nAll",
+   "default": "Email"
+  },
+  {
+   "fieldname": "sec_invitation_preview",
+   "fieldtype": "Section Break",
+   "label": "Template Preview"
+  },
+  {
+   "fieldname": "invitation_preview_html",
+   "fieldtype": "HTML",
+   "label": "Preview Pane"
+  },
+  {
+   "fieldname": "sec_invitations_list",
+   "fieldtype": "Section Break",
+   "label": "Recipient List & Response Status"
+  },
+  {
+   "fieldname": "event_invitations",
+   "fieldtype": "Table",
+   "label": "Recipients",
+   "options": "Event Invitation"
+  },
+  {
+   "fieldname": "invitation_list_html",
+   "fieldtype": "HTML",
+   "label": "Actions Toolbar"
   },
   {
    "fieldname": "tab_structure",

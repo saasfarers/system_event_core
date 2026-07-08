@@ -15,7 +15,7 @@ class Invitation(Document):
 		from frappe.types import DF
 
 		attachment: DF.Attach | None
-		event: DF.Data | None
+		event: DF.Link | None
 		invitation_image: DF.AttachImage | None
 		message: DF.SmallText | None
 		title: DF.Data | None

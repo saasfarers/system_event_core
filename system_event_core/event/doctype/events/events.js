@@ -13,6 +13,7 @@ frappe.ui.form.on("Events", {
 		_add_approval_buttons(frm);
 		_set_status_indicator(frm);
 		toggle_volunteer_tab(frm);
+		toggle_invitations_tab(frm);
 
 		// "View Event" button — only on saved docs
 		if (!frm.doc.__islocal && frm.doc.name) {
@@ -56,6 +57,20 @@ frappe.ui.form.on("Events", {
 					render_volunteer_summary(frm);
 				}, 200);
 			});
+
+
+		// Render invitation tab content
+		render_invitation_tab(frm);
+
+		// Re-render when Invitations tab clicked
+		frm.page.wrapper
+			.find('.form-tabs-list [data-fieldname="tab_invitations"]')
+			.off("click.inv")
+			.on("click.inv", function () {
+				setTimeout(() => {
+					render_invitation_tab(frm);
+				}, 200);
+			});
 	},
 
 	// ── Field triggers ────────────────────────────────────────────
@@ -89,6 +104,10 @@ frappe.ui.form.on("Events", {
 	send_reminders: function (frm) {
 		frm.toggle_display("reminder_days_before", frm.doc.send_reminders);
 		frm.toggle_display("notification_channel", frm.doc.send_reminders);
+	},
+
+	invitation: function (frm) {
+		render_invitation_tab(frm);
 	},
 
 	start_date: function (frm) { _validate_dates(frm); },
@@ -845,6 +864,17 @@ function _toggle_component(frm, $pill) {
 	setTimeout(function () { _make_table_readonly(frm); }, 200);
 	toggle_registration_form(frm);
 	toggle_volunteer_tab(frm);
+
+	// Refresh the "Send Invitations" custom button
+	frm.remove_custom_button(__("Send Invitations"), __("Action"));
+	let show_invitations_btn = (frm.doc.event_components || []).some(function (r) {
+		return String(r.component) === "6";
+	});
+	if (show_invitations_btn && !frm.doc.__islocal && frm.doc.name) {
+		frm.add_custom_button(__("Send Invitations"), function () {
+			show_send_invitations_wizard(frm);
+		}, __("Action"));
+	}
 }
 
 
@@ -963,4 +993,355 @@ function _auto_detect_multiday(frm) {
 	} else {
 		frm.set_value("is_multi_day", 0);
 	}
+}
+
+
+// ─────────────────────────────────────────────
+// INVITATION TABS AND WIDGETS
+// ─────────────────────────────────────────────
+
+function toggle_invitations_tab(frm) {
+	let show = (frm.doc.event_components || []).some(function (r) {
+		return String(r.component) === "6"; // Invitations component ID is 6
+	});
+
+	frm.toggle_display("tab_invitations", show);
+
+	frm.page.wrapper
+		.find('.form-tabs-list [data-fieldname="tab_invitations"]')
+		.closest("li")
+		.toggle(show);
+}
+
+function render_invitation_tab(frm) {
+	// Template Preview Rendering
+	let preview_wrapper = frm.fields_dict.invitation_preview_html ? frm.fields_dict.invitation_preview_html.$wrapper : null;
+	if (preview_wrapper) {
+		if (frm.doc.invitation) {
+			preview_wrapper.html(`
+				<div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px; display:flex; align-items:center; justify-content:space-between; margin-bottom: 20px;">
+					<div>
+						<div style="font-weight:700; color:#1e293b; font-size:14px;">Linked Template: <a href="/app/invitation/${frm.doc.invitation}" target="_blank" style="color:#2563eb; text-decoration:underline;">${frm.doc.invitation}</a></div>
+						<div style="font-size:12px; color:#64748b; margin-top:4px;">You can preview the card or edit the template directly.</div>
+					</div>
+					<div style="display:flex; gap:10px;">
+						<button class="btn btn-primary btn-sm btn-preview-invitation" style="display:flex; align-items:center; gap:5px;">
+							<span>👁️</span> Preview Invitation
+						</button>
+						<button class="btn btn-default btn-sm btn-edit-invitation">
+							✏️ Edit Template
+						</button>
+					</div>
+				</div>
+			`);
+			
+			preview_wrapper.find(".btn-preview-invitation").off("click").on("click", function() {
+				frappe.model.with_doc("Invitation", frm.doc.invitation, function() {
+					let temp_doc = frappe.get_doc("Invitation", frm.doc.invitation);
+					_preview_invitation(temp_doc);
+				});
+			});
+			
+			preview_wrapper.find(".btn-edit-invitation").off("click").on("click", function() {
+				frappe.set_route("Form", "Invitation", frm.doc.invitation);
+			});
+		} else {
+			preview_wrapper.html(`
+				<div style="background:#fffbeb; border:1px solid #fef3c7; border-radius:10px; padding:16px; display:flex; align-items:center; justify-content:space-between; margin-bottom: 20px;">
+					<div>
+						<div style="font-weight:700; color:#b45309; font-size:14px;">⚠️ No Invitation Template Selected</div>
+						<div style="font-size:12px; color:#d97706; margin-top:4px;">Please select an invitation template above to enable template preview.</div>
+					</div>
+					<button class="btn btn-warning btn-sm btn-create-invitation">
+						✨ Create Template
+					</button>
+				</div>
+			`);
+			
+			preview_wrapper.find(".btn-create-invitation").off("click").on("click", function() {
+				frappe.new_doc("Invitation", {
+					event: frm.doc.name,
+					title: frm.doc.event_name + " Invitation"
+				});
+			});
+		}
+	}
+
+	// Actions Toolbar Rendering
+	let actions_wrapper = frm.fields_dict.invitation_list_html ? frm.fields_dict.invitation_list_html.$wrapper : null;
+	if (actions_wrapper) {
+		let hasRegistration = (frm.doc.event_components || []).some(row => {
+			return String(row.component) === "1"; // Registration component ID is 1
+		});
+
+		let import_btn_html = hasRegistration
+			? `<button class="btn btn-default btn-sm btn-import-registrations" style="font-weight:600; margin-right:8px;">📋 Import Registrations</button>`
+			: "";
+
+		actions_wrapper.html(`
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-top: 15px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+				<div style="font-size: 13px; color: #64748b; font-weight: 500;">Use the toolbar actions to fill your recipient list in bulk.</div>
+				<div style="display:flex; gap:8px;">
+					<button class="btn btn-primary btn-sm btn-select-members" style="font-weight:600;">👥 Select Members</button>
+					${import_btn_html}
+					<button class="btn btn-success btn-sm btn-send-tab-invitations" style="font-weight:600; background:#22c55e; border-color:#22c55e; color:white;">✉️ Send Invitations Now</button>
+				</div>
+			</div>
+		`);
+
+		// Bind actions
+		actions_wrapper.find(".btn-select-members").off("click").on("click", function() {
+			let d = new frappe.ui.form.MultiSelectDialog({
+				doctype: "Party Master",
+				target: frm,
+				setters: {
+					status: "Active"
+				},
+				add_filters_group: 1,
+				action: function(selections) {
+					if (!selections || !selections.length) return;
+					
+					// Resolve and append to child table
+					selections.forEach(function(pm_name) {
+						// Avoid duplicates
+						let exists = (frm.doc.event_invitations || []).some(row => row.party_member === pm_name);
+						if (!exists) {
+							frappe.db.get_value("Party Master", pm_name, ["party_name", "email", "mobile_number"], function(r) {
+								if (r) {
+									let row = frm.add_child("event_invitations");
+									row.event = frm.doc.name;
+									row.party_member = pm_name;
+									row.invitee = r.party_name || pm_name;
+									row.email = r.email || "";
+									row.phone = r.mobile_number || "";
+									row.rsvp_status = "Pending";
+									row.invitation_channel = frm.doc.invitation_channel || "Email";
+									frm.refresh_field("event_invitations");
+								}
+							});
+						}
+					});
+					frappe.show_alert({ message: __("Added members to grid."), indicator: "green" });
+					d.dialog.hide();
+				}
+			});
+		});
+
+		actions_wrapper.find(".btn-import-registrations").off("click").on("click", function() {
+			frappe.call({
+				method: "system_event_core.event.doctype.events.events.get_registrations_for_bulk",
+				args: { event_name: frm.doc.name },
+				freeze: true,
+				freeze_message: __("Fetching registration records..."),
+				callback: function(r) {
+					let list = r.message || [];
+					let added_count = 0;
+					list.forEach(function(item) {
+						let exists = (frm.doc.event_invitations || []).some(row => {
+							return row.party_member === item.party_member || (item.email && row.email === item.email);
+						});
+						if (!exists) {
+							let row = frm.add_child("event_invitations");
+							row.event = frm.doc.name;
+							row.party_member = item.party_member;
+							row.invitee = item.invitee;
+							row.email = item.email;
+							row.phone = item.phone;
+							row.rsvp_status = "Pending";
+							row.invitation_channel = frm.doc.invitation_channel || "Email";
+							added_count++;
+						}
+					});
+					if (added_count > 0) {
+						frm.refresh_field("event_invitations");
+						frappe.show_alert({ message: __("Imported {0} registrations.", [added_count]), indicator: "green" });
+					} else {
+						frappe.show_alert({ message: __("All registrants are already in the list."), indicator: "orange" });
+					}
+				}
+			});
+		});
+
+		actions_wrapper.find(".btn-send-tab-invitations").off("click").on("click", function() {
+			if (!frm.doc.invitation) {
+				frappe.throw(__("Please select an Invitation Template first."));
+			}
+			if (!frm.doc.event_invitations || frm.doc.event_invitations.length === 0) {
+				frappe.throw(__("Your Recipient List is empty. Please select or add guests first."));
+			}
+
+			// Validate if scheduled date-time is set and in the future, warn if send now
+			if (frm.doc.invitation_send_date) {
+				let now_dt = frappe.datetime.now_datetime();
+				if (frm.doc.invitation_send_date > now_dt) {
+					frappe.confirm(__("This invitation is scheduled for {0}. Do you want to send it immediately anyway?", [frm.doc.invitation_send_date]), function() {
+						_execute_tab_sending(frm);
+					});
+					return;
+				}
+			}
+
+			frappe.confirm(__("Send invitations to all guests in the list?"), function() {
+				_execute_tab_sending(frm);
+			});
+		});
+	}
+}
+
+function _execute_tab_sending(frm) {
+	let perform_call = function() {
+		frappe.call({
+			method: "system_event_core.event.doctype.events.events.send_tab_invitations",
+			args: { event_name: frm.doc.name },
+			freeze: true,
+			freeze_message: __("Sending invitations..."),
+			callback: function (r) {
+				if (r.message && r.message.status === "ok") {
+					frappe.show_alert({
+						message: __("Sent {0} invitations successfully!", [r.message.sent_count]),
+						indicator: "green"
+					});
+					frm.reload_doc();
+				}
+			}
+		});
+	};
+
+	if (frm.is_dirty()) {
+		frm.save().then(() => {
+			perform_call();
+		});
+	} else {
+		perform_call();
+	}
+}
+
+function _preview_invitation(doc) {
+	const image_html = doc.invitation_image
+		? `
+			<div style="text-align:center; margin-bottom:20px;">
+				<img
+					src="${doc.invitation_image}"
+					style="
+						max-width:100%;
+						max-height:300px;
+						border-radius:12px;
+						box-shadow:0 4px 12px rgba(0,0,0,0.15);
+					"
+				>
+			</div>
+		`
+		: '';
+
+	const html = `
+		<div style="
+			background: linear-gradient(135deg, #fff8e7, #fffdf7);
+			padding: 40px;
+			border: 3px solid #d4af37;
+			border-radius: 16px;
+			font-family: Georgia, serif;
+			color: #333;
+			max-width: 800px;
+			margin: auto;
+		">
+
+			<div style="text-align:center;">
+
+				<div style="
+					font-size: 14px;
+					letter-spacing: 3px;
+					color: #b8860b;
+					margin-bottom: 10px;
+					text-transform: uppercase;
+				">
+					Invitation
+				</div>
+
+				<h1 style="
+					color: #8b0000;
+					font-size: 36px;
+					margin-bottom: 15px;
+				">
+					${doc.title || 'Invitation Title'}
+				</h1>
+
+			</div>
+
+			${image_html}
+
+			<div style="
+				text-align:center;
+				margin-top:20px;
+			">
+
+				<h3 style="
+					color:#444;
+					margin-bottom:20px;
+					font-size:24px;
+				">
+					${doc.event || 'Event Name'}
+				</h3>
+
+			</div>
+
+			<div style="
+				background:#ffffff;
+				padding:25px;
+				border-radius:12px;
+				border:1px solid #eee;
+				line-height:1.8;
+				font-size:16px;
+				white-space:pre-wrap;
+			">
+				${doc.message || 'Your invitation message will appear here.'}
+			</div>
+
+			${doc.attachment ? `
+				<div style="
+					margin-top:25px;
+					text-align:center;
+				">
+					<a
+						href="${doc.attachment}"
+						target="_blank"
+						style="
+							display:inline-block;
+							padding:10px 20px;
+							background:#0d6efd;
+							color:white;
+							text-decoration:none;
+							border-radius:8px;
+							font-weight:bold;
+						"
+					>
+						View Attachment
+					</a>
+				</div>
+			` : ''}
+
+			<div style="
+				margin-top:30px;
+				text-align:center;
+				color:#777;
+				font-size:14px;
+			">
+				Thank you for being a part of this special occasion.
+			</div>
+
+		</div>
+	`;
+
+	let dialog = new frappe.ui.Dialog({
+		title: __('Invitation Preview'),
+		size: 'extra-large',
+		fields: [
+			{
+				fieldtype: 'HTML',
+				fieldname: 'preview_html'
+			}
+		]
+	});
+
+	dialog.show();
+	dialog.fields_dict.preview_html.$wrapper.html(html);
 }

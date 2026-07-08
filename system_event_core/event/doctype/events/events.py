@@ -709,3 +709,177 @@ def mark_event_attendance(docname: str, registrations, action: str) -> dict:
 
 	frappe.db.commit()
 	return {"status": "ok", "updated": updated}
+
+
+@frappe.whitelist()
+def send_tab_invitations(event_name: str) -> dict:
+	"""
+	Sends invitations to all entries in the child table.
+	"""
+	event_doc = frappe.get_doc("Events", event_name)
+	if not event_doc.invitation:
+		frappe.throw(_("Please select an Invitation Template first."))
+
+	inv_template = frappe.get_doc("Invitation", event_doc.invitation)
+	
+	# Prepare email attachment
+	attachments = []
+	if inv_template.attachment:
+		file_name = frappe.db.get_value("File", {"file_url": inv_template.attachment}, "name")
+		if file_name:
+			try:
+				file_doc = frappe.get_doc("File", file_name)
+				attachments.append({
+					"fname": file_doc.file_name,
+					"fcontent": file_doc.get_content()
+				})
+			except Exception as e:
+				frappe.log_error(f"Failed to load attachment: {str(e)}")
+
+	# Construct Event Details block
+	event_date_str = frappe.utils.format_date(event_doc.start_date)
+	if event_doc.start_time:
+		event_date_str += f" at {event_doc.start_time}"
+	else:
+		event_date_str += " (All Day)"
+
+	event_details_html = f"""
+	<div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin: 20px 0; font-family: Arial, sans-serif;">
+		<h4 style="margin: 0 0 10px 0; color: #1e293b; font-size: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">📅 Event Details</h4>
+		<table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #334155;">
+			<tr>
+				<td style="padding: 6px 0; font-weight: bold; width: 120px; color: #64748b;">Event Name:</td>
+				<td style="padding: 6px 0; font-weight: 600; color: #0f172a;">{event_doc.event_name or ""}</td>
+			</tr>
+			<tr>
+				<td style="padding: 6px 0; font-weight: bold; color: #64748b;">Date & Time:</td>
+				<td style="padding: 6px 0; color: #0f172a;">{event_date_str}</td>
+			</tr>
+	"""
+	if event_doc.venue:
+		event_details_html += f"""
+			<tr>
+				<td style="padding: 6px 0; font-weight: bold; color: #64748b;">Venue:</td>
+				<td style="padding: 6px 0; color: #0f172a;">{event_doc.venue}</td>
+			</tr>
+		"""
+	if event_doc.description:
+		event_details_html += f"""
+			<tr>
+				<td style="padding: 6px 0; font-weight: bold; color: #64748b; vertical-align: top;">Description:</td>
+				<td style="padding: 6px 0; color: #0f172a;">{event_doc.description}</td>
+			</tr>
+		"""
+	event_details_html += """
+		</table>
+	</div>
+	"""
+
+	# Prepare rich HTML message
+	message_body = inv_template.message or ""
+	message_body += event_details_html
+	
+	if inv_template.invitation_image:
+		message_body += f'<br><br><div style="text-align:center;"><img embed="{inv_template.invitation_image}" style="max-width:100%; border-radius:8px;"></div>'
+
+	sent_count = 0
+	now = now_datetime()
+	default_channel = event_doc.invitation_channel or "Email"
+
+	for row in event_doc.event_invitations:
+		# Send email
+		row_channel = row.invitation_channel or default_channel
+		if row.email and row_channel in ["Email", "All"]:
+			try:
+				frappe.sendmail(
+					recipients=[row.email],
+					subject=inv_template.title or f"Invitation: {event_doc.event_name}",
+					message=message_body,
+					attachments=attachments,
+					reference_doctype="Events",
+					reference_name=event_doc.name
+				)
+				row.sent_on = now
+				row.reminder_count = (row.reminder_count or 0) + 1
+				sent_count += 1
+			except Exception as e:
+				frappe.log_error(f"Failed to send email to {row.email}: {str(e)}")
+				continue
+		
+		# Simulate SMS/WhatsApp
+		elif row.phone and row_channel in ["SMS", "WhatsApp", "All"]:
+			row.sent_on = now
+			row.reminder_count = (row.reminder_count or 0) + 1
+			sent_count += 1
+
+	event_doc.save(ignore_permissions=True)
+	frappe.db.commit()
+	return {"status": "ok", "sent_count": sent_count}
+
+
+@frappe.whitelist()
+def send_scheduled_invitations():
+	"""
+	Cron background job running every few minutes to send out scheduled event invitations.
+	"""
+	now = now_datetime()
+	
+	# Query all Events where invitation_send_date is past/present
+	events = frappe.get_all(
+		"Events",
+		filters=[
+			["invitation_send_date", "<=", now],
+			["docstatus", "<", 2]
+		],
+		fields=["name"]
+	)
+	
+	for ev in events:
+		# Check if any invitation is pending
+		pending_exists = frappe.db.exists("Event Invitation", {
+			"parent": ev.name,
+			"parenttype": "Events",
+			"sent_on": ["is", "not set"]
+		})
+		if pending_exists:
+			try:
+				send_tab_invitations(ev.name)
+			except Exception as e:
+				frappe.log_error(f"Failed to send scheduled invitations for {ev.name}: {str(e)}")
+
+
+@frappe.whitelist()
+def get_registrations_for_bulk(event_name: str) -> list:
+	"""
+	Returns resolved registrations for the event to be added to the child table in bulk.
+	"""
+	regs = get_event_registrations(event_name)
+	resolved = []
+	for r in regs:
+		party_master = r.get("party_master")
+		email = r.get("email") or ""
+		name = r.get("name") or ""
+		phone = r.get("phone") or ""
+		
+		# Resolve phone number if guest
+		if not party_master and r.get("registration_id"):
+			phone_items = frappe.get_all(
+				"Registration Response Items",
+				filters={"parent": r.get("registration_id")},
+				fields=["question", "answer"]
+			)
+			for item in phone_items:
+				q = (item.question or "").lower()
+				if "phone" in q or "mobile" in q or "contact" in q:
+					phone = item.answer
+					break
+		elif party_master and not phone:
+			phone = frappe.db.get_value("Party Master", party_master, "mobile_number") or ""
+			
+		resolved.append({
+			"party_member": party_master,
+			"invitee": name,
+			"email": email,
+			"phone": phone
+		})
+	return resolved
