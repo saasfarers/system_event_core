@@ -155,23 +155,11 @@ doctype_calendar_js = {
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"system_event_core.tasks.all"
-# 	],
-# 	"daily": [
-# 		"system_event_core.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"system_event_core.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"system_event_core.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"system_event_core.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"all": [
+		"system_event_core.event.doctype.events.events.send_scheduled_invitations"
+	]
+}
 
 # Testing
 # -------
@@ -264,4 +252,14 @@ require_type_annotated_api_methods = True
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
+
+fixtures = [
+    {
+        "doctype": "Workspace",
+        "filters": [
+            ["name", "in", ["Event Operations", "Resource Bookings"]], 
+        ]
+    }
+]
+
 

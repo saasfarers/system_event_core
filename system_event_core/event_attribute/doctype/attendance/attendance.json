@@ -6,6 +6,8 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "event",
+  "attendance_type",
   "people",
   "is_external",
   "name1",
@@ -16,6 +18,25 @@
   "working_hours"
  ],
  "fields": [
+  {
+   "fieldname": "event",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Event",
+   "options": "Events"
+  },
+  {
+   "default": "Participant",
+   "fieldname": "attendance_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Attendance Type",
+   "options": "Participant\nVolunteer"
+  },
   {
    "depends_on": "eval:!doc.is_external",
    "fieldname": "people",

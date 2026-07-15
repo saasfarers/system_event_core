@@ -21,7 +21,7 @@ frappe.pages["community-events"].on_page_load = function (wrapper) {
 
                     <div class="events-hero-search">
                         <label class="search-box" for="event-search">
-                            <span class="search-icon">⌕</span>
+                            <span class="search-icon material-symbols-outlined">search</span>
                             <input
                                 type="text"
                                 id="event-search"
@@ -42,8 +42,10 @@ frappe.pages["community-events"].on_page_load = function (wrapper) {
             </div>
         `);
 
-    add_page_styles();
-    load_events(wrapper);
+    frappe.pages["community-events"].on_page_show = function (wrapper) {
+        add_page_styles();
+        load_events(wrapper);
+    };
 
     $(wrapper).on("keyup", "#event-search", function () {
         filter_events($(this).val());
@@ -62,7 +64,9 @@ function load_events(wrapper) {
             if (!events.length) {
                 html = `
                     <div class="no-events">
-                        <div class="no-events-icon">🕌</div>
+                        <div class="no-events-icon">
+                            <span class="material-symbols-outlined" style="font-size: 32px; color: var(--ce-primary)">event_busy</span>
+                        </div>
                         <h3>No events found</h3>
                         <p>There are currently no community programs to display.</p>
                     </div>
@@ -72,6 +76,13 @@ function load_events(wrapper) {
             }
 
             events.forEach((event) => {
+                let today = frappe.datetime.get_today();
+                let is_finished = false;
+                let end_date = event.end_date || event.start_date;
+                if (end_date && end_date < today) {
+                    is_finished = true;
+                }
+
                 let image = event.event_image
                     ? event.event_image
                     : "/assets/system_event_core/images/placeholder.png";
@@ -149,6 +160,7 @@ function load_events(wrapper) {
                     if (closed) {
                         reg_button = `
                             <button class="btn btn-disabled btn-register-closed" disabled>
+                                <span class="material-symbols-outlined" style="font-size: 16px;">lock</span>
                                 <span>Registration Closed</span>
                             </button>
                         `;
@@ -160,6 +172,7 @@ function load_events(wrapper) {
                                 data-reg-form="${event.registration_form || ""}"
                                 data-event-name="${frappe.utils.escape_html(event.event_name || "")}"
                             >
+                                <span class="material-symbols-outlined" style="font-size: 16px;">app_registration</span>
                                 <span>Register Now</span>
                             </button>
                         `;
@@ -208,32 +221,109 @@ function load_events(wrapper) {
                                 data-event="${event.name}"
                                 data-event-name="${frappe.utils.escape_html(event.event_name || "")}"
                             >
-                                <span>🙋 Volunteer for this Event</span>
+                                <span class="material-symbols-outlined" style="font-size: 16px;">volunteer_activism</span>
+                                <span>Volunteer</span>
                             </button>
                         `;
                     } else {
                         volunteer_button = `
                             <button class="btn btn-disabled btn-volunteer-closed" disabled>
+                                <span class="material-symbols-outlined" style="font-size: 16px;">block</span>
                                 <span>Volunteer Slots Full</span>
                             </button>
                         `;
                     }
                 }
 
+                // If finished, override buttons with Concluded state
+                if (is_finished) {
+                    reg_button = `
+                        <button class="btn btn-disabled btn-register-closed" disabled>
+                            <span class="material-symbols-outlined" style="font-size: 16px;">celebration</span>
+                            <span>Event Concluded</span>
+                        </button>
+                    `;
+                    volunteer_button = "";
+                }
+
+                let donation_block = "";
+                let donation_button = "";
+                if (event.has_donation) {
+                    let goal = event.donation_goal || 0.0;
+                    if (event.donation_causes && event.donation_causes.length) {
+                        goal = event.donation_causes.reduce((sum, c) => sum + (c.target_amount || 0.0), 0.0);
+                    }
+                    let collected = event.donation_collected || 0.0;
+                    let pct = goal > 0 ? Math.min(Math.round((collected / goal) * 100), 100) : 0;
+                    
+                    let causes_list_html = "";
+                    if (event.donation_causes && event.donation_causes.length) {
+                        causes_list_html = event.donation_causes.map(c => `
+                            <div style="margin-top:8px; border-top:1px dashed #bbf7d0; padding-top:8px;">
+                                <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:#14532d;">
+                                    <span>${c.cause_name}</span>
+                                    <span>$${c.collected_amount.toLocaleString()} / $${c.target_amount.toLocaleString()} (${c.percentage}%)</span>
+                                </div>
+                                <div style="background:#dcfce7; border-radius:4px; height:4px; width:100%; position:relative; overflow:hidden; margin-top:4px;">
+                                    <div style="background:#16a34a; height:100%; width:${c.percentage}%; border-radius:4px;"></div>
+                                </div>
+                            </div>
+                        `).join("");
+                    }
+
+                    donation_block = `
+                        <div class="donation-progress-block" style="margin-top:12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:12px; font-family:sans-serif; width:100%;">
+                            <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:#166534; margin-bottom:6px;">
+                                <span>Total Raised: $${collected.toLocaleString()} / $${goal.toLocaleString()}</span>
+                                <span>${pct}% Raised</span>
+                            </div>
+                            <div style="background:#dcfce7; border-radius:10px; height:8px; width:100%; position:relative; overflow:hidden;">
+                                <div style="background:#16a34a; height:100%; width:${pct}%; border-radius:10px; transition:width 0.4s;"></div>
+                            </div>
+                            ${causes_list_html}
+                        </div>
+                    `;
+                    if (!is_finished) {
+                        donation_button = `
+                            <button
+                                class="btn btn-donate"
+                                style="background:#16a34a; border-color:#16a34a; color:white; font-weight:600; display:flex; align-items:center; gap:6px;"
+                                data-event="${event.name}"
+                                data-event-name="${frappe.utils.escape_html(event.event_name || "")}"
+                            >
+                                <span class="material-symbols-outlined" style="font-size: 16px;">volunteer_activism</span>
+                                <span>Donate</span>
+                            </button>
+                        `;
+                    }
+                }
+
                 html += `
-                    <article class="event-item" data-event-id="${event.name}">
+                    <article class="event-item ${is_finished ? "event-item-concluded" : ""}" data-event-id="${event.name}">
                         <div class="event-image-section">
                             <img
                                 src="${image}"
                                 alt="${frappe.utils.escape_html(event.event_name || "")}"
                             />
+                            ${is_finished ? `
+                                <div class="concluded-banner">
+                                    <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 4px;">check_circle</span>
+                                    Event Concluded
+                                </div>
+                            ` : ""}
                         </div>
 
                         <div class="event-details-section">
                             <div class="event-topline">
-                                <span class="event-category">${event.event_category || "Community Event"}</span>
+                                <span class="event-category">
+                                    <span class="material-symbols-outlined" style="font-size: 14px; margin-right: 4px;">local_offer</span>
+                                    ${event.event_category || "Community Event"}
+                                </span>
                                 ${event.is_off_premise
-                        ? `<span class="off-premise">Off Premise</span>`
+                        ? `<span class="off-premise">
+                                <span class="material-symbols-outlined" style="font-size: 14px; margin-right: 4px;">home_work</span>
+                                Off Premise
+                           </span>`
                         : ""
                     }
                             </div>
@@ -241,14 +331,24 @@ function load_events(wrapper) {
                             <h2 class="event-title">${event.event_name || ""}</h2>
 
                             <div class="event-meta">
-                                <span class="meta-pill">📅 ${frappe.datetime.str_to_user(event.start_date)}</span>
-                                <span class="meta-pill">⏰ ${event.start_time || ""}</span>
-                                <span class="meta-pill">📍 ${location || "Location Not Specified"}</span>
+                                <span class="meta-pill">
+                                    <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 6px; color: var(--ce-primary)">calendar_today</span>
+                                    ${frappe.datetime.str_to_user(event.start_date)}
+                                </span>
+                                <span class="meta-pill">
+                                    <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 6px; color: var(--ce-primary)">schedule</span>
+                                    ${event.start_time || ""}
+                                </span>
+                                <span class="meta-pill">
+                                    <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 6px; color: var(--ce-primary)">location_on</span>
+                                    ${location || "Location Not Specified"}
+                                </span>
                             </div>
 
                             ${reg_badge}
                             ${capacity_block}
                             ${volunteer_badge}
+                            ${donation_block}
 
                             <div class="event-description">
                                 ${desc || "No description available for this event."}
@@ -257,16 +357,21 @@ function load_events(wrapper) {
                             <div class="event-footer">
                                 <div class="event-owner">
                                     <span class="owner-label">Organized by</span>
-                                    <span class="owner-chip">${event.event_owner || "Organization"}</span>
+                                    <span class="owner-chip">
+                                        <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 6px; color: var(--ce-primary)">groups</span>
+                                        ${event.event_owner || "Organization"}
+                                    </span>
                                 </div>
 
                                 <div class="event-actions">
                                     ${reg_button}
                                     ${volunteer_button}
+                                    ${donation_button}
                                     <button
                                         class="btn btn-primary btn-view-details"
                                         data-event="${event.name}"
                                     >
+                                        <span class="material-symbols-outlined" style="font-size: 16px;">info</span>
                                         <span>View Details</span>
                                     </button>
                                 </div>
@@ -298,6 +403,16 @@ function load_events(wrapper) {
                     let event_name = $(this).data("event-name");
 
                     show_volunteer_modal(event_id, event_name);
+                })
+                .on("click.community", ".btn-donate", function () {
+                    if ($(this).is(":disabled")) return;
+
+                    let event_id = $(this).data("event");
+                    let event_name = $(this).data("event-name");
+                    let event_doc = (events || []).find(e => e.name === event_id);
+                    let causes = event_doc ? event_doc.donation_causes : [];
+
+                    show_donate_dialog(wrapper, event_id, event_name, causes);
                 });
         },
     });
@@ -591,11 +706,16 @@ function _render_registration_dialog(event_id, event_display_name, form_data) {
 function _show_success_message(event_id, event_display_name) {
     let success_dialog = new frappe.ui.Dialog({
         title: "Registration Successful",
+        on_hide: function () {
+            _refresh_registration_count(event_id);
+        }
     });
 
     success_dialog.$wrapper.find(".modal-body").html(`
         <div class="success-state">
-            <div class="success-state-icon">✓</div>
+            <div class="success-state-icon">
+                <span class="material-symbols-outlined success-icon" style="font-size: 38px; color: var(--ce-success)">check_circle</span>
+            </div>
             <h3>You're Registered!</h3>
             <p>You have successfully registered for</p>
             <strong>${frappe.utils.escape_html(event_display_name)}</strong>
@@ -612,7 +732,6 @@ function _show_success_message(event_id, event_display_name) {
 
     success_dialog.$wrapper.find("#reg-success-close").on("click", function () {
         success_dialog.hide();
-        _refresh_registration_count(event_id);
     });
 }
 
@@ -1222,11 +1341,16 @@ function _render_volunteer_dialog(event_id, event_display_name, roles) {
 function _show_volunteer_success(event_id, event_display_name) {
     let success_dialog = new frappe.ui.Dialog({
         title: "Volunteer Request Received",
+        on_hide: function () {
+            _refresh_volunteer_count(event_id);
+        }
     });
 
     success_dialog.$wrapper.find(".modal-body").html(`
         <div class="success-state">
-            <div class="success-state-icon">🙌</div>
+            <div class="success-state-icon">
+                <span class="material-symbols-outlined success-icon" style="font-size: 38px; color: var(--ce-volunteer)">volunteer_activism</span>
+            </div>
             <h3>Thank You!</h3>
             <p>Your volunteer request has been recorded for</p>
             <strong>${frappe.utils.escape_html(event_display_name)}</strong>
@@ -1243,8 +1367,71 @@ function _show_volunteer_success(event_id, event_display_name) {
 
     success_dialog.$wrapper.find("#vol-success-close").on("click", function () {
         success_dialog.hide();
+    });
+}
 
-        load_events();
+function _refresh_volunteer_count(event_id) {
+    frappe.call({
+        method: "system_event_core.event_attribute.doctype.registration_response.registration_response.get_events_with_registration",
+        callback: function (r) {
+            let events = r.message || [];
+            let ev = events.find((e) => e.name === event_id);
+            if (!ev) return;
+
+            if (ev.has_volunteer_opportunity) {
+                let needed_total = ev.volunteer_slots_total || 0;
+                let filled_total = ev.volunteer_slots_filled || 0;
+                let remaining = Math.max(needed_total - filled_total, 0);
+
+                let vol_status_class =
+                    needed_total === 0
+                        ? "status-unlimited"
+                        : remaining === 0
+                            ? "status-full"
+                            : remaining <= Math.ceil(needed_total * 0.25)
+                                ? "status-almost"
+                                : "status-open";
+
+                let vol_status_label =
+                    needed_total === 0
+                        ? "Open"
+                        : remaining === 0
+                            ? "Full"
+                            : remaining + " spot" + (remaining === 1 ? "" : "s") + " left";
+
+                let $card = $(`.event-item[data-event-id="${event_id}"]`);
+                let $badge = $card.find(".volunteer-summary .reg-status-chip");
+
+                $badge.removeClass("status-open status-almost status-full status-unlimited")
+                    .addClass(vol_status_class)
+                    .text(vol_status_label);
+
+                let $btn = $card.find(".btn-volunteer, .btn-volunteer-closed");
+                if (remaining > 0 || needed_total === 0) {
+                    if ($btn.hasClass("btn-volunteer-closed")) {
+                        $btn.replaceWith(`
+                            <button
+                                class="btn btn-volunteer"
+                                data-event="${event_id}"
+                                data-event-name="${frappe.utils.escape_html(ev.event_name || "")}"
+                            >
+                                <span class="material-symbols-outlined" style="font-size: 16px;">volunteer_activism</span>
+                                <span>Volunteer</span>
+                            </button>
+                        `);
+                    }
+                } else {
+                    if ($btn.hasClass("btn-volunteer")) {
+                        $btn.replaceWith(`
+                            <button class="btn btn-disabled btn-volunteer-closed" disabled>
+                                <span class="material-symbols-outlined" style="font-size: 16px;">block</span>
+                                <span>Volunteer Slots Full</span>
+                            </button>
+                        `);
+                    }
+                }
+            }
+        }
     });
 }
 
@@ -1265,109 +1452,136 @@ function add_page_styles() {
 
     $("head").append(`
         <style id="community-events-style">
+            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap');
+
             :root {
-                --ce-bg: #f6f4ef;
-                --ce-surface: #ffffff;
-                --ce-surface-soft: #fbfaf7;
-                --ce-surface-muted: #f1eee8;
-                --ce-border: rgba(34, 34, 34, 0.10);
-                --ce-border-strong: rgba(34, 34, 34, 0.16);
-                --ce-text: #1e1f1c;
-                --ce-text-muted: #66685f;
-                --ce-text-soft: #8c8f86;
-                --ce-primary: #0f6a5b;
-                --ce-primary-dark: #0b5145;
-                --ce-success: #1d7a43;
-                --ce-warning: #a86518;
-                --ce-danger: #b54747;
-                --ce-volunteer: #6d4ea3;
-                --ce-volunteer-dark: #5a3f88;
-                --ce-shadow-sm: 0 2px 8px rgba(20, 20, 20, 0.04);
-                --ce-shadow-md: 0 10px 24px rgba(20, 20, 20, 0.06);
-                --ce-shadow-lg: 0 16px 40px rgba(20, 20, 20, 0.08);
+                --ce-bg: #f8fafc;
+                --ce-bg-glow: radial-gradient(circle at 50% -20%, rgba(99, 102, 241, 0.05) 0%, rgba(248, 250, 252, 0) 65%),
+                              radial-gradient(circle at 10% 80%, rgba(16, 185, 129, 0.03) 0%, rgba(248, 250, 252, 0) 50%);
+                --ce-surface: rgba(255, 255, 255, 0.8);
+                --ce-surface-hover: rgba(255, 255, 255, 0.95);
+                --ce-surface-soft: rgba(241, 245, 249, 0.6);
+                --ce-surface-muted: rgba(15, 23, 42, 0.03);
+                --ce-border: rgba(15, 23, 42, 0.08);
+                --ce-border-strong: rgba(15, 23, 42, 0.15);
+                --ce-text: #0f172a;
+                --ce-text-muted: #475569;
+                --ce-text-soft: #94a3b8;
+                --ce-primary: #059669;
+                --ce-primary-glow: rgba(5, 150, 105, 0.1);
+                --ce-primary-dark: #047857;
+                --ce-success: #10b981;
+                --ce-warning: #f59e0b;
+                --ce-danger: #ef4444;
+                --ce-volunteer: #7c3aed;
+                --ce-volunteer-dark: #6d28d9;
+                --ce-shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.03);
+                --ce-shadow-md: 0 12px 36px rgba(15, 23, 42, 0.08);
+                --ce-shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.12);
                 --ce-radius-sm: 10px;
                 --ce-radius-md: 16px;
-                --ce-radius-lg: 22px;
-                --ce-radius-xl: 28px;
+                --ce-radius-lg: 24px;
+                --ce-radius-xl: 32px;
+            }
+
+            .community-events-container * {
+                font-family: 'Outfit', sans-serif;
+                box-sizing: border-box;
+            }
+
+            .material-symbols-outlined {
+                font-family: 'Material Symbols Outlined' !important;
+                font-size: 20px;
+                line-height: 1;
+                display: inline-block;
+                vertical-align: middle;
             }
 
             .community-events-container {
                 background: var(--ce-bg);
+                background-image: var(--ce-bg-glow);
                 min-height: 100vh;
-                padding: 32px;
+                padding: 40px 32px;
+                color: var(--ce-text);
             }
 
             .events-hero {
                 display: grid;
-                grid-template-columns: 1.4fr .9fr;
-                gap: 24px;
-                align-items: end;
-                margin-bottom: 24px;
-                padding: 28px;
-                background: var(--ce-surface-soft);
+                grid-template-columns: 1.4fr 0.9fr;
+                gap: 32px;
+                align-items: center;
+                margin-bottom: 40px;
+                padding: 40px;
+                background: rgba(255, 255, 255, 0.65);
                 border: 1px solid var(--ce-border);
                 border-radius: var(--ce-radius-xl);
-                box-shadow: var(--ce-shadow-sm);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                box-shadow: var(--ce-shadow-md);
             }
 
             .events-hero-copy h1 {
-                margin: 10px 0 10px;
-                font-size: 38px;
-                line-height: 1.05;
+                margin: 12px 0 12px;
+                font-size: 46px;
+                line-height: 1.1;
                 font-weight: 800;
-                letter-spacing: -0.03em;
-                color: var(--ce-text);
+                letter-spacing: -0.04em;
+                background: linear-gradient(135deg, #0f172a 20%, #1e1b4b 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
             }
 
             .events-hero-copy p {
                 margin: 0;
                 max-width: 56ch;
-                font-size: 15px;
-                line-height: 1.75;
+                font-size: 16px;
+                line-height: 1.7;
                 color: var(--ce-text-muted);
             }
 
             .hero-eyebrow {
                 display: inline-flex;
                 align-items: center;
-                min-height: 32px;
-                padding: 0 12px;
+                min-height: 30px;
+                padding: 0 16px;
                 border-radius: 999px;
-                background: rgba(15, 106, 91, 0.08);
+                background: rgba(5, 150, 105, 0.08);
+                border: 1px solid rgba(5, 150, 105, 0.2);
                 color: var(--ce-primary);
-                font-size: 12px;
-                font-weight: 700;
-                letter-spacing: 0.08em;
+                font-size: 11px;
+                font-weight: 800;
+                letter-spacing: 0.1em;
                 text-transform: uppercase;
             }
 
             .events-hero-search {
                 display: flex;
-                align-items: end;
+                align-items: center;
                 justify-content: stretch;
             }
 
             .search-box {
                 display: flex;
                 align-items: center;
-                gap: 12px;
+                gap: 16px;
                 width: 100%;
-                min-height: 58px;
-                padding: 0 16px;
-                background: var(--ce-surface);
+                min-height: 60px;
+                padding: 0 20px;
+                background: rgba(255, 255, 255, 0.9);
                 border: 1px solid var(--ce-border);
-                border-radius: 16px;
-                box-shadow: var(--ce-shadow-sm);
+                border-radius: 20px;
+                box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.02), 0 4px 12px rgba(15, 23, 42, 0.03);
+                transition: border-color 0.2s ease, box-shadow 0.2s ease;
             }
 
             .search-box:focus-within {
-                border-color: rgba(15, 106, 91, 0.35);
-                box-shadow: 0 0 0 4px rgba(15, 106, 91, 0.08);
+                border-color: rgba(99, 102, 241, 0.5);
+                box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15), inset 0 2px 4px rgba(15, 23, 42, 0.02);
             }
 
             .search-icon {
-                color: var(--ce-text-soft);
-                font-size: 18px;
+                color: var(--ce-text-muted);
+                font-size: 22px;
                 flex-shrink: 0;
             }
 
@@ -1375,9 +1589,9 @@ function add_page_styles() {
                 border: none !important;
                 background: transparent !important;
                 box-shadow: none !important;
-                height: 56px;
+                height: 58px;
                 padding: 0 !important;
-                font-size: 15px;
+                font-size: 16px;
                 color: var(--ce-text);
             }
 
@@ -1391,45 +1605,48 @@ function add_page_styles() {
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                gap: 10px;
-                min-height: 280px;
+                gap: 16px;
+                min-height: 320px;
                 text-align: center;
-                padding: 32px;
+                padding: 40px;
                 background: var(--ce-surface);
                 border: 1px solid var(--ce-border);
                 border-radius: var(--ce-radius-lg);
-                box-shadow: var(--ce-shadow-sm);
+                backdrop-filter: blur(12px);
+                box-shadow: var(--ce-shadow-md);
             }
 
             .events-loading p,
             .no-events h3 {
                 margin: 0;
                 color: var(--ce-text);
+                font-size: 20px;
                 font-weight: 700;
             }
 
             .events-loading span,
             .no-events p {
                 color: var(--ce-text-muted);
-                font-size: 14px;
+                font-size: 15px;
                 margin: 0;
             }
 
             .no-events-icon {
-                width: 64px;
-                height: 64px;
+                width: 72px;
+                height: 72px;
                 display: grid;
                 place-items: center;
-                border-radius: 20px;
-                background: var(--ce-surface-muted);
-                font-size: 28px;
+                border-radius: 24px;
+                background: var(--ce-surface-soft);
+                border: 1px solid var(--ce-border);
+                margin-bottom: 8px;
             }
 
             .loading-spinner {
-                width: 34px;
-                height: 34px;
+                width: 44px;
+                height: 44px;
                 border-radius: 999px;
-                border: 3px solid rgba(15, 106, 91, 0.14);
+                border: 4px solid rgba(5, 150, 105, 0.1);
                 border-top-color: var(--ce-primary);
                 animation: ce-spin 0.8s linear infinite;
             }
@@ -1440,41 +1657,83 @@ function add_page_styles() {
 
             .event-item {
                 display: grid;
-                grid-template-columns: 320px minmax(0, 1fr);
+                grid-template-columns: 340px minmax(0, 1fr);
                 gap: 0;
                 overflow: hidden;
                 background: var(--ce-surface);
                 border: 1px solid var(--ce-border);
                 border-radius: var(--ce-radius-xl);
                 box-shadow: var(--ce-shadow-sm);
-                margin-bottom: 20px;
-                transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+                margin-bottom: 28px;
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), 
+                            box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), 
+                            border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1);
             }
 
             .event-item:hover {
-                transform: translateY(-2px);
-                box-shadow: var(--ce-shadow-md);
-                border-color: var(--ce-border-strong);
+                transform: translateY(-4px) scale(1.005);
+                box-shadow: var(--ce-shadow-lg);
+                border-color: rgba(99, 102, 241, 0.2);
+            }
+
+            .event-item-concluded {
+                opacity: 0.75;
+                filter: grayscale(15%);
+            }
+
+            .concluded-banner {
+                position: absolute;
+                top: 16px;
+                left: 16px;
+                background: rgba(15, 23, 42, 0.85);
+                backdrop-filter: blur(8px);
+                color: #ffffff;
+                padding: 8px 16px;
+                border-radius: var(--ce-radius-sm);
+                font-size: 11px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                display: flex;
+                align-items: center;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                z-index: 10;
+                box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
             }
 
             .event-image-section {
-                background: #ece8df;
-                min-height: 100%;
+                background: #f1f5f9;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .event-image-section::after {
+                content: '';
+                position: absolute;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: linear-gradient(to right, rgba(255,255,255,0) 60%, rgba(255, 255, 255, 0.15) 100%);
             }
 
             .event-image-section img {
                 width: 100%;
                 height: 100%;
-                min-height: 280px;
+                min-height: 300px;
                 object-fit: cover;
                 display: block;
+                transition: transform 0.5s ease;
+            }
+
+            .event-item:hover .event-image-section img {
+                transform: scale(1.04);
             }
 
             .event-details-section {
-                padding: 24px;
+                padding: 32px;
                 display: flex;
                 flex-direction: column;
-                gap: 16px;
+                gap: 20px;
             }
 
             .event-topline {
@@ -1493,29 +1752,32 @@ function add_page_styles() {
             .reg-status-chip {
                 display: inline-flex;
                 align-items: center;
+                justify-content: center;
                 border-radius: 999px;
                 font-size: 12px;
                 font-weight: 700;
             }
 
             .event-category {
-                min-height: 30px;
-                padding: 0 12px;
-                background: rgba(15, 106, 91, 0.08);
+                min-height: 32px;
+                padding: 0 14px;
+                background: rgba(5, 150, 105, 0.08);
+                border: 1px solid rgba(5, 150, 105, 0.2);
                 color: var(--ce-primary);
             }
 
             .off-premise {
-                min-height: 30px;
-                padding: 0 12px;
-                background: rgba(181, 71, 71, 0.10);
+                min-height: 32px;
+                padding: 0 14px;
+                background: rgba(239, 68, 68, 0.08);
+                border: 1px solid rgba(239, 68, 68, 0.2);
                 color: var(--ce-danger);
             }
 
             .event-title {
                 margin: 0;
-                font-size: 30px;
-                line-height: 1.12;
+                font-size: 28px;
+                line-height: 1.2;
                 font-weight: 800;
                 letter-spacing: -0.03em;
                 color: var(--ce-text);
@@ -1524,12 +1786,12 @@ function add_page_styles() {
             .event-meta {
                 display: flex;
                 flex-wrap: wrap;
-                gap: 10px;
+                gap: 12px;
             }
 
             .meta-pill {
-                min-height: 34px;
-                padding: 0 12px;
+                min-height: 36px;
+                padding: 0 16px;
                 background: var(--ce-surface-soft);
                 color: var(--ce-text-muted);
                 border: 1px solid var(--ce-border);
@@ -1539,16 +1801,16 @@ function add_page_styles() {
             .registration-summary {
                 display: flex;
                 flex-wrap: wrap;
-                gap: 10px;
+                gap: 12px;
                 align-items: center;
             }
 
             .reg-count-badge {
-                min-height: 34px;
+                min-height: 36px;
                 gap: 8px;
-                padding: 0 12px;
-                background: var(--ce-surface-soft);
-                color: var(--ce-text);
+                padding: 0 16px;
+                background: rgba(15, 23, 42, 0.02);
+                color: var(--ce-text-muted);
                 border: 1px solid var(--ce-border);
             }
 
@@ -1558,41 +1820,47 @@ function add_page_styles() {
                 border-radius: 999px;
                 background: var(--ce-success);
                 flex-shrink: 0;
+                box-shadow: 0 0 6px var(--ce-success);
             }
 
             .volunteer-dot {
                 background: var(--ce-volunteer);
+                box-shadow: 0 0 6px var(--ce-volunteer);
             }
 
             .reg-status-chip {
-                min-height: 34px;
-                padding: 0 12px;
+                min-height: 36px;
+                padding: 0 16px;
                 border: 1px solid transparent;
             }
 
             .status-open {
-                background: rgba(29, 122, 67, 0.10);
+                background: rgba(16, 185, 129, 0.08);
+                border-color: rgba(16, 185, 129, 0.15);
                 color: var(--ce-success);
             }
 
             .status-almost {
-                background: rgba(168, 101, 24, 0.10);
+                background: rgba(245, 158, 11, 0.08);
+                border-color: rgba(245, 158, 11, 0.15);
                 color: var(--ce-warning);
             }
 
             .status-full {
-                background: rgba(181, 71, 71, 0.10);
+                background: rgba(239, 68, 68, 0.08);
+                border-color: rgba(239, 68, 68, 0.15);
                 color: var(--ce-danger);
             }
 
             .status-unlimited {
-                background: rgba(15, 106, 91, 0.08);
+                background: rgba(5, 150, 105, 0.08);
+                border-color: rgba(5, 150, 105, 0.15);
                 color: var(--ce-primary);
             }
 
             .capacity-block {
-                padding: 14px 16px;
-                background: var(--ce-surface-soft);
+                padding: 16px 20px;
+                background: rgba(15, 23, 42, 0.015);
                 border: 1px solid var(--ce-border);
                 border-radius: var(--ce-radius-md);
             }
@@ -1602,7 +1870,7 @@ function add_page_styles() {
                 justify-content: space-between;
                 gap: 12px;
                 flex-wrap: wrap;
-                margin-bottom: 10px;
+                margin-bottom: 12px;
                 font-size: 13px;
                 font-weight: 700;
                 color: var(--ce-text-muted);
@@ -1610,16 +1878,16 @@ function add_page_styles() {
 
             .progress-bar-track {
                 width: 100%;
-                height: 8px;
+                height: 6px;
                 overflow: hidden;
                 border-radius: 999px;
-                background: rgba(30, 31, 28, 0.08);
+                background: rgba(15, 23, 42, 0.06);
             }
 
             .progress-bar-fill {
                 height: 100%;
                 border-radius: 999px;
-                transition: width 0.3s ease;
+                transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             }
 
             .progress-bar-fill.status-open { background: var(--ce-success); }
@@ -1635,31 +1903,32 @@ function add_page_styles() {
 
             .event-footer {
                 display: flex;
-                align-items: end;
+                align-items: center;
                 justify-content: space-between;
-                gap: 16px;
+                gap: 20px;
                 flex-wrap: wrap;
-                padding-top: 6px;
+                padding-top: 12px;
+                border-top: 1px solid var(--ce-border);
             }
 
             .event-owner {
                 display: flex;
                 flex-direction: column;
-                gap: 8px;
+                gap: 6px;
             }
 
             .owner-label {
-                font-size: 12px;
-                font-weight: 700;
+                font-size: 11px;
+                font-weight: 800;
                 text-transform: uppercase;
-                letter-spacing: 0.08em;
+                letter-spacing: 0.1em;
                 color: var(--ce-text-soft);
             }
 
             .owner-chip {
-                min-height: 36px;
-                padding: 0 14px;
-                background: var(--ce-surface-soft);
+                min-height: 38px;
+                padding: 0 16px;
+                background: rgba(15, 23, 42, 0.02);
                 color: var(--ce-text);
                 border: 1px solid var(--ce-border);
                 font-weight: 600;
@@ -1669,19 +1938,20 @@ function add_page_styles() {
             .reg-dialog-actions,
             .success-actions {
                 display: flex;
-                gap: 10px;
+                gap: 12px;
                 flex-wrap: wrap;
                 align-items: center;
             }
 
             .reg-dialog-actions {
                 justify-content: flex-end;
-                padding: 12px 16px;
+                padding: 20px 24px;
+                border-top: 1px solid var(--ce-border);
             }
 
             .success-actions {
                 justify-content: center;
-                padding: 12px;
+                padding: 16px;
             }
 
             .btn,
@@ -1693,17 +1963,18 @@ function add_page_styles() {
             .btn-vol-cancel,
             #reg-success-close,
             #vol-success-close {
-                min-height: 44px;
-                padding: 0 16px !important;
-                border-radius: 12px !important;
+                min-height: 46px;
+                padding: 0 20px !important;
+                border-radius: 14px !important;
                 font-size: 14px !important;
                 font-weight: 700 !important;
                 letter-spacing: 0.01em;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                gap: 8px;
-                transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease !important;
+                gap: 10px;
+                cursor: pointer;
+                transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
             }
 
             .btn-register,
@@ -1712,7 +1983,7 @@ function add_page_styles() {
                 background: var(--ce-primary) !important;
                 color: #fff !important;
                 border: 1px solid var(--ce-primary) !important;
-                box-shadow: none !important;
+                box-shadow: 0 4px 14px rgba(5, 150, 105, 0.15) !important;
             }
 
             .btn-register:hover,
@@ -1720,7 +1991,8 @@ function add_page_styles() {
             #reg-success-close:hover {
                 background: var(--ce-primary-dark) !important;
                 border-color: var(--ce-primary-dark) !important;
-                transform: translateY(-1px) !important;
+                box-shadow: 0 6px 20px rgba(5, 150, 105, 0.25) !important;
+                transform: translateY(-2px) !important;
             }
 
             .btn-volunteer,
@@ -1729,7 +2001,7 @@ function add_page_styles() {
                 background: var(--ce-volunteer) !important;
                 color: #fff !important;
                 border: 1px solid var(--ce-volunteer) !important;
-                box-shadow: none !important;
+                box-shadow: 0 4px 14px rgba(124, 58, 237, 0.15) !important;
             }
 
             .btn-volunteer:hover,
@@ -1737,12 +2009,13 @@ function add_page_styles() {
             #vol-success-close:hover {
                 background: var(--ce-volunteer-dark) !important;
                 border-color: var(--ce-volunteer-dark) !important;
-                transform: translateY(-1px) !important;
+                box-shadow: 0 6px 20px rgba(124, 58, 237, 0.25) !important;
+                transform: translateY(-2px) !important;
             }
 
             .btn-view-details,
             .event-actions .btn-primary {
-                background: var(--ce-surface) !important;
+                background: rgba(15, 23, 42, 0.03) !important;
                 color: var(--ce-text) !important;
                 border: 1px solid var(--ce-border-strong) !important;
                 box-shadow: none !important;
@@ -1753,15 +2026,16 @@ function add_page_styles() {
             .btn-reg-cancel:hover,
             .btn-vol-cancel:hover,
             .btn-default:hover {
-                background: var(--ce-surface-soft) !important;
-                transform: translateY(-1px) !important;
+                background: rgba(15, 23, 42, 0.07) !important;
+                border-color: var(--ce-text-muted) !important;
+                transform: translateY(-2px) !important;
             }
 
             .btn-reg-cancel,
             .btn-vol-cancel,
             .btn-default {
-                background: var(--ce-surface) !important;
-                color: var(--ce-text) !important;
+                background: rgba(15, 23, 42, 0.02) !important;
+                color: var(--ce-text-muted) !important;
                 border: 1px solid var(--ce-border) !important;
                 box-shadow: none !important;
             }
@@ -1769,9 +2043,9 @@ function add_page_styles() {
             .btn-register-closed,
             .btn-volunteer-closed,
             .btn-disabled {
-                background: #e9e5de !important;
-                color: #98958d !important;
-                border: 1px solid rgba(34, 34, 34, 0.08) !important;
+                background: rgba(15, 23, 42, 0.04) !important;
+                color: var(--ce-text-soft) !important;
+                border: 1px solid var(--ce-border) !important;
                 box-shadow: none !important;
                 cursor: not-allowed !important;
             }
@@ -1779,37 +2053,41 @@ function add_page_styles() {
             .btn-register-closed:hover,
             .btn-volunteer-closed:hover {
                 transform: none !important;
+                background: rgba(15, 23, 42, 0.04) !important;
             }
 
             .dialog-loading-state {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 12px;
-                padding: 30px 10px;
+                gap: 16px;
+                padding: 40px 10px;
                 text-align: center;
             }
 
             .dialog-loading-state p {
                 margin: 0;
                 color: var(--ce-text-muted);
+                font-size: 16px;
             }
 
             .reg-modal-body {
                 display: flex;
                 flex-direction: column;
-                gap: 18px;
-                padding-top: 4px;
+                gap: 24px;
+                padding: 10px 4px 4px;
+                background: #ffffff;
+                color: var(--ce-text);
             }
 
             .reg-event-banner {
                 display: flex;
                 flex-direction: column;
-                gap: 6px;
-                padding: 16px;
-                background: var(--ce-surface-soft);
+                gap: 8px;
+                padding: 20px;
+                background: rgba(15, 23, 42, 0.015);
                 border: 1px solid var(--ce-border);
-                border-radius: 14px;
+                border-radius: 16px;
             }
 
             .vol-event-banner {
@@ -1817,24 +2095,24 @@ function add_page_styles() {
             }
 
             .reg-event-label {
-                font-size: 12px;
-                font-weight: 700;
+                font-size: 11px;
+                font-weight: 800;
                 text-transform: uppercase;
-                letter-spacing: 0.08em;
+                letter-spacing: 0.1em;
                 color: var(--ce-text-soft);
             }
 
             .reg-event-name {
                 color: var(--ce-text);
-                font-size: 18px;
-                font-weight: 700;
+                font-size: 20px;
+                font-weight: 800;
             }
 
             .reg-form-desc {
-                padding: 14px 16px;
-                background: var(--ce-surface-soft);
+                padding: 16px 20px;
+                background: rgba(15, 23, 42, 0.015);
                 border: 1px solid var(--ce-border);
-                border-radius: 14px;
+                border-radius: 16px;
                 color: var(--ce-text-muted);
                 line-height: 1.7;
                 font-size: 14px;
@@ -1843,13 +2121,13 @@ function add_page_styles() {
             #reg-fields-container {
                 display: flex;
                 flex-direction: column;
-                gap: 14px;
+                gap: 20px;
             }
 
             .reg-field-group {
                 display: flex;
                 flex-direction: column;
-                gap: 8px;
+                gap: 10px;
             }
 
             .reg-field-label {
@@ -1870,61 +2148,63 @@ function add_page_styles() {
             .reg-modal-body input[type="text"],
             .reg-modal-body input[type="number"],
             .reg-modal-body input[type="date"] {
-                min-height: 46px;
-                border-radius: 12px !important;
+                min-height: 48px;
+                border-radius: 14px !important;
                 border: 1px solid var(--ce-border) !important;
-                background: #fff !important;
+                background: #ffffff !important;
                 box-shadow: none !important;
                 color: var(--ce-text) !important;
-                padding: 10px 14px !important;
+                padding: 12px 16px !important;
+                transition: border-color 0.2s, box-shadow 0.2s;
             }
 
             .reg-modal-body textarea.reg-input {
-                min-height: 110px;
+                min-height: 120px;
                 resize: vertical;
             }
 
             .reg-input:focus,
             .reg-modal-body .form-control:focus {
-                border-color: rgba(15, 106, 91, 0.35) !important;
-                box-shadow: 0 0 0 4px rgba(15, 106, 91, 0.08) !important;
+                border-color: rgba(99, 102, 241, 0.5) !important;
+                box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
             }
 
             .reg-check-wrap {
                 display: flex;
                 align-items: center;
-                gap: 10px;
-                min-height: 46px;
+                gap: 12px;
+                min-height: 48px;
                 padding: 0 4px;
             }
 
             .reg-check-label {
                 margin: 0;
-                font-weight: 500;
+                font-weight: 600;
                 color: var(--ce-text-muted);
             }
 
             .reg-error {
-                padding: 12px 14px;
-                border-radius: 12px;
-                background: rgba(181, 71, 71, 0.10);
+                padding: 14px 16px;
+                border-radius: 14px;
+                background: rgba(239, 68, 68, 0.08);
+                border: 1px solid rgba(239, 68, 68, 0.15);
                 color: var(--ce-danger);
                 font-size: 14px;
-                font-weight: 600;
+                font-weight: 700;
             }
 
             .reg-empty-note {
-                padding: 16px;
+                padding: 20px;
                 text-align: center;
                 border: 1px dashed var(--ce-border-strong);
-                border-radius: 14px;
+                border-radius: 16px;
                 color: var(--ce-text-soft);
-                font-size: 13px;
+                font-size: 14px;
             }
 
             .is-invalid {
-                border-color: rgba(181, 71, 71, 0.5) !important;
-                box-shadow: 0 0 0 4px rgba(181, 71, 71, 0.08) !important;
+                border-color: rgba(239, 68, 68, 0.5) !important;
+                box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
             }
 
             .success-state {
@@ -1932,37 +2212,39 @@ function add_page_styles() {
                 flex-direction: column;
                 align-items: center;
                 text-align: center;
-                gap: 10px;
-                padding: 28px 18px;
+                gap: 16px;
+                padding: 40px 24px;
             }
 
             .success-state-icon {
-                width: 72px;
-                height: 72px;
+                width: 80px;
+                height: 80px;
                 display: grid;
                 place-items: center;
-                border-radius: 24px;
-                background: rgba(29, 122, 67, 0.10);
+                border-radius: 28px;
+                background: rgba(16, 185, 129, 0.1);
                 color: var(--ce-success);
-                font-size: 32px;
+                font-size: 38px;
                 font-weight: 800;
+                box-shadow: 0 0 10px rgba(16, 185, 129, 0.1);
             }
 
             .success-state h3 {
                 margin: 0;
                 color: var(--ce-text);
-                font-size: 24px;
+                font-size: 26px;
                 font-weight: 800;
             }
 
             .success-state p {
                 margin: 0;
                 color: var(--ce-text-muted);
+                font-size: 15px;
             }
 
             .success-state strong {
                 color: var(--ce-text);
-                font-size: 16px;
+                font-size: 18px;
             }
 
             /* ── Volunteer modal specific ─────────────────────────────── */
@@ -1970,44 +2252,45 @@ function add_page_styles() {
             .vol-form-section {
                 display: flex;
                 flex-direction: column;
-                gap: 12px;
+                gap: 16px;
             }
 
             .vol-section-label {
-                font-size: 12px;
-                font-weight: 700;
+                font-size: 11px;
+                font-weight: 800;
                 text-transform: uppercase;
-                letter-spacing: 0.08em;
+                letter-spacing: 0.1em;
                 color: var(--ce-text-soft);
                 border-bottom: 2px solid var(--ce-border);
-                padding-bottom: 6px;
+                padding-bottom: 8px;
             }
 
             .vol-roles-list {
                 display: flex;
                 flex-direction: column;
-                gap: 8px;
+                gap: 10px;
             }
 
             .vol-role-option {
                 display: flex;
                 align-items: center;
-                gap: 12px;
-                padding: 12px 14px;
+                gap: 14px;
+                padding: 16px;
                 border: 1.5px solid var(--ce-border);
-                border-radius: 12px;
+                border-radius: 16px;
                 cursor: pointer;
+                background: rgba(15, 23, 42, 0.005);
                 transition: border-color .15s, background .15s;
             }
 
             .vol-role-option:hover {
                 border-color: var(--ce-volunteer);
-                background: rgba(109, 78, 163, 0.04);
+                background: rgba(124, 58, 237, 0.05);
             }
 
             .vol-role-option input[type="radio"] {
-                width: 18px;
-                height: 18px;
+                width: 20px;
+                height: 20px;
                 accent-color: var(--ce-volunteer);
                 flex-shrink: 0;
             }
@@ -2015,28 +2298,107 @@ function add_page_styles() {
             .vol-role-info {
                 display: flex;
                 flex-direction: column;
-                gap: 2px;
+                gap: 4px;
             }
 
             .vol-role-name {
-                font-size: 14px;
+                font-size: 15px;
                 font-weight: 700;
                 color: var(--ce-text);
             }
 
             .vol-role-meta {
-                font-size: 12px;
+                font-size: 13px;
                 color: var(--ce-text-muted);
             }
 
             .vol-role-full {
-                opacity: 0.5;
+                opacity: 0.4;
                 cursor: not-allowed;
             }
 
             .vol-role-full:hover {
                 border-color: var(--ce-border);
                 background: transparent;
+            }
+
+            .vol-member-card {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 16px;
+                border: 1.5px solid rgba(16, 185, 129, 0.2);
+                background: rgba(16, 185, 129, 0.04);
+                border-radius: 16px;
+                margin-bottom: 12px;
+            }
+
+            .vol-member-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 999px;
+                background: var(--ce-success);
+                color: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 800;
+                flex-shrink: 0;
+            }
+
+            .vol-member-name {
+                font-size: 15px;
+                font-weight: 700;
+                color: var(--ce-text);
+            }
+
+            .vol-member-meta {
+                font-size: 13px;
+                color: var(--ce-text-muted);
+            }
+
+            .vol-guest-link {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 13px;
+                color: var(--ce-text-muted);
+                cursor: pointer;
+            }
+
+            .vol-guest-link input {
+                width: 18px;
+                height: 18px;
+                accent-color: var(--ce-volunteer);
+            }
+
+            /* Dialog Wrapper Overrides for Glassmorphic light styling */
+            .modal-content {
+                background: #ffffff !important;
+                border: 1px solid var(--ce-border-strong) !important;
+                border-radius: 20px !important;
+                box-shadow: var(--ce-shadow-lg) !important;
+                color: var(--ce-text) !important;
+            }
+
+            .modal-header {
+                border-bottom: 1px solid var(--ce-border) !important;
+                padding: 20px 24px !important;
+            }
+
+            .modal-title {
+                font-weight: 800 !important;
+                font-size: 20px !important;
+                color: var(--ce-text) !important;
+            }
+
+            .close {
+                color: var(--ce-text) !important;
+                opacity: 0.6;
+            }
+
+            .close:hover {
+                opacity: 1;
             }
 
             @media (max-width: 1100px) {
@@ -2048,6 +2410,7 @@ function add_page_styles() {
             @media (max-width: 900px) {
                 .events-hero {
                     grid-template-columns: 1fr;
+                    padding: 32px;
                 }
 
                 .event-item {
@@ -2055,76 +2418,27 @@ function add_page_styles() {
                 }
 
                 .event-image-section img {
-                    min-height: 220px;
+                    min-height: 240px;
                 }
             }
-                .vol-member-card {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    border: 1.5px solid rgba(29, 122, 67, 0.3);
-    background: rgba(29, 122, 67, 0.06);
-    border-radius: 12px;
-    margin-bottom: 8px;
-}
-
-.vol-member-icon {
-    width: 30px;
-    height: 30px;
-    border-radius: 999px;
-    background: var(--ce-success);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    flex-shrink: 0;
-}
-
-.vol-member-name {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--ce-text);
-}
-
-.vol-member-meta {
-    font-size: 12px;
-    color: var(--ce-text-muted);
-}
-
-.vol-guest-link {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: var(--ce-text-muted);
-    cursor: pointer;
-}
-
-.vol-guest-link input {
-    width: 16px;
-    height: 16px;
-    accent-color: var(--ce-volunteer);
-}
 
             @media (max-width: 640px) {
                 .community-events-container {
-                    padding: 16px;
+                    padding: 20px 16px;
                 }
 
                 .events-hero {
-                    padding: 20px;
-                    gap: 18px;
-                    border-radius: 20px;
+                    padding: 24px;
+                    gap: 20px;
+                    border-radius: var(--ce-radius-lg);
                 }
 
                 .events-hero-copy h1 {
-                    font-size: 30px;
+                    font-size: 34px;
                 }
 
                 .event-details-section {
-                    padding: 18px;
+                    padding: 24px;
                 }
 
                 .event-title {
@@ -2133,6 +2447,7 @@ function add_page_styles() {
 
                 .event-footer {
                     align-items: stretch;
+                    flex-direction: column;
                 }
 
                 .event-actions,
@@ -2152,4 +2467,145 @@ function add_page_styles() {
             }
         </style>
     `);
+}
+
+frappe.router.on("change", function () {
+    if (frappe.get_route()[0] !== "community-events") {
+        $("#community-events-style").remove();
+    }
+});
+
+// ── Donation Dialog Popup ───────────────────────────────────────────────────
+
+function show_donate_dialog(wrapper, event_id, event_name, causes) {
+    let d = new frappe.ui.Dialog({
+        title: __("Donate to {0}", [event_name]),
+        fields: [
+            {
+                fieldname: "is_guest",
+                fieldtype: "Check",
+                label: __("Guest Donor?"),
+                default: 1,
+                change: function() {
+                    let is_guest = this.get_value();
+                    d.set_df_property("donor", "hidden", is_guest);
+                    d.set_df_property("donor", "reqd", !is_guest);
+                    
+                    d.set_value("donor", "");
+                    d.set_value("donor_name", "");
+                    d.set_value("email", "");
+                    d.set_value("phone", "");
+                    
+                    d.set_df_property("donor_name", "read_only", !is_guest);
+                    d.set_df_property("email", "read_only", !is_guest);
+                    d.set_df_property("phone", "read_only", !is_guest);
+                }
+            },
+            {
+                fieldname: "donor",
+                fieldtype: "Link",
+                label: __("Registered Member"),
+                options: "Party Master",
+                hidden: 1,
+                reqd: 0,
+                change: function() {
+                    let donor_id = this.get_value();
+                    if (donor_id) {
+                        frappe.db.get_value("Party Master", donor_id, ["party_name", "email", "mobile_number"], function(r) {
+                            if (r) {
+                                d.set_value("donor_name", r.party_name || donor_id);
+                                d.set_value("email", r.email || "");
+                                d.set_value("phone", r.mobile_number || "");
+                            }
+                        });
+                    } else {
+                        d.set_value("donor_name", "");
+                        d.set_value("email", "");
+                        d.set_value("phone", "");
+                    }
+                }
+            },
+            {
+                fieldname: "donor_name",
+                fieldtype: "Data",
+                label: __("Your Name"),
+                reqd: 1
+            },
+            {
+                fieldname: "email",
+                fieldtype: "Data",
+                label: __("Email Address"),
+                reqd: 1,
+                description: __("We will send your donation receipt to this email.")
+            },
+            {
+                fieldname: "phone",
+                fieldtype: "Data",
+                label: __("Phone Number")
+            },
+            {
+                fieldname: "donation_type",
+                fieldtype: "Select",
+                label: __("Donation Purpose"),
+                options: (causes || []).length 
+                    ? causes.map(c => c.cause_name) 
+                    : ["General Donation", "Building/Infrastructure Fund", "Charity/Alms", "Religious Offering", "Festival/Special Pooja", "Other"],
+                default: (causes || []).length 
+                    ? causes[0].cause_name 
+                    : "General Donation",
+                reqd: 1
+            },
+            {
+                fieldname: "amount",
+                fieldtype: "Currency",
+                label: __("Amount"),
+                reqd: 1
+            },
+            {
+                fieldname: "payment_mode",
+                fieldtype: "Select",
+                label: __("Payment Mode"),
+                options: ["Online/Card", "Bank Transfer", "Cheque"],
+                default: "Online/Card",
+                reqd: 1
+            },
+            {
+                fieldname: "is_anonymous",
+                fieldtype: "Check",
+                label: __("Donate Anonymously (Hide name in public log)")
+            }
+        ],
+        primary_action_label: __("Confirm Contribution"),
+        primary_action: function(values) {
+            d.hide();
+            frappe.call({
+                method: "system_event_core.event.doctype.events.events.record_event_donation",
+                args: {
+                     event_name: event_id,
+                     donor_name: values.donor_name,
+                     amount: values.amount,
+                     payment_mode: values.payment_mode,
+                     email: values.email,
+                     phone: values.phone,
+                     donation_type: values.donation_type,
+                     is_anonymous: values.is_anonymous ? 1 : 0,
+                     transaction_reference: "ONLINE-SIM-" + Math.floor(100000 + Math.random() * 900000),
+                     donor: values.donor
+                },
+                freeze: true,
+                freeze_message: __("Processing secure donation..."),
+                callback: function(r) {
+                    if (r.message && r.message.status === "ok") {
+                        frappe.msgprint({
+                             title: __("Thank You!"),
+                             indicator: "green",
+                             message: __("Your donation of <strong>${0}</strong> was recorded successfully. A receipt has been sent to <strong>{1}</strong>.", [values.amount, values.email])
+                        });
+                        load_events(wrapper);
+                    }
+                }
+            });
+        }
+    });
+    d.show();
 }

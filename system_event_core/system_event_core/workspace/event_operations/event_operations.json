@@ -1,0 +1,214 @@
+{
+ "app": "system_event_core",
+ "charts": [],
+ "content": "[{\"id\":\"header_block\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Event Operations</span>\",\"col\":12}},{\"id\":\"card_block_1\",\"type\":\"card\",\"data\":{\"card_name\":\"Events & Programs\",\"col\":4}},{\"id\":\"card_block_2\",\"type\":\"card\",\"data\":{\"card_name\":\"Schedules & Tasks\",\"col\":4}},{\"id\":\"card_block_3\",\"type\":\"card\",\"data\":{\"card_name\":\"Attendees & Invites\",\"col\":4}},{\"id\":\"card_block_4\",\"type\":\"card\",\"data\":{\"card_name\":\"Portals & Pages\",\"col\":4}}]",
+ "creation": "2026-07-05 19:20:37.590680",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "hide_custom": 0,
+ "icon": "calendar",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Event Operations",
+ "link_type": "DocType",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Events & Programs",
+   "link_count": 4,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Events",
+   "link_count": 0,
+   "link_to": "Events",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Event Category Master",
+   "link_count": 0,
+   "link_to": "Event Category Master",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Event Category Component",
+   "link_count": 0,
+   "link_to": "Event Category Component",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Event Component",
+   "link_count": 0,
+   "link_to": "Event Component",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Schedules & Tasks",
+   "link_count": 5,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Event Tasks",
+   "link_count": 0,
+   "link_to": "Event Tasks",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Event Schedule",
+   "link_count": 0,
+   "link_to": "Event Schedule",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Event Schedule Instance",
+   "link_count": 0,
+   "link_to": "Event Schedule Instance",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Itinerary",
+   "link_count": 0,
+   "link_to": "Itinerary",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Itinerary Day Plan",
+   "link_count": 0,
+   "link_to": "Itinerary Day Plan",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Attendees & Invites",
+   "link_count": 4,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Event Invitation",
+   "link_count": 0,
+   "link_to": "Event Invitation",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Event Attendance",
+   "link_count": 0,
+   "link_to": "Event Attendance",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Event Participant Mapping",
+   "link_count": 0,
+   "link_to": "Event Participant Mapping",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Invitation",
+   "link_count": 0,
+   "link_to": "Invitation",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Portals & Pages",
+   "link_count": 1,
+   "link_type": "Page",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Community Events",
+   "link_count": 0,
+   "link_to": "community-events",
+   "link_type": "Page",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-07-05 19:54:40.856505",
+ "modified_by": "Administrator",
+ "module": "System Event Core",
+ "name": "Event Operations",
+ "number_cards": [],
+ "owner": "Administrator",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [
+  {
+   "role": "Administrator"
+  },
+  {
+   "role": "System Manager"
+  }
+ ],
+ "sequence_id": 3.0,
+ "shortcuts": [],
+ "title": "Event Operations",
+ "type": "Workspace"
+}

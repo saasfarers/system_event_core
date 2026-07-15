@@ -39,9 +39,10 @@
   "tab_components",
   "sec_components_ui",
   "components_ui_html",
-  "section_break_katf",
+  "registration_details",
   "registration_form",
   "max_registrations",
+  "expected_attendance",
   "sec_components_table",
   "event_components",
   "tab_volunteers",
@@ -50,6 +51,25 @@
   "sec_volunteer_assignments",
   "volunteer_summary_html",
   "event_volunteers",
+  "tab_invitations",
+  "sec_invitation_config",
+  "invitation",
+  "invitation_send_date",
+  "col_invitation_channel",
+  "invitation_channel",
+  "sec_invitation_preview",
+  "invitation_preview_html",
+  "sec_invitations_list",
+  "event_invitations",
+  "invitation_list_html",
+  "tab_donations",
+  "sec_donation_config",
+  "donation_goal",
+  "col_donation_summary",
+  "donation_collected",
+  "donation_causes",
+  "sec_donation_dashboard",
+  "donation_summary_html",
   "tab_structure",
   "sec_sponsor",
   "created_by_type",
@@ -322,6 +342,105 @@
    "options": "Event Volunteer Assignment"
   },
   {
+   "fieldname": "tab_invitations",
+   "fieldtype": "Tab Break",
+   "label": "Invitations"
+  },
+  {
+   "fieldname": "sec_invitation_config",
+   "fieldtype": "Section Break",
+   "label": "Invitation Configuration"
+  },
+  {
+   "fieldname": "invitation",
+   "fieldtype": "Link",
+   "label": "Invitation Template",
+   "options": "Invitation"
+  },
+  {
+   "fieldname": "invitation_send_date",
+   "fieldtype": "Datetime",
+   "label": "Invitation Send Time"
+  },
+  {
+   "fieldname": "col_invitation_channel",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "invitation_channel",
+   "fieldtype": "Select",
+   "label": "Invitation Channel",
+   "options": "Email\nSMS\nWhatsApp\nAll",
+   "default": "Email"
+  },
+  {
+   "fieldname": "sec_invitation_preview",
+   "fieldtype": "Section Break",
+   "label": "Template Preview"
+  },
+  {
+   "fieldname": "invitation_preview_html",
+   "fieldtype": "HTML",
+   "label": "Preview Pane"
+  },
+  {
+   "fieldname": "sec_invitations_list",
+   "fieldtype": "Section Break",
+   "label": "Recipient List & Response Status"
+  },
+  {
+   "fieldname": "event_invitations",
+   "fieldtype": "Table",
+   "label": "Recipients",
+   "options": "Event Invitation"
+  },
+  {
+   "fieldname": "invitation_list_html",
+   "fieldtype": "HTML",
+   "label": "Actions Toolbar"
+  },
+  {
+   "fieldname": "tab_donations",
+   "fieldtype": "Tab Break",
+   "label": "Donations"
+  },
+  {
+   "fieldname": "sec_donation_config",
+   "fieldtype": "Section Break",
+   "label": "Donation Goal Configuration"
+  },
+  {
+   "fieldname": "donation_goal",
+   "fieldtype": "Currency",
+   "label": "Donation Goal Amount"
+  },
+  {
+   "fieldname": "col_donation_summary",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "donation_collected",
+   "fieldtype": "Currency",
+   "label": "Total Amount Collected",
+   "read_only": 1
+  },
+  {
+   "fieldname": "donation_causes",
+   "fieldtype": "Table",
+   "label": "Donation Causes & Targets",
+   "options": "Event Donation Cause"
+  },
+  {
+   "fieldname": "sec_donation_dashboard",
+   "fieldtype": "Section Break",
+   "label": "Donations Dashboard & History"
+  },
+  {
+   "fieldname": "donation_summary_html",
+   "fieldtype": "HTML",
+   "label": "Donations Panel"
+  },
+  {
    "fieldname": "tab_structure",
    "fieldtype": "Tab Break",
    "label": "Structure & Sponsorship"
@@ -520,10 +639,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "section_break_katf",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "registration_form",
    "fieldtype": "Link",
    "label": "Registration Form",
@@ -533,12 +648,22 @@
    "fieldname": "max_registrations",
    "fieldtype": "Int",
    "label": "Maximum Registrations"
+  },
+  {
+   "fieldname": "expected_attendance",
+   "fieldtype": "Int",
+   "label": "Expected Attendance"
+  },
+  {
+   "fieldname": "registration_details",
+   "fieldtype": "Section Break",
+   "label": "Registration Details"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-06-13 21:27:04.542319",
- "modified_by": "vairavan1092003@gmail.com",
+ "modified": "2026-07-05 23:15:46.817556",
+ "modified_by": "Administrator",
  "module": "Event",
  "name": "Events",
  "naming_rule": "Expression",

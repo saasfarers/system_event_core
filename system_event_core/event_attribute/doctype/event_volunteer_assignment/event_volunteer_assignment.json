@@ -43,6 +43,7 @@
    "label": "Role At Event"
   },
   {
+   "allow_on_submit": 1,
    "default": "Assigned",
    "fieldname": "assignment_status",
    "fieldtype": "Select",
@@ -51,18 +52,21 @@
    "options": "Assigned\nConfirmed\nDeclined\nNo-show"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "check_in_time",
    "fieldtype": "Datetime",
    "in_list_view": 1,
    "label": "Check In Time"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "check_out_time",
    "fieldtype": "Datetime",
    "in_list_view": 1,
    "label": "Check Out Time"
   },
   {
+   "allow_on_submit": 1,
    "default": "Pending",
    "fieldname": "attendance_status",
    "fieldtype": "Select",

@@ -1,0 +1,48 @@
+{
+ "actions": [],
+ "creation": "2026-07-09 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "cause_name",
+  "target_amount",
+  "collected_amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "cause_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Cause / Purpose",
+   "reqd": 1
+  },
+  {
+   "fieldname": "target_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Target Amount",
+   "reqd": 1
+  },
+  {
+   "fieldname": "collected_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount Collected",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_child_table": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-07-09 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Event",
+ "name": "Event Donation Cause",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

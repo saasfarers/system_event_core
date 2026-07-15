@@ -294,6 +294,67 @@ def mark_volunteer_attendance(docname: str, assignment_names, action: str) -> di
 				frappe.throw(_("Invalid action: {0}").format(action))
 			updated += 1
 
+			# ALSO create/update record in separate Attendance Doctype!
+			is_external = 0
+			party_master = None
+			volunteer_name = row.volunteer_name or row.volunteer
+
+			# Find the Volunteer record to see if it links to Party Master
+			if row.volunteer:
+				vol_info = frappe.db.get_value("Volunteer", row.volunteer, ["people", "is_external"], as_dict=True)
+				if vol_info:
+					party_master = vol_info.people
+					is_external = int(vol_info.is_external or 0)
+
+			# If they don't have a linked Party Master, treat them as external
+			if not party_master:
+				is_external = 1
+
+			# Check if Attendance record already exists for this event and volunteer
+			filters = {
+				"event": docname,
+				"attendance_type": "Volunteer"
+			}
+			if party_master:
+				filters["people"] = party_master
+				filters["is_external"] = 0
+			else:
+				filters["name1"] = volunteer_name
+				filters["is_external"] = 1
+
+			existing = frappe.get_all("Attendance", filters=filters, limit=1, pluck="name")
+
+			if existing:
+				att_doc = frappe.get_doc("Attendance", existing[0])
+			else:
+				att_doc = frappe.new_doc("Attendance")
+				att_doc.event = docname
+				att_doc.attendance_type = "Volunteer"
+				att_doc.attendance_date = doc.start_date
+				if party_master:
+					att_doc.people = party_master
+					att_doc.is_external = 0
+				else:
+					att_doc.name1 = volunteer_name
+					att_doc.is_external = 1
+
+			if action == "check_in":
+				att_doc.checkin = now
+				att_doc.status = "Present"
+			elif action == "check_out":
+				att_doc.checkout = now
+				if att_doc.checkin:
+					# Calculate working hours in seconds
+					from frappe.utils import get_datetime
+					start = get_datetime(att_doc.checkin)
+					end = get_datetime(att_doc.checkout)
+					seconds = (end - start).total_seconds()
+					att_doc.working_hours = seconds
+			elif action == "no_show":
+				att_doc.status = "Absent"
+
+			att_doc.save(ignore_permissions=True)
+
 	doc.save(ignore_permissions=True)
 	frappe.db.commit()
 	return {"status": "ok", "updated": updated}
@@ -450,3 +511,499 @@ def _build_date_series(
 				)
 
 	return result
+
+
+@frappe.whitelist()
+def get_event_registrations(docname: str) -> list:
+	"""
+	Fetch all registered participants for the event (from Registration Response),
+	resolving their names, emails, is_external status, and existing Attendance status.
+	"""
+	responses = frappe.get_all(
+		"Registration Response",
+		filters={"event": docname},
+		fields=["name", "party_master", "owner"]
+	)
+
+	registrations = []
+	for r in responses:
+		name = ""
+		email = ""
+		is_external = 1
+		party_master = r.party_master
+		owner_user = r.owner
+
+		# Try to resolve party_master from owner user if not set
+		if not party_master and owner_user and owner_user != "Guest":
+			# Check if Party Master exists for this user
+			party_master = frappe.db.get_value("Party Master", {"user": owner_user}, "name")
+			if not party_master:
+				# Automatically create Party Master for this system user
+				try:
+					user_doc = frappe.get_doc("User", owner_user)
+					pm_doc = frappe.new_doc("Party Master")
+					pm_doc.party_name = user_doc.full_name or user_doc.name
+					pm_doc.party_type = "Individual"
+					pm_doc.status = "Active"
+					pm_doc.naming_series = "PM-"
+					pm_doc.user = owner_user
+					pm_doc.email = user_doc.email
+					pm_doc.insert(ignore_permissions=True)
+					party_master = pm_doc.name
+					
+					# Update the Registration Response to link it
+					frappe.db.set_value("Registration Response", r.name, "party_master", party_master)
+				except Exception as e:
+					frappe.log_error(f"Failed to auto-create Party Master for {owner_user}: {str(e)}")
+
+		if party_master:
+			# Internal member
+			party_info = frappe.db.get_value("Party Master", party_master, ["party_name", "email"], as_dict=True)
+			if party_info:
+				name = party_info.party_name or party_master
+				email = party_info.email or ""
+			else:
+				name = party_master
+			is_external = 0
+		else:
+			# External/guest, extract name and email from Registration Response Items
+			items = frappe.get_all(
+				"Registration Response Items",
+				filters={"parent": r.name},
+				fields=["question", "answer"]
+			)
+			for item in items:
+				q = (item.question or "").lower()
+				if "name" in q and not name:
+					name = item.answer
+				if "email" in q and not email:
+					email = item.answer
+			if not name:
+				if email:
+					name = email.split("@")[0].title()
+				else:
+					name = f"Guest ({r.name})"
+
+		# Check if there is an existing Attendance record for this person and event
+		filters = {
+			"event": docname,
+			"is_external": is_external
+		}
+		if party_master:
+			filters["people"] = party_master
+		else:
+			filters["name1"] = name
+
+		existing_att = frappe.get_all(
+			"Attendance",
+			filters=filters,
+			fields=["name", "status", "checkin", "checkout"]
+		)
+
+		status = "Pending"
+		att_name = None
+		if existing_att:
+			status = existing_att[0].status or "Pending"
+			att_name = existing_att[0].name
+
+		registrations.append({
+			"registration_id": r.name,
+			"party_master": party_master,
+			"name": name,
+			"email": email,
+			"is_external": is_external,
+			"status": status,
+			"attendance_name": att_name
+		})
+
+	return registrations
+
+
+@frappe.whitelist()
+def mark_event_attendance(docname: str, registrations, action: str) -> dict:
+	"""
+	action: "check_in" | "check_out" | "no_show"
+	registrations: JSON-encoded list of registrations:
+	  [{"party_master": "...", "name": "...", "is_external": 0/1, "registration_id": "..."}]
+	"""
+	if isinstance(registrations, str):
+		registrations = json.loads(registrations)
+
+	event_doc = frappe.get_doc("Events", docname)
+	event_date = event_doc.start_date
+	now = now_datetime()
+	updated = 0
+
+	for reg in registrations:
+		party_master = reg.get("party_master")
+		name = reg.get("name")
+		is_external = int(reg.get("is_external") or 0)
+		registration_id = reg.get("registration_id")
+
+		# Check if party_master can be auto-resolved from registration_id/owner
+		if not party_master and registration_id:
+			owner_user = frappe.db.get_value("Registration Response", registration_id, "owner")
+			if owner_user and owner_user != "Guest":
+				party_master = frappe.db.get_value("Party Master", {"user": owner_user}, "name")
+				if not party_master:
+					try:
+						user_doc = frappe.get_doc("User", owner_user)
+						pm_doc = frappe.new_doc("Party Master")
+						pm_doc.party_name = user_doc.full_name or user_doc.name
+						pm_doc.party_type = "Individual"
+						pm_doc.status = "Active"
+						pm_doc.naming_series = "PM-"
+						pm_doc.user = owner_user
+						pm_doc.email = user_doc.email
+						pm_doc.insert(ignore_permissions=True)
+						party_master = pm_doc.name
+						frappe.db.set_value("Registration Response", registration_id, "party_master", party_master)
+						is_external = 0
+					except Exception as e:
+						frappe.log_error(f"Failed to auto-create Party Master for {owner_user}: {str(e)}")
+				else:
+					is_external = 0
+
+		# Build filters to find existing Attendance record
+		filters = {"event": docname}
+		if party_master:
+			filters["people"] = party_master
+			filters["is_external"] = 0
+		else:
+			filters["name1"] = name
+			filters["is_external"] = 1
+
+		existing = frappe.get_all("Attendance", filters=filters, limit=1, pluck="name")
+
+		if existing:
+			att_doc = frappe.get_doc("Attendance", existing[0])
+		else:
+			att_doc = frappe.new_doc("Attendance")
+			att_doc.event = docname
+			att_doc.attendance_date = event_date
+			if party_master:
+				att_doc.people = party_master
+				att_doc.is_external = 0
+			else:
+				att_doc.name1 = name
+				att_doc.is_external = 1
+
+		if action == "check_in":
+			att_doc.checkin = now
+			att_doc.status = "Present"
+		elif action == "check_out":
+			att_doc.checkout = now
+			if att_doc.checkin:
+				# Calculate working hours in seconds
+				start = get_datetime(att_doc.checkin)
+				end = get_datetime(att_doc.checkout)
+				seconds = (end - start).total_seconds()
+				att_doc.working_hours = seconds
+		elif action == "no_show":
+			att_doc.status = "Absent"
+		else:
+			frappe.throw(_("Invalid action: {0}").format(action))
+
+		att_doc.save(ignore_permissions=True)
+		updated += 1
+
+	frappe.db.commit()
+	return {"status": "ok", "updated": updated}
+
+
+@frappe.whitelist()
+def send_tab_invitations(event_name: str) -> dict:
+	"""
+	Sends invitations to all entries in the child table.
+	"""
+	event_doc = frappe.get_doc("Events", event_name)
+	if not event_doc.invitation:
+		frappe.throw(_("Please select an Invitation Template first."))
+
+	inv_template = frappe.get_doc("Invitation", event_doc.invitation)
+	
+	# Prepare email attachment
+	attachments = []
+	if inv_template.attachment:
+		file_name = frappe.db.get_value("File", {"file_url": inv_template.attachment}, "name")
+		if file_name:
+			try:
+				file_doc = frappe.get_doc("File", file_name)
+				attachments.append({
+					"fname": file_doc.file_name,
+					"fcontent": file_doc.get_content()
+				})
+			except Exception as e:
+				frappe.log_error(f"Failed to load attachment: {str(e)}")
+
+	# Construct Event Details block
+	event_date_str = frappe.utils.format_date(event_doc.start_date)
+	if event_doc.start_time:
+		event_date_str += f" at {event_doc.start_time}"
+	else:
+		event_date_str += " (All Day)"
+
+	event_details_html = f"""
+	<div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin: 20px 0; font-family: Arial, sans-serif;">
+		<h4 style="margin: 0 0 10px 0; color: #1e293b; font-size: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">📅 Event Details</h4>
+		<table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #334155;">
+			<tr>
+				<td style="padding: 6px 0; font-weight: bold; width: 120px; color: #64748b;">Event Name:</td>
+				<td style="padding: 6px 0; font-weight: 600; color: #0f172a;">{event_doc.event_name or ""}</td>
+			</tr>
+			<tr>
+				<td style="padding: 6px 0; font-weight: bold; color: #64748b;">Date & Time:</td>
+				<td style="padding: 6px 0; color: #0f172a;">{event_date_str}</td>
+			</tr>
+	"""
+	if event_doc.venue:
+		event_details_html += f"""
+			<tr>
+				<td style="padding: 6px 0; font-weight: bold; color: #64748b;">Venue:</td>
+				<td style="padding: 6px 0; color: #0f172a;">{event_doc.venue}</td>
+			</tr>
+		"""
+	if event_doc.description:
+		event_details_html += f"""
+			<tr>
+				<td style="padding: 6px 0; font-weight: bold; color: #64748b; vertical-align: top;">Description:</td>
+				<td style="padding: 6px 0; color: #0f172a;">{event_doc.description}</td>
+			</tr>
+		"""
+	event_details_html += """
+		</table>
+	</div>
+	"""
+
+	# Prepare rich HTML message
+	message_body = inv_template.message or ""
+	message_body += event_details_html
+	
+	if inv_template.invitation_image:
+		message_body += f'<br><br><div style="text-align:center;"><img embed="{inv_template.invitation_image}" style="max-width:100%; border-radius:8px;"></div>'
+
+	sent_count = 0
+	now = now_datetime()
+	default_channel = event_doc.invitation_channel or "Email"
+
+	for row in event_doc.event_invitations:
+		# Send email
+		row_channel = row.invitation_channel or default_channel
+		if row.email and row_channel in ["Email", "All"]:
+			try:
+				frappe.sendmail(
+					recipients=[row.email],
+					subject=inv_template.title or f"Invitation: {event_doc.event_name}",
+					message=message_body,
+					attachments=attachments,
+					reference_doctype="Events",
+					reference_name=event_doc.name
+				)
+				row.sent_on = now
+				row.reminder_count = (row.reminder_count or 0) + 1
+				sent_count += 1
+			except Exception as e:
+				frappe.log_error(f"Failed to send email to {row.email}: {str(e)}")
+				continue
+		
+		# Simulate SMS/WhatsApp
+		elif row.phone and row_channel in ["SMS", "WhatsApp", "All"]:
+			row.sent_on = now
+			row.reminder_count = (row.reminder_count or 0) + 1
+			sent_count += 1
+
+	event_doc.save(ignore_permissions=True)
+	frappe.db.commit()
+	return {"status": "ok", "sent_count": sent_count}
+
+
+@frappe.whitelist()
+def send_scheduled_invitations():
+	"""
+	Cron background job running every few minutes to send out scheduled event invitations.
+	"""
+	now = now_datetime()
+	
+	# Query all Events where invitation_send_date is past/present
+	events = frappe.get_all(
+		"Events",
+		filters=[
+			["invitation_send_date", "<=", now],
+			["docstatus", "<", 2]
+		],
+		fields=["name"]
+	)
+	
+	for ev in events:
+		# Check if any invitation is pending
+		pending_exists = frappe.db.exists("Event Invitation", {
+			"parent": ev.name,
+			"parenttype": "Events",
+			"sent_on": ["is", "not set"]
+		})
+		if pending_exists:
+			try:
+				send_tab_invitations(ev.name)
+			except Exception as e:
+				frappe.log_error(f"Failed to send scheduled invitations for {ev.name}: {str(e)}")
+
+
+@frappe.whitelist()
+def get_registrations_for_bulk(event_name: str) -> list:
+	"""
+	Returns resolved registrations for the event to be added to the child table in bulk.
+	"""
+	regs = get_event_registrations(event_name)
+	resolved = []
+	for r in regs:
+		party_master = r.get("party_master")
+		email = r.get("email") or ""
+		name = r.get("name") or ""
+		phone = r.get("phone") or ""
+		
+		# Resolve phone number if guest
+		if not party_master and r.get("registration_id"):
+			phone_items = frappe.get_all(
+				"Registration Response Items",
+				filters={"parent": r.get("registration_id")},
+				fields=["question", "answer"]
+			)
+			for item in phone_items:
+				q = (item.question or "").lower()
+				if "phone" in q or "mobile" in q or "contact" in q:
+					phone = item.answer
+					break
+		elif party_master and not phone:
+			phone = frappe.db.get_value("Party Master", party_master, "mobile_number") or ""
+			
+		resolved.append({
+			"party_member": party_master,
+			"invitee": name,
+			"email": email,
+			"phone": phone
+		})
+	return resolved
+
+
+@frappe.whitelist()
+def update_event_donation_collected(event_name: str) -> float:
+	"""
+	Recalculates and updates the total donation collected for an event and its causes.
+	"""
+	total = frappe.db.sql("""
+		select sum(amount) from `tabEvent Donation`
+		where event = %s and status = 'Received'
+	""", event_name)[0][0] or 0.0
+	
+	frappe.db.set_value("Events", event_name, "donation_collected", total, update_modified=True)
+	
+	event_doc = frappe.get_doc("Events", event_name)
+	if event_doc.donation_causes:
+		for cause in event_doc.donation_causes:
+			cause_total = frappe.db.sql("""
+				select sum(amount) from `tabEvent Donation`
+				where event = %s and status = 'Received' and donation_type = %s
+			""", (event_name, cause.cause_name))[0][0] or 0.0
+			cause.collected_amount = float(cause_total)
+		event_doc.save(ignore_permissions=True)
+		
+	return float(total)
+
+
+@frappe.whitelist()
+def send_donation_receipt(donation_name: str) -> bool:
+	"""
+	Generates and dispatches a beautiful HTML donation receipt/thank-you letter.
+	"""
+	doc = frappe.get_doc("Event Donation", donation_name)
+	if not doc.email:
+		return False
+
+	event_name = frappe.db.get_value("Events", doc.event, "event_name") or doc.event
+	amount_formatted = frappe.utils.fmt_money(doc.amount, currency=frappe.db.get_default("currency") or "USD")
+	donation_date_formatted = frappe.utils.format_datetime(doc.donation_date)
+
+	subject = f"Thank you for your donation to {event_name}!"
+	message = f"""
+	<div style="background-color: #f1f5f9; padding: 30px; font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b;">
+		<div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); overflow: hidden; border: 1px solid #e2e8f0;">
+			<div style="background: linear-gradient(135deg, #10b981, #059669); padding: 30px 20px; text-align: center; color: #ffffff;">
+				<span style="font-size: 40px;">💝</span>
+				<h2 style="margin: 10px 0 0 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Donation Receipt</h2>
+				<p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px;">Thank you for your generous contribution!</p>
+			</div>
+			<div style="padding: 30px 25px;">
+				<p style="font-size: 16px; line-height: 1.5; margin: 0 0 20px 0;">Dear <strong>{doc.donor_name}</strong>,</p>
+				<p style="font-size: 15px; line-height: 1.6; color: #475569; margin: 0 0 25px 0;">We have successfully received your contribution for the event <strong>{event_name}</strong>. Your support helps us run spiritual gatherings, community services, and volunteer programs.</p>
+				
+				<div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+					<h4 style="margin: 0 0 12px 0; color: #334155; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Transaction Details</h4>
+					<table style="width: 100%; font-size: 14px; border-collapse: collapse;">
+						<tr style="border-bottom: 1px solid #f1f5f9;">
+							<td style="padding: 8px 0; color: #64748b; font-weight: 500;">Receipt Number:</td>
+							<td style="padding: 8px 0; text-align: right; font-weight: 600; color: #0f172a;">{doc.receipt_number or doc.name}</td>
+						</tr>
+						<tr style="border-bottom: 1px solid #f1f5f9;">
+							<td style="padding: 8px 0; color: #64748b; font-weight: 500;">Donation Date:</td>
+							<td style="padding: 8px 0; text-align: right; color: #334155;">{donation_date_formatted}</td>
+						</tr>
+						<tr style="border-bottom: 1px solid #f1f5f9;">
+							<td style="padding: 8px 0; color: #64748b; font-weight: 500;">Payment Mode:</td>
+							<td style="padding: 8px 0; text-align: right; color: #334155;">{doc.payment_mode or "Cash"}</td>
+						</tr>
+						{f'<tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 8px 0; color: #64748b; font-weight: 500;">Reference:</td><td style="padding: 8px 0; text-align: right; color: #334155;">{doc.transaction_reference}</td></tr>' if doc.transaction_reference else ''}
+						<tr>
+							<td style="padding: 12px 0 0 0; color: #059669; font-weight: 700; font-size: 16px;">Amount Contributed:</td>
+							<td style="padding: 12px 0 0 0; text-align: right; font-weight: 700; font-size: 18px; color: #059669;">{amount_formatted}</td>
+						</tr>
+					</table>
+				</div>
+				
+				<p style="font-size: 14px; color: #64748b; line-height: 1.5; text-align: center; margin: 0;">May you be rewarded abundantly for your kindness and support!</p>
+			</div>
+			<div style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 20px; text-align: center; font-size: 12px; color: #94a3b8;">
+				This is an automated confirmation of your contribution to our community system.
+			</div>
+		</div>
+	</div>
+	"""
+
+	frappe.sendmail(
+		recipients=[doc.email],
+		subject=subject,
+		message=message,
+		reference_doctype="Events",
+		reference_name=doc.event
+	)
+	return True
+
+
+@frappe.whitelist(allow_guest=True)
+def record_event_donation(event_name: str, donor_name: str, amount: float, payment_mode: str, email: str = None, phone: str = None, donation_type: str = None, transaction_reference: str = None, is_anonymous: int = 0, donor: str = None) -> dict:
+	"""
+	API endpoint to log an event donation. Auto-dispatches receipts.
+	"""
+	if not frappe.db.exists("Events", event_name):
+		frappe.throw(_("Event does not exist"))
+
+	doc = frappe.new_doc("Event Donation")
+	doc.event = event_name
+	doc.donor = donor
+	doc.donor_name = donor_name
+	doc.amount = float(amount)
+	doc.payment_mode = payment_mode
+	doc.email = email
+	doc.phone = phone
+	doc.donation_type = donation_type or "General Donation"
+	doc.transaction_reference = transaction_reference
+	doc.is_anonymous = int(is_anonymous)
+	doc.status = "Received"
+	doc.save(ignore_permissions=True)
+	
+	if email:
+		try:
+			send_donation_receipt(doc.name)
+		except Exception as e:
+			frappe.log_error(f"Failed to send donation receipt for {doc.name}: {str(e)}")
+
+	return {"status": "ok", "donation": doc.name, "receipt_number": doc.receipt_number}
