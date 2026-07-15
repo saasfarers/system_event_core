@@ -648,7 +648,208 @@ function _auto_check_from_category(frm) {
 // ─────────────────────────────────────────────
 // COMPONENT CHECKBOX SELECTOR
 // ─────────────────────────────────────────────
+function get_component_icon(name) {
+	name = (name || "").toLowerCase();
+	if (name.includes("registration")) return "app_registration";
+	if (name.includes("attendance")) return "fact_check";
+	if (name.includes("volunteer")) return "groups";
+	if (name.includes("invitation")) return "mail";
+	if (name.includes("donation")) return "payments";
+	if (name.includes("timeline")) return "timeline";
+	return "widgets";
+}
+
+function get_component_desc(name) {
+	name = (name || "").toLowerCase();
+	if (name.includes("registration")) return "Manage participant registrations, sign-up forms, and responses.";
+	if (name.includes("attendance")) return "Track participant and volunteer attendance, check-ins, and durations.";
+	if (name.includes("volunteer")) return "Coordinate volunteer requirements, roles, and assignments.";
+	if (name.includes("invitation")) return "Send bulk email invitations and track RSVP status.";
+	if (name.includes("donation")) return "Collect fund donations, manage causes, and view real-time progress.";
+	if (name.includes("timeline")) return "Organize a schedule timeline and milestones for the event.";
+	return "Enable additional features and modules for this event.";
+}
+
 function _render_components_selector(frm) {
+	if (!$("#event-components-selector-style").length) {
+		$("head").append(`
+			<style id="event-components-selector-style">
+				@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap');
+				
+				.evt-comp-wrapper {
+					padding: 16px 0;
+				}
+				.evt-comp-banner {
+					display: flex;
+					align-items: center;
+					gap: 12px;
+					background: #f8fafc;
+					border: 1px solid #e2e8f0;
+					color: #475569;
+					padding: 14px 20px;
+					border-radius: 12px;
+					margin-bottom: 24px;
+					font-size: 13px;
+					font-weight: 500;
+					box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+				}
+				.evt-comp-banner .material-symbols-outlined {
+					font-size: 20px;
+					color: #6366f1;
+					font-family: 'Material Symbols Outlined' !important;
+				}
+				.evt-comp-grid {
+					display: grid;
+					grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+					gap: 20px;
+				}
+				.evt-comp-card {
+					display: flex;
+					flex-direction: column;
+					justify-content: space-between;
+					background: #ffffff;
+					border: 1px solid #e2e8f0;
+					border-radius: 16px;
+					padding: 20px;
+					transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+					position: relative;
+					cursor: pointer;
+					box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+					min-height: 200px;
+				}
+				.evt-comp-card:hover {
+					border-color: #cbd5e1;
+					transform: translateY(-4px);
+					box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+				}
+				.evt-comp-card.active {
+					border-color: #6366f1;
+					background: rgba(99, 102, 241, 0.02);
+					box-shadow: 0 10px 24px rgba(99, 102, 241, 0.08);
+				}
+				.evt-comp-card.active:hover {
+					border-color: #4f46e5;
+				}
+				.evt-comp-header {
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					margin-bottom: 16px;
+				}
+				.evt-comp-icon-box {
+					width: 44px;
+					height: 44px;
+					border-radius: 12px;
+					background: #f1f5f9;
+					color: #64748b;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					transition: all 0.2s ease;
+				}
+				.evt-comp-icon-box .material-symbols-outlined {
+					font-size: 22px;
+					font-family: 'Material Symbols Outlined' !important;
+				}
+				.evt-comp-card.active .evt-comp-icon-box {
+					background: #e0e7ff;
+					color: #6366f1;
+				}
+				.evt-comp-status-dot {
+					width: 10px;
+					height: 10px;
+					border-radius: 999px;
+					background: #cbd5e1;
+					transition: all 0.2s ease;
+				}
+				.evt-comp-card.active .evt-comp-status-dot {
+					background: #10b981;
+					box-shadow: 0 0 8px #10b981;
+				}
+				.evt-comp-body {
+					flex: 1;
+					margin-bottom: 20px;
+				}
+				.evt-comp-title {
+					font-size: 15px;
+					font-weight: 700;
+					color: #1e293b;
+					margin-bottom: 6px;
+					transition: color 0.2s ease;
+				}
+				.evt-comp-card.active .evt-comp-title {
+					color: #6366f1;
+				}
+				.evt-comp-desc {
+					font-size: 12px;
+					color: #64748b;
+					line-height: 1.6;
+				}
+				.evt-comp-footer {
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					gap: 12px;
+					padding-top: 14px;
+					border-top: 1px solid #f1f5f9;
+				}
+				.evt-comp-card.active .evt-comp-footer {
+					border-top-color: rgba(99, 102, 241, 0.1);
+				}
+				.evt-comp-badges {
+					display: flex;
+					flex-wrap: wrap;
+					gap: 4px;
+				}
+				.evt-badge {
+					font-size: 9px;
+					font-weight: 700;
+					text-transform: uppercase;
+					letter-spacing: 0.02em;
+					padding: 2px 6px;
+					border-radius: 4px;
+				}
+				.evt-badge-financial {
+					background: #fffbeb;
+					color: #b45309;
+				}
+				.evt-badge-approval {
+					background: #eff6ff;
+					color: #1d4ed8;
+				}
+				.evt-badge-timeline {
+					background: #f0fdf4;
+					color: #15803d;
+				}
+				.evt-comp-btn {
+					min-height: 30px;
+					padding: 0 12px;
+					border-radius: 8px;
+					font-size: 11px;
+					font-weight: 700;
+					display: inline-flex;
+					align-items: center;
+					gap: 4px;
+					cursor: pointer;
+					background: #f1f5f9;
+					color: #475569;
+					border: 1px solid transparent;
+					transition: all 0.2s ease;
+				}
+				.evt-comp-card:hover .evt-comp-btn {
+					background: #e2e8f0;
+				}
+				.evt-comp-card.active .evt-comp-btn {
+					background: #6366f1;
+					color: #ffffff;
+				}
+				.evt-comp-card.active:hover .evt-comp-btn {
+					background: #4f46e5;
+				}
+			</style>
+		`);
+	}
+
 	frappe.call({
 		method: "frappe.client.get_list",
 		args: {
@@ -673,101 +874,60 @@ function _render_components_selector(frm) {
 				return String(c.component);
 			});
 
-			var groups = {};
-			all_comps.forEach(function (c) {
-				var t = c.component_type || "Other";
-				if (!groups[t]) groups[t] = [];
-				groups[t].push(c);
-			});
-
 			var html = "<div class='evt-comp-root'>";
 
-			html += "<div style='background:#f0f4ff;border-radius:8px;"
-				+ "padding:9px 14px;margin-bottom:16px;"
-				+ "font-size:12px;color:#4a5568;border:1px solid #c7d4f5;'>"
-				+ "<b>&#9745; Check</b> to enable a component &nbsp;|&nbsp; "
-				+ "<b>&#9744; Uncheck</b> to remove it &nbsp;|&nbsp; "
-				+ "Table below updates automatically."
+			html += "<div class='evt-comp-banner'>"
+				+ "<span class='material-symbols-outlined'>info</span>"
+				+ "<span>Toggle event components below to enable or disable specific event features. The details on the side automatically refresh based on your selection.</span>"
 				+ "</div>";
 
-			html += "<div class='evt-comp-scroll' "
-				+ "style='max-height:360px;overflow-y:auto;"
-				+ "padding-right:6px;'>";
+			html += "<div class='evt-comp-grid'>";
 
-			var type_keys = Object.keys(groups).sort();
-
-			if (!type_keys.length) {
+			if (!all_comps.length) {
 				html += "<div style='text-align:center;padding:30px;color:#aaa;font-size:13px;'>"
 					+ "No active components found.<br>"
 					+ "Please add records in <b>Event Component</b> master."
 					+ "</div>";
 			}
 
-			type_keys.forEach(function (type) {
-				var comps = groups[type];
+			all_comps.forEach(function (c) {
+				var id = String(c.name);
+				var is_chk = selected.includes(id);
+				var active_class = is_chk ? " active" : "";
 
-				html += "<div style='margin-bottom:16px;'>"
-					+ "<div style='font-size:11px;font-weight:700;color:#4a5568;"
-					+ "text-transform:uppercase;letter-spacing:.8px;"
-					+ "padding-bottom:6px;margin-bottom:10px;"
-					+ "border-bottom:2px solid #e2e8f0;'>"
-					+ frappe.utils.escape_html(type) + "</div>"
-					+ "<div style='display:flex;flex-wrap:wrap;gap:10px;'>";
+				var icon = get_component_icon(c.component_name);
+				var desc = get_component_desc(c.component_name);
 
-				comps.forEach(function (c) {
-					var id = String(c.name);
-					var is_chk = selected.includes(id);
-					var bg = is_chk ? "#e8f0fe" : "#f8fafc";
-					var bord = is_chk ? "#4a86e8" : "#e2e8f0";
-					var tc = is_chk ? "#1a56db" : "#374151";
+				var badges = "";
+				if (c.is_financial)
+					badges += "<span class='evt-badge evt-badge-financial'>Financial</span>";
+				if (c.requires_approval)
+					badges += "<span class='evt-badge evt-badge-approval'>Approval</span>";
+				if (c.supports_timeline)
+					badges += "<span class='evt-badge evt-badge-timeline'>Timeline</span>";
 
-					var badges = "";
-					if (c.is_financial)
-						badges += "<span style='background:#fef3c7;color:#92400e;"
-							+ "border-radius:4px;padding:1px 6px;font-size:10px;"
-							+ "margin-right:3px;'>&#8377; Financial</span>";
-					if (c.requires_approval)
-						badges += "<span style='background:#dbeafe;color:#1e40af;"
-							+ "border-radius:4px;padding:1px 6px;font-size:10px;"
-							+ "margin-right:3px;'>Approval</span>";
-					if (c.supports_timeline)
-						badges += "<span style='background:#dcfce7;color:#166534;"
-							+ "border-radius:4px;padding:1px 6px;font-size:10px;'>"
-							+ "Timeline</span>";
+				var btn_label = is_chk ? "Active" : "Activate";
 
-					html += "<div class='evt-comp-pill'"
-						+ " data-comp-id='" + id + "'"
-						+ " data-comp-name='" + frappe.utils.escape_html(c.component_name) + "'"
-						+ " style='display:flex;align-items:flex-start;gap:9px;"
-						+ "cursor:pointer;background:" + bg + ";"
-						+ "border:1.5px solid " + bord + ";"
-						+ "border-radius:10px;padding:10px 14px;"
-						+ "min-width:160px;max-width:220px;flex:1;"
-						+ "transition:background .12s,border-color .12s;'>"
-						+ "<div class='evt-chk-box' style='"
-						+ "width:17px;height:17px;border-radius:4px;flex-shrink:0;"
-						+ "margin-top:1px;border:2px solid " + (is_chk ? "#4a86e8" : "#d1d5db") + ";"
-						+ "background:" + (is_chk ? "#4a86e8" : "#fff") + ";"
-						+ "display:flex;align-items:center;justify-content:center;"
-						+ "transition:background .12s,border-color .12s;'>"
-						+ (is_chk
-							? "<span style='color:#fff;font-size:11px;font-weight:700;'>"
-							+ "&#10003;</span>"
-							: "")
-						+ "</div>"
-						+ "<div style='min-width:0;'>"
-						+ "<div class='evt-comp-label' style='font-size:12px;"
-						+ "font-weight:600;color:" + tc + ";line-height:1.4;'>"
-						+ frappe.utils.escape_html(c.component_name) + "</div>"
-						+ (badges
-							? "<div style='margin-top:5px;display:flex;flex-wrap:wrap;gap:3px;'>"
-							+ badges + "</div>"
-							: "")
-						+ "</div>"
-						+ "</div>";
-				});
-
-				html += "</div></div>";
+				html += "<div class='evt-comp-card" + active_class + "'"
+					+ " data-comp-id='" + id + "'"
+					+ " data-comp-name='" + frappe.utils.escape_html(c.component_name) + "'>"
+					+ "<div>"
+					+ "<div class='evt-comp-header'>"
+					+ "<div class='evt-comp-icon-box'>"
+					+ "<span class='material-symbols-outlined'>" + icon + "</span>"
+					+ "</div>"
+					+ "<div class='evt-comp-status-dot'></div>"
+					+ "</div>"
+					+ "<div class='evt-comp-body'>"
+					+ "<div class='evt-comp-title'>" + frappe.utils.escape_html(c.component_name) + "</div>"
+					+ "<div class='evt-comp-desc'>" + desc + "</div>"
+					+ "</div>"
+					+ "</div>"
+					+ "<div class='evt-comp-footer'>"
+					+ "<div class='evt-comp-badges'>" + badges + "</div>"
+					+ "<button class='evt-comp-btn'>" + btn_label + "</button>"
+					+ "</div>"
+					+ "</div>";
 			});
 
 			html += "</div></div>";
@@ -775,13 +935,13 @@ function _render_components_selector(frm) {
 			var wrapper = frm.fields_dict.components_ui_html.$wrapper;
 
 			wrapper.html(
-				"<div class='evt-comp-wrapper' style='padding:14px 18px;'>"
+				"<div class='evt-comp-wrapper'>"
 				+ html +
 				"</div>"
 			);
 
 			wrapper.off("click.comp-toggle")
-				.on("click.comp-toggle", ".evt-comp-pill", function () {
+				.on("click.comp-toggle", ".evt-comp-card", function () {
 					_toggle_component(frm, $(this));
 				});
 
@@ -837,18 +997,12 @@ function _toggle_component(frm, $pill) {
 	});
 	var will_check = !currently;
 
-	var $box = $pill.find(".evt-chk-box");
-	var $label = $pill.find(".evt-comp-label");
-
 	if (will_check) {
-		$pill.css({ background: "#e8f0fe", "border-color": "#4a86e8" });
-		$box.css({ background: "#4a86e8", "border-color": "#4a86e8" })
-			.html("<span style='color:#fff;font-size:11px;font-weight:700;'>&#10003;</span>");
-		$label.css("color", "#1a56db");
+		$pill.addClass("active");
+		$pill.find(".evt-comp-btn").text("Active");
 	} else {
-		$pill.css({ background: "#f8fafc", "border-color": "#e2e8f0" });
-		$box.css({ background: "#fff", "border-color": "#d1d5db" }).html("");
-		$label.css("color", "#374151");
+		$pill.removeClass("active");
+		$pill.find(".evt-comp-btn").text("Activate");
 	}
 
 	if (will_check) {
