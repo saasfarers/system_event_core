@@ -1,0 +1,519 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "autoincrement",
+ "creation": "2026-07-08 23:02:35.604418",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "general_details_section",
+  "donar_name",
+  "mobile_number",
+  "email",
+  "address",
+  "pan_aadhar_number",
+  "donation_date",
+  "donation_type",
+  "mode_of_donation",
+  "receipt_number",
+  "receipt_date",
+  "proof",
+  "donation_details_section",
+  "amount",
+  "currency",
+  "transaction_reference_number",
+  "bank_name",
+  "transaction_date",
+  "survey_number",
+  "area",
+  "village",
+  "taluk",
+  "district",
+  "registration_number",
+  "document_number",
+  "market_value",
+  "jewellary_name",
+  "metal_type",
+  "purity22k24k",
+  "gross_weight",
+  "net_weight",
+  "stone_type",
+  "stone_weight",
+  "hallmark_number",
+  "certification_number",
+  "last_audit_date",
+  "vehicle_name",
+  "vehicle_number",
+  "chasis_number",
+  "engine_number",
+  "rc_number",
+  "insurance_number",
+  "insurance_expiry_date",
+  "puc_expiry",
+  "fuel_type",
+  "seat_capacity",
+  "odometer_reading",
+  "chariot_name",
+  "chariot_type",
+  "height",
+  "width",
+  "weight",
+  "number_of_wheels",
+  "equipment_name",
+  "name1",
+  "manufacturer",
+  "model_number",
+  "warranty_start_date",
+  "warranty_end_date",
+  "power_rating",
+  "voltage",
+  "material",
+  "unit",
+  "capacity",
+  "cloth_material",
+  "colour",
+  "size",
+  "quantity",
+  "identifier_number"
+ ],
+ "fields": [
+  {
+   "fieldname": "donar_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Donar Name"
+  },
+  {
+   "fieldname": "mobile_number",
+   "fieldtype": "Phone",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Mobile Number"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "fieldname": "pan_aadhar_number",
+   "fieldtype": "Data",
+   "label": "PAN/ Aadhar Number"
+  },
+  {
+   "fieldname": "donation_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Donation Date"
+  },
+  {
+   "fieldname": "donation_type",
+   "fieldtype": "Select",
+   "label": "Donation Type",
+   "options": "Jewellary\nCash\nLand\nVehicle\nChariot\nEquipment\nElectrical\nKitchen Utilities\nDress\nFurniture\nMusical Instrument"
+  },
+  {
+   "fieldname": "mode_of_donation",
+   "fieldtype": "Select",
+   "label": "Mode of Donation",
+   "options": "Cash\nUPI\nCredit Card\nDebit Card\nBank Transfer\nCheque\nOnline POrtal"
+  },
+  {
+   "fieldname": "receipt_number",
+   "fieldtype": "Data",
+   "label": "Receipt Number"
+  },
+  {
+   "fieldname": "receipt_date",
+   "fieldtype": "Date",
+   "label": "Receipt Date"
+  },
+  {
+   "fieldname": "proof",
+   "fieldtype": "Attach",
+   "label": "Proof"
+  },
+  {
+   "fieldname": "general_details_section",
+   "fieldtype": "Section Break",
+   "label": "General Details"
+  },
+  {
+   "fieldname": "donation_details_section",
+   "fieldtype": "Section Break",
+   "label": "Donation Details"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Cash\"",
+   "fieldname": "amount",
+   "fieldtype": "Data",
+   "label": "Amount"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Cash\"",
+   "fieldname": "currency",
+   "fieldtype": "Currency",
+   "label": "Currency"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Cash\"",
+   "fieldname": "transaction_reference_number",
+   "fieldtype": "Data",
+   "label": "Transaction Reference Number"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Cash\"",
+   "fieldname": "bank_name",
+   "fieldtype": "Data",
+   "label": "Bank Name"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Cash\"",
+   "fieldname": "transaction_date",
+   "fieldtype": "Date",
+   "label": "Transaction Date"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Land\"",
+   "fieldname": "survey_number",
+   "fieldtype": "Data",
+   "label": "Survey Number"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Land\"",
+   "fieldname": "area",
+   "fieldtype": "Data",
+   "label": "Area"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Land\"",
+   "fieldname": "village",
+   "fieldtype": "Data",
+   "label": "Village"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Land\"",
+   "fieldname": "taluk",
+   "fieldtype": "Data",
+   "label": "Taluk"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Land\"",
+   "fieldname": "district",
+   "fieldtype": "Data",
+   "label": "District"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Land\"",
+   "fieldname": "registration_number",
+   "fieldtype": "Data",
+   "label": "Registration Number"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Land\"",
+   "fieldname": "document_number",
+   "fieldtype": "Data",
+   "label": "Document Number"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Land\"",
+   "fieldname": "market_value",
+   "fieldtype": "Data",
+   "label": "Market Value"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Jewellary\"",
+   "fieldname": "jewellary_name",
+   "fieldtype": "Data",
+   "label": "Jewellary Name"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Jewellary\"",
+   "fieldname": "metal_type",
+   "fieldtype": "Data",
+   "label": "Metal Type"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Jewellary\"",
+   "fieldname": "purity22k24k",
+   "fieldtype": "Data",
+   "label": "Purity(22k/24k)"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Jewellary\"",
+   "fieldname": "gross_weight",
+   "fieldtype": "Data",
+   "label": "Gross weight"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Jewellary\"",
+   "fieldname": "net_weight",
+   "fieldtype": "Data",
+   "label": "Net weight"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Jewellary\"",
+   "fieldname": "stone_type",
+   "fieldtype": "Data",
+   "label": "Stone Type"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Jewellary\"",
+   "fieldname": "stone_weight",
+   "fieldtype": "Data",
+   "label": "Stone weight"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Jewellary\"",
+   "fieldname": "hallmark_number",
+   "fieldtype": "Data",
+   "label": "Hallmark number"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Jewellary\"",
+   "fieldname": "certification_number",
+   "fieldtype": "Data",
+   "label": "Certification Number"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Jewellary\"",
+   "fieldname": "last_audit_date",
+   "fieldtype": "Date",
+   "label": "Last Audit Date"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Vehicle\"",
+   "fieldname": "vehicle_name",
+   "fieldtype": "Data",
+   "label": "Vehicle Name"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Vehicle\"",
+   "fieldname": "vehicle_number",
+   "fieldtype": "Data",
+   "label": "Vehicle Number"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Vehicle\"",
+   "fieldname": "chasis_number",
+   "fieldtype": "Data",
+   "label": "Chasis Number"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Vehicle\"",
+   "fieldname": "engine_number",
+   "fieldtype": "Data",
+   "label": "Engine Number"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Vehicle\"",
+   "fieldname": "rc_number",
+   "fieldtype": "Data",
+   "label": "RC Number"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Vehicle\"",
+   "fieldname": "insurance_number",
+   "fieldtype": "Data",
+   "label": "Insurance Number"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Vehicle\"",
+   "fieldname": "insurance_expiry_date",
+   "fieldtype": "Date",
+   "label": "Insurance Expiry Date"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Vehicle\"",
+   "fieldname": "puc_expiry",
+   "fieldtype": "Date",
+   "label": "PUC Expiry "
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Vehicle\"",
+   "fieldname": "fuel_type",
+   "fieldtype": "Data",
+   "label": "Fuel Type"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Vehicle\"",
+   "fieldname": "seat_capacity",
+   "fieldtype": "Int",
+   "label": "Seat Capacity"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Vehicle\"",
+   "fieldname": "odometer_reading",
+   "fieldtype": "Int",
+   "label": "Odometer Reading"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Chariot\"",
+   "fieldname": "chariot_name",
+   "fieldtype": "Data",
+   "label": "Chariot Name"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Chariot\"",
+   "fieldname": "chariot_type",
+   "fieldtype": "Data",
+   "label": "Chariot Type"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Chariot\"",
+   "fieldname": "height",
+   "fieldtype": "Int",
+   "label": "Height"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Chariot\"",
+   "fieldname": "width",
+   "fieldtype": "Int",
+   "label": "Width"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Chariot\"",
+   "fieldname": "weight",
+   "fieldtype": "Int",
+   "label": "Weight"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Chariot\"",
+   "fieldname": "number_of_wheels",
+   "fieldtype": "Int",
+   "label": "Number of Wheels"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Equipment\"",
+   "fieldname": "equipment_name",
+   "fieldtype": "Data",
+   "label": "Equipment Name"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Electrical\"||doc.donation_type==\"Kitchen Utilities\"||doc.donation_type==\"Dress\"||doc.donation_type==\"Furniture\"||doc.donation_type==\"Dress\"||doc.donation_type==\"Musical Instrument\"",
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "label": "Name"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Equipment\"||doc.donation_type==\"Electrical\"||doc.donation_type==\"Furniture\"||doc.donation_type==\"Musical Instrument\"",
+   "fieldname": "manufacturer",
+   "fieldtype": "Data",
+   "label": "Manufacturer"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Equipment\"||doc.donation_type==\"Electrical\"",
+   "fieldname": "model_number",
+   "fieldtype": "Data",
+   "label": "Model Number"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Equipment\"",
+   "fieldname": "warranty_start_date",
+   "fieldtype": "Date",
+   "label": "Warranty Start Date"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Equipment\"||doc.donation_type==\"Electrical\"",
+   "fieldname": "warranty_end_date",
+   "fieldtype": "Date",
+   "label": "Warranty End Date"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Equipment\" || doc.donation_type==\"Electrical\"",
+   "fieldname": "power_rating",
+   "fieldtype": "Data",
+   "label": "Power Rating"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Electrical\"",
+   "fieldname": "voltage",
+   "fieldtype": "Data",
+   "label": "Voltage"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Kitchen Utilities\"||doc.donation_type==\"Furniture\"||doc.donation_type==\"Musical Instrument\"",
+   "fieldname": "material",
+   "fieldtype": "Data",
+   "label": "Material"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Kitchen Utilities\"",
+   "fieldname": "unit",
+   "fieldtype": "Select",
+   "label": "Unit",
+   "options": "Kg\nLiter"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Kitchen Utilities\"",
+   "fieldname": "capacity",
+   "fieldtype": "Data",
+   "label": "Capacity"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Dress\"",
+   "fieldname": "cloth_material",
+   "fieldtype": "Data",
+   "label": "Cloth Material"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Dress\"",
+   "fieldname": "colour",
+   "fieldtype": "Data",
+   "label": "Colour"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Dress\"",
+   "fieldname": "size",
+   "fieldtype": "Data",
+   "label": "Size"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Kitchen Utilities\"||doc.donation_type==\"Dress\"||doc.donation_type==\"Furniture\"||doc.donation_type==\"Musical Instrument\"",
+   "fieldname": "quantity",
+   "fieldtype": "Int",
+   "label": "Quantity"
+  },
+  {
+   "depends_on": "eval:doc.donation_type==\"Musical Instrument\"",
+   "fieldname": "identifier_number",
+   "fieldtype": "Data",
+   "label": "Identifier Number"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-07-12 23:17:25.118638",
+ "modified_by": "Administrator",
+ "module": "Resource",
+ "name": "Donation",
+ "naming_rule": "Autoincrement",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
